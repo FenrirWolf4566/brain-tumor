@@ -21,7 +21,6 @@ def parseValue(imageDirectory):
     pourcentage = np.floor(np.array([classe[1]/totalPixels, classe[2]/totalPixels, classe[4]/totalPixels]) * 100) 
     return(classe,list(pourcentage))
 
-def parseDir(dir):
 
 
 print(parseValue("exemples\Sample_BRATZ\BraTS2021_01652\BraTS2021_01652_seg.nii.gz"))

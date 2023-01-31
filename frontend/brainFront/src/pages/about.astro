@@ -1,0 +1,28 @@
+---
+import Card from "../components/Card.astro";
+import Navigation from "../components/Navigation.astro";
+import Layout from "../layouts/Layout.astro"
+
+const title = "À propos";
+---
+<Layout title={title}>
+    <Navigation title={title}></Navigation>
+    <p class="instructions">
+        Ceci est un projet réalisé dans le cadre du projet d'ESIR 2 SI.
+    </p>
+    <div class="instructions">
+        <h2>Membres</h2>
+        L'équipe  est composée de Léo FILOCHE, Louis MORLOT-PINTA, Benjamin DE ZORDO & Quentin LEGRAND
+    </div>
+    <div class="instructions">
+        <h2>Liens</h2>
+        <ul role="list" class="link-card-grid">
+			<Card
+				href="https://github.com/FenrirWolf4566/brain-tumor"
+				title="GitHub"
+				body="Le code que nous partageons se trouve ici"
+			/>
+        </ul>
+    </div>
+    
+</Layout>

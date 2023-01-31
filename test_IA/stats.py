@@ -3,6 +3,8 @@ import pylab as plt
 import numpy as np
 import nibabel as nb
 
+#https://peerherholz.github.io/workshop_weizmann/data/image_manipulation_nibabel.html
+
 def parseValue(imageDirectory):
     img = nb.load(imageDirectory)
     data = img.get_fdata()
@@ -17,7 +19,9 @@ def parseValue(imageDirectory):
     totalPixels= classe[1]+classe[2]+classe[4]
     # Calcule le pourcentage de pixel des classes 1, 2 et 4
     pourcentage = np.floor(np.array([classe[1]/totalPixels, classe[2]/totalPixels, classe[4]/totalPixels]) * 100) 
-    return(classe,pourcentage)
+    return(classe,list(pourcentage))
+
+def parseDir(dir):
 
 
 print(parseValue("exemples\Sample_BRATZ\BraTS2021_01652\BraTS2021_01652_seg.nii.gz"))

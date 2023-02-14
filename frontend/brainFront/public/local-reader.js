@@ -1,4 +1,4 @@
-function readNIFTI(name, data) {
+function readNIFTI(data) {
     var canvas = document.getElementById('myCanvas');
     var slider = document.getElementById('myRange');
     var niftiHeader, niftiImage;
@@ -24,21 +24,35 @@ function readNIFTI(name, data) {
     drawCanvas(canvas, slider.value, niftiHeader, niftiImage);
 }
 
+/**
+ * 
+ * @param typedData les données d'une image de segmentation
+ * @returns les classes [0,1,2,3,4..] présentes dans l'image
+ */
+function classesDeSegmentation(typedData){
+    let unique = [...new Set(typedData)];
+    return unique;
+}
+
+
 function drawCanvas(canvas, slice, niftiHeader, niftiImage) {
+    // console.log(niftiHeader)
+    // console.log(niftiImage)
     // get nifti dimensions
     var cols = niftiHeader.dims[1];
     var rows = niftiHeader.dims[2];
-
+    
     // set canvas dimensions to nifti slice dimensions
     canvas.width = cols;
     canvas.height = rows;
-
+    
     // make canvas image data
     var ctx = canvas.getContext("2d");
     var canvasImageData = ctx.createImageData(canvas.width, canvas.height);
-
+    
     // convert raw data to typed array based on nifti datatype
     var typedData;
+    
 
     if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_UINT8) {
         typedData = new Uint8Array(niftiImage);
@@ -46,38 +60,45 @@ function drawCanvas(canvas, slice, niftiHeader, niftiImage) {
         typedData = new Int16Array(niftiImage);
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_INT32) {
         typedData = new Int32Array(niftiImage);
-    } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_FLOAT32) {
+    } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_FLOAT32) { // Par ici que passent les fichiers d'anatomie
         typedData = new Float32Array(niftiImage);
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_FLOAT64) {
         typedData = new Float64Array(niftiImage);
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_INT8) {
         typedData = new Int8Array(niftiImage);
-    } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_UINT16) {
+    } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_UINT16) { // Par ici que passent les fichiers de segmentation
         typedData = new Uint16Array(niftiImage);
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_UINT32) {
         typedData = new Uint32Array(niftiImage);
     } else {
         return;
     }
-
+    
+    classesSegmentation = classesDeSegmentation(typedData);
+    isAsegmentationFile = classesSegmentation.length <10; 
+    
+    
     // offset to specified slice
     var sliceSize = cols * rows;
     var sliceOffset = sliceSize * slice;
-
+    
     // draw pixels
     for (var row = 0; row < rows; row++) {
         var rowOffset = row * cols;
         var colsnumber  = parseInt(""+cols);
         for (var col = 0; col < colsnumber; col++) {
-            console.log(col+"/"+colsnumber);
             var offset = sliceOffset + rowOffset + col;
             var value = typedData[offset];
+            if(isAsegmentationFile && value!==0){
+                value= value * (255/classesSegmentation.length);
+            }
             canvasImageData.data[(rowOffset + col) * 4] = value & 0xFF;
             canvasImageData.data[(rowOffset + col) * 4 + 1] = value & 0xFF;
             canvasImageData.data[(rowOffset + col) * 4 + 2] = value & 0xFF;
             canvasImageData.data[(rowOffset + col) * 4 + 3] = 0xFF;
         }
     }
+
 
     ctx.putImageData(canvasImageData, 0, 0);
 }
@@ -110,7 +131,7 @@ function readFile(file) {
 
     reader.onloadend = function (evt) {
         if (evt.target.readyState === FileReader.DONE) {
-            readNIFTI(file.name, evt.target.result);
+            readNIFTI(evt.target.result);
         }
     };
 

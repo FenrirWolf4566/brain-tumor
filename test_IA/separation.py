@@ -81,6 +81,7 @@ def sortBRATS(chemin, size = float(30)):
 
 
 """
+separateBRATS : crée un répertoire "trainingSet" et "testSet" et séparer les fichiers du dataset en fconction de la répartition
 """
 def separateBRATS(chemin):
     trainingSet,sortedDictionnaire=sortBRATS(chemin, float(50))

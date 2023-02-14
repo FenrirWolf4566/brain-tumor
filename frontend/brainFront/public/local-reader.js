@@ -1,6 +1,5 @@
-function readNIFTI(data) {
-    var canvas = document.getElementById('myCanvas');
-    var slider = document.getElementById('myRange');
+function readNIFTI(data,canvas, slider) {
+  
     var niftiHeader, niftiImage;
 
     // parse nifti
@@ -99,7 +98,7 @@ function drawCanvas(canvas, slice, niftiHeader, niftiImage) {
         }
     }
 
-
+    
     ctx.putImageData(canvasImageData, 0, 0);
 }
 
@@ -125,20 +124,21 @@ function makeSlice(file, start, length) {
     return null;
 }
 
-function readFile(file) {
+function readFile(file,canvas, slider) {
     var blob = makeSlice(file, 0, file.size);
     var reader = new FileReader();
 
     reader.onloadend = function (evt) {
         if (evt.target.readyState === FileReader.DONE) {
-            readNIFTI(evt.target.result);
+            readNIFTI(evt.target.result,canvas, slider);
         }
     };
 
     reader.readAsArrayBuffer(blob);
 }
 
-function handleFileSelect(evt) {
-    var files = evt.target.files;
-    readFile(files[0]);
+function handleFileSelect(files,idCanvas,idSlider) {
+    var canvas = document.getElementById(idCanvas);
+    var slider = document.getElementById(idSlider);
+    if(files.length>0) readFile(files[0],canvas,slider);
 }

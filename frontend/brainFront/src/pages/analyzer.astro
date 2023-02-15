@@ -14,3 +14,12 @@ const title="Analyseur";
     </p>
     <NiftiReader></NiftiReader>
 </Layout>
+
+<script>
+    const url = "http://127.0.0.1:8000";
+     fetch(url+'/')
+   .then((response) => response.json())
+   .then((data) => {
+     console.log(data)
+   });
+ </script>

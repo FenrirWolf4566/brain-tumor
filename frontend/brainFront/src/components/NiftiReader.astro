@@ -1,17 +1,15 @@
 ---
 import '../styles/reader.scss';
 
-const {title} = Astro.props;
 ---
 <script is:inline src="/nifti-reader.js"></script>
 <script is:inline src="/local-reader.js"> </script>
 
-<h3>NIFTI-Reader-JS &mdash; JavaScript <a href="https://github.com/rii-mango/NIFTI-Reader-JS">NIFTI Reader</a> </h3>
-<p>Sélectionner un fichier <input type="file" id="file" name="files" /></p>
-<hr />
-
-<canvas id={"nifticanvas"} class="nifticanvas" width="240" height="240"></canvas><br />
-<input id={"niftislider"} class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
+<div class="niftireader">
+    <input type="file" id="file" name="files" />
+    <canvas id="nifticanvas" class="nifticanvas" width="240" height="240"></canvas><br />
+    <input id="niftislider" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
+</div>
 
 <script type="text/javascript">
 document.getElementById('file').addEventListener('change', (evt)=> handleFileSelect(evt.target.files,'nifticanvas','niftislider'), false);

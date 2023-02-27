@@ -1,3 +1,10 @@
 .nifticanvas{
     background: linear-gradient(45deg, rgb(var(--accent)), #da62c4 60%, white 200%);
+   
+}
+.niftireader{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    height: 50%;
 }

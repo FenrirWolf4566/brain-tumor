@@ -12,14 +12,26 @@ const title="Analyseur";
     <p class="instructions">
         C'est ici que se passe l'analyse.
     </p>
-    <NiftiReader></NiftiReader>
+   <!-- <NiftiReader></NiftiReader>-->
 </Layout>
+  <input type="file" id="filedropper" name="filelist" onchange="fileSender(this.files,'t1')">
 
-<script>
-    const url = "http://127.0.0.1:8000";
-     fetch(url+'/')
-   .then((response) => response.json())
-   .then((data) => {
-     console.log(data)
-   });
+<script is:inline>
+  function fileSender(files,filetype){
+    const url = "http://127.0.0.1:8000/";
+    const data = new FormData()
+    data.append('file', files[0])
+  
+    fetch('http://127.0.0.1:8000/files/'+filetype, {
+      method: 'POST',
+      body: data
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+    })
+    .catch(error => {
+      console.error(error)
+    });
+  }
  </script>

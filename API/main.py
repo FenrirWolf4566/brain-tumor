@@ -30,20 +30,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+async def write_file(file:UploadFile= File(...)):
+    file_path = os.path.join(os.getcwd(), file.filename)
+    with open(file_path, "wb") as f:
+        f.write(file.file.read())
+        return {"filename": file.filename}
+     
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
 @app.post("/files/t1")
-async def create_file_t1(file: bytes = File()):
+async def create_file_t1(file:UploadFile):
     fichiers_locaux.append(file)
-    return {"file_size": len(file)}
+    return await write_file(file)
 
-async def write_file(file: bytes = File()):
-     file_path = os.path.join(os.getcwd(), file.filename)
-     with open(file_path, "wb") as f:
-         f.write(await file.read())
-         return {"filename": file.filename}
 
 def fichier_bon(file: UploadFile):
     return Path(file).suffix=='t1.nii.gz' or os.path.splitext(file)[1]=='t2.nii.gz' or os.path.splitext(file)[1]=='t1ce.nii.gz' or os.path.splitext(file)[1]=='flair.nii.gz'

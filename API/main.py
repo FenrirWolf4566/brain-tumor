@@ -8,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from pathlib import Path
 
+from fastapi.responses import FileResponse
+
 import os
 
 app = FastAPI()
@@ -41,7 +43,11 @@ async def root():
     return {"message": "Hello World"}
 
 def addFile(file : UploadFile, filetype):
-    fichiers_locaux[filetype]=file
+   fichiers_locaux[filetype]=file
+   return loadedfiles()
+
+@app.get("/files")
+def loadedfiles():
     nomsfichierslocaux = {}
     for key in fichiers_locaux.keys():
         nomsfichierslocaux[key] = fichiers_locaux[key].filename
@@ -74,9 +80,10 @@ def filenames(files : List[UploadFile]):
 
 def sendFilesToCalculatingMachine(files: List[UploadFile]):
     #TODO
-    return
+    return fichiers_locaux['t1']
 
-@app.post("/analyse/")
-async def analysis():
-    res = await sendFilesToCalculatingMachine(fichiers_locaux)
-    return res
+@app.get("/analyse",responses={200:{
+    "content":{"application/gzip"}
+    }})
+async def get_analyse():
+    return FileResponse("brats_seg.nii.gz",media_type="application/gzip",filename="estimation_seg.nii.gz")

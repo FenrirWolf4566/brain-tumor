@@ -3,6 +3,7 @@ import Navigation from "../components/Navigation.astro";
 import NiftiReader from "../components/NiftiReader.astro";
 import Layout from "../layouts/Layout.astro"
 
+import '../styles/analyzer.scss';
 const title="Analyseur";
 
 ---
@@ -13,26 +14,48 @@ const title="Analyseur";
         C'est ici que se passe l'analyse.
     </p>
    <!-- <NiftiReader></NiftiReader>-->
+   <div class="instructions analyzer">
+    
+    <div class="instructions filedroppers">
+      <div class="filedropper">
+        <label id="filet1label" for="filet1">T1</label>
+        <input id="filet1" type="file"  onchange="fileLoader(this.files,'t1')">
+      </div>
+      <div class="filedropper">
+        <label id="filet1celabel" for="filet1ce">T1ce</label>
+        <input id="filet1ce" type="file"  onchange="fileLoader(this.files,'t1ce')">
+      </div>
+      <div class="filedropper">
+        <label id="filet2label" for="filet2">T2</label>
+        <input id="filet2" type="file"  onchange="fileLoader(this.files,'t2')">
+      </div>
+      <div class="filedropper">
+        <label id="fileflairlabel" for="filetflair">Flair</label>
+        <input id="filetflair" type="file"  onchange="fileLoader(this.files,'flair')">
+      </div>
+    </div>  
+    <div class="analyzebuttons">
+      <button>
+        Annuler
+      </button>
+      <button id="startanalysisbutton">
+        Démarrer
+      </button>
+    </div>
+    
+    
+  </div>
+    
 </Layout>
-  <div class="filedropper">
-    <span>T1</span>
-    <input type="file" name="filelist" onchange="fileSender(this.files,'t1')">
-  </div>
-  <div class="filedropper">
-    <span>T1ce</span>
-    <input type="file" name="filelist" onchange="fileSender(this.files,'t1ce')">
-  </div>
-  <div class="filedropper">
-    <span>T2</span>
-    <input type="file" name="filelist" onchange="fileSender(this.files,'t2')">
-  </div>
-  <div class="filedropper">
-    <span>Flair</span>
-    <input type="file" name="filelist" onchange="fileSender(this.files,'flair')">
-  </div>
 
 <script is:inline>
-  function fileSender(files,filetype){
+  fetch('http://127.0.0.1:8000/files/').then(response=>response.json()).then((states)=>{
+    filestatesupdate(states)
+  })
+
+
+  function fileLoader(files,filetype){
+    console.log(filetype)
     const url = "http://127.0.0.1:8000/";
     const data = new FormData()
     data.append('file', files[0])
@@ -43,10 +66,36 @@ const title="Analyseur";
     })
     .then(response => response.json())
     .then(data => {
-      console.log(data)
+      filestatesupdate(data);
     })
     .catch(error => {
       console.error(error)
-    });
+    }); 
   }
+
+  function filestatesupdate(states){
+    for (let filetype in states){
+     let filelabel =  document.getElementById("file"+filetype+"label");
+     filelabel.setAttribute("state","loaded")
+     console.log(filetype)
+    }
+  }
+  document.getElementById('startanalysisbutton').addEventListener("click", startAnalysis);
+
+  function startAnalysis(){
+    const url = "http://127.0.0.1:8000/analyse";
+    fetch(url)
+    .then( (res) => res.blob()).then(blob=>{
+      console.log(blob)
+      //TODO: supprimer ce qui suit par la suite (ici juste test pour vérifier que le blob produit correspond bien à une segmentation)
+      var url = window.URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = "response_seq.nii.gz";
+      document.body.appendChild(a); // append the element to the dom
+      a.click();
+      a.remove(); // afterwards, remove the element       
+    }) 
+  }
+  
  </script>

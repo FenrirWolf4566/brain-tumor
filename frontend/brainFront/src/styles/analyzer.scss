@@ -1,0 +1,40 @@
+.filedroppers{
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0px;
+    justify-content: space-around;
+    overflow: hidden;
+}
+
+.filedropper, .filedropper label {
+    flex-grow: 1;
+    text-align: center;
+}
+.filedropper:hover {
+    background: linear-gradient(45deg, rgb(var(--accent)), #da62c4 60%, white 200%);
+    color: white;
+}
+
+.filedropper label{
+    display: block;
+    font-weight: bold;
+}
+.filedropper label[state="loaded"]{
+    background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+}
+
+.filedropper input{
+    display: none;
+}
+
+.analyze{
+    display: flex;
+}
+.analyzebuttons {
+    display: flex;
+    justify-content: end;
+    gap: 15px;
+}
+.analyzebuttons button {
+    font-weight: bold;
+}

@@ -10,19 +10,11 @@ import os
 
 app = FastAPI()
 
+fichiers_locaux = []
+
 @app.post("/files/")
 async def create_files(files: List[bytes] = File()):
     return {"file_sizes": [len(file) for file in files]}
-
-
-@app.post("/uploadfiles/")
-async def create_upload_files(files: List[UploadFile]):
-    for file in files:
-        assert file.endswith("flair.nii")
-        assert file.endswith("t1.nii")
-        assert file.endswith("t2.nii")
-        assert file.endswith("t1ce.nii")
-    return {"filenames": [file.filename for file in files]}
 
 @app.get("/")
 async def main():
@@ -65,24 +57,39 @@ async def create_file(file: bytes = File()):
     return {"file_size": len(file)}
 
 
-#@app.post("/uploadfile/")
-#async def create_upload_file(file: UploadFile):
-    # file_path = os.path.join(os.getcwd(), file.filename)
-    # with open(file_path, "wb") as f:
-    #     f.write(await file.read())
-    #return {"filename": file.filename}
-
 @app.post("/uploadfile/")
-async def create_upload_file(file: UploadFile, file0: UploadFile, file1: UploadFile, file2: UploadFile):
-    assert file.endswith("flair.nii")
-    assert file0.endswith("t1.nii")
-    assert file1.endswith("t2.nii")
-    assert file2.endswith("t1ce.nii")
-    # file_path = os.path.join(os.getcwd(), file.filename)
-    # with open(file_path, "wb") as f:
-    #     f.write(await file.read())
-    return {"filename": file.filename}
+async def create_upload_file(file: UploadFile):
+     file_path = os.path.join(os.getcwd(), file.filename)
+     with open(file_path, "wb") as f:
+         f.write(await file.read())
+         return {"filename": file.filename}
 
+def fichier_bon(file: UploadFile):
+    return True #or file.endswith("t1.nii") or file.endswith("t2.nii") or file.endswith("t1ce.nii")
+
+@app.post("/uploadfiles/")
+async def create_upload_file(files: List[UploadFile]):
+    fichiers_bons = []
+    fichiers_mauvais = []
+    for file in files:
+        if(fichier_bon(file)):
+            fichiers_bons.append(file)
+        else:
+            fichiers_mauvais.append(file)
+    fichiers_locaux = fichiers_bons
+    return {"cache_files":str(fichiers_locaux), "validated_files":str(fichiers_bons), "wrong_files":str(fichiers_mauvais)}
+
+def filenames(files : List[UploadFile]):
+    return {"filenames": [file.filename for file in files]}
+
+def sendFilesToCalculatingMachine(files: List[UploadFile]):
+    #TODO
+    return
+
+@app.post("/analyse/")
+async def analysis():
+    res = await sendFilesToCalculatingMachine(fichiers_locaux)
+    return res
 
 #def lire_fichier(fichier1, fichier2, fichier3, fichier4):
 #    try:

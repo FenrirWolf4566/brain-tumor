@@ -1,1 +1,1 @@
-Commande pour lancer l'API : ```unicorn main:app --reload```
+Commande pour lancer l'API : ```uvicorn main:app --reload```

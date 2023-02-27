@@ -14,7 +14,22 @@ const title="Analyseur";
     </p>
    <!-- <NiftiReader></NiftiReader>-->
 </Layout>
-  <input type="file" id="filedropper" name="filelist" onchange="fileSender(this.files,'t1')">
+  <div class="filedropper">
+    <span>T1</span>
+    <input type="file" name="filelist" onchange="fileSender(this.files,'t1')">
+  </div>
+  <div class="filedropper">
+    <span>T1ce</span>
+    <input type="file" name="filelist" onchange="fileSender(this.files,'t1ce')">
+  </div>
+  <div class="filedropper">
+    <span>T2</span>
+    <input type="file" name="filelist" onchange="fileSender(this.files,'t2')">
+  </div>
+  <div class="filedropper">
+    <span>Flair</span>
+    <input type="file" name="filelist" onchange="fileSender(this.files,'flair')">
+  </div>
 
 <script is:inline>
   function fileSender(files,filetype){

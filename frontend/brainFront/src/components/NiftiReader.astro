@@ -4,25 +4,21 @@ import '../styles/reader.scss';
 <script is:inline src="/nifti-reader.js"></script>
 <script is:inline src="/local-reader.js"> </script>
 
-<div class="instructions niftireader">
-    <label class="filelabel" for="file">Sélectionnez un fichier</label>
-    <div class="display">
-        <canvas id="nifticanvas" class="nifticanvas"  ></canvas>
-        <input type="file" id="file" name="files" />
-        <div class="controllers">
-            <div class="duoslider">
-                <label for="niftisliderAxial">Vue axiale</label>
-                <input id="niftisliderAxial" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
-            </div>
-            <div class="duoslider">
-                <label for="niftisliderCoronal">Vue coronale</label>
-                <input id="niftisliderCoronal" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
-            </div>
-            <div class="duoslider">
-                <label for="niftisliderSagital">Vue sagitalle</label>
-                <input id="niftisliderSagital" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
-            </div>
-            
+<div class="niftireader">
+    <canvas id="nifticanvas" class="nifticanvas"  ></canvas>
+    <input type="file" id="file" name="files" />
+    <div class="controllers">
+        <div class="duoslider">
+            <label for="niftisliderAxial">Vue axiale</label>
+            <input id="niftisliderAxial" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
+        </div>
+        <div class="duoslider">
+            <label for="niftisliderCoronal">Vue coronale</label>
+            <input id="niftisliderCoronal" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
+        </div>
+        <div class="duoslider">
+            <label for="niftisliderSagittal">Vue sagittale</label>
+            <input id="niftisliderSagittal" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
         </div>
     </div>
 </div>

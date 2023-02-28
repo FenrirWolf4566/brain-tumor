@@ -46,6 +46,11 @@ def addFile(file : UploadFile, filetype):
    fichiers_locaux[filetype]=file
    return loadedfiles()
 
+@app.get("/files/cancel")
+def cancelfiles():
+    fichiers_locaux.clear()
+    return fichiers_locaux
+
 @app.get("/files")
 def loadedfiles():
     nomsfichierslocaux = {}

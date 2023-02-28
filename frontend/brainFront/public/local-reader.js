@@ -35,6 +35,7 @@ function classesDeSegmentation(typedData){
 
 
 function drawCanvas(canvas, slice, niftiHeader, niftiImage) {
+    isAsegmentationFile = false;
     // console.log(niftiHeader)
     // console.log(niftiImage)
     // get nifti dimensions
@@ -61,22 +62,21 @@ function drawCanvas(canvas, slice, niftiHeader, niftiImage) {
         typedData = new Int32Array(niftiImage);
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_FLOAT32) { // Par ici que passent les fichiers d'anatomie
         typedData = new Float32Array(niftiImage);
+        isAsegmentationFile =false;
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_FLOAT64) {
         typedData = new Float64Array(niftiImage);
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_INT8) {
         typedData = new Int8Array(niftiImage);
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_UINT16) { // Par ici que passent les fichiers de segmentation
         typedData = new Uint16Array(niftiImage);
+        isAsegmentationFile =true;
+        classesSegmentation = [0,1,2,3,4]; // Les différentes classes possibles (et qui seront rendues par l'IA). si doute, appeler classesDeSegmentation
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_UINT32) {
         typedData = new Uint32Array(niftiImage);
     } else {
         return;
     }
-    
-    classesSegmentation = classesDeSegmentation(typedData);
-    isAsegmentationFile = classesSegmentation.length <10; 
-    
-    
+   
     // offset to specified slice
     var sliceSize = cols * rows;
     var sliceOffset = sliceSize * slice;
@@ -87,7 +87,7 @@ function drawCanvas(canvas, slice, niftiHeader, niftiImage) {
         var colsnumber  = parseInt(""+cols);
         for (var col = 0; col < colsnumber; col++) {
             var offset = sliceOffset + rowOffset + col;
-            var value = typedData[offset];
+            var value = typedData[offset];  
             if(isAsegmentationFile && value!==0){
                 value= value * (255/classesSegmentation.length);
             }

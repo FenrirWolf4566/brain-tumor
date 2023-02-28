@@ -24,5 +24,9 @@ import '../styles/reader.scss';
 </div>
 
 <script type="text/javascript">
+function loadBlob(blob){
+    var file = new File([blob], "name");
+    handleFileSelect([file],'nifticanvas','niftisliderAxial')
+}
 document.getElementById('file').addEventListener('change', (evt)=> handleFileSelect(evt.target.files,'nifticanvas','niftisliderAxial'), false);
 </script>

@@ -91,6 +91,7 @@ const title="Analyseur";
     const url = "http://127.0.0.1:8000/analyse";
     fetch(url)
     .then( (res) => res.blob()).then(blob=>{
+      loadBlob(blob)
       setDownloadButton(blob)
     }) 
   }

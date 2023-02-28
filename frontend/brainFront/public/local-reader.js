@@ -140,5 +140,5 @@ function readFile(file,canvas, slider) {
 function handleFileSelect(files,idCanvas,idSlider) {
     var canvas = document.getElementById(idCanvas);
     var slider = document.getElementById(idSlider);
-    if(files.length>0) readFile(files[0],canvas,slider);
+    if(files.length>0 && slider!==null && canvas!==null) readFile(files[0],canvas,slider);
 }

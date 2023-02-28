@@ -27,6 +27,8 @@ canvas {
 
 .niftireader {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 .controllers{
     flex-grow: 1;

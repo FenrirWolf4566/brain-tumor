@@ -142,3 +142,11 @@ function handleFileSelect(files,idCanvas,idSlider) {
     var slider = document.getElementById(idSlider);
     if(files.length>0 && slider!==null && canvas!==null) readFile(files[0],canvas,slider);
 }
+
+function resetCanvas(idCanvas,idSlider){
+  let canvas = document.getElementById(idCanvas)
+  const context = canvas.getContext('2d');
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  let slider = document.getElementById(idSlider);
+  slider.value =  (+slider.max+(+slider.min))/2;
+}

@@ -29,4 +29,8 @@ function loadBlob(blob){
     handleFileSelect([file],'nifticanvas','niftisliderAxial')
 }
 document.getElementById('file').addEventListener('change', (evt)=> handleFileSelect(evt.target.files,'nifticanvas','niftisliderAxial'), false);
+
+function resetLoadedCanvas(){
+    resetCanvas('nifticanvas','niftisliderAxial')
+}
 </script>

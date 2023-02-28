@@ -10,18 +10,21 @@ const title="Analyseur";
 
 <Layout title={title} >
     <Navigation title={title}></Navigation>
-    <p class="instructions">
+    <div class="instructions" id="introbloc">
+      <span>
         C'est ici que se passe l'analyse.
-    </p>
-    <div class="instructions analyzer">
-      <div class="analyzebuttons">
-        <a class="analysebutton" id="download-button" hidden>
-          Télécharger
-        </a>
-        <button class="analysebutton" id="cancelbutton" onclick="cancelUploads()" hidden>
-          Annuler
-        </button>
+      </span>
+        <div class="analyzebuttons">
+          <a class="analysebutton" id="download-button" hidden>
+            Télécharger
+          </a>
+          <button class="analysebutton" id="cancelbutton" onclick="cancelUploads()" hidden>
+            Annuler
+          </button>
+        </div>
       </div>
+    
+    <div class="instructions analyzer">
       <div class="instructions filedroppers">
         <div class="filedropper">
           <label id="filet1label" for="filet1">T1</label>
@@ -113,6 +116,7 @@ const title="Analyseur";
       }
       document.getElementById('download-button').hidden=true;
       document.getElementById('cancelbutton').hidden=true;
+      resetLoadedCanvas();
     })
   }
   

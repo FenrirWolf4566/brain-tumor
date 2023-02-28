@@ -146,7 +146,8 @@ function handleFileSelect(files,idCanvas,idSlider) {
 function resetCanvas(idCanvas,idSlider){
   let canvas = document.getElementById(idCanvas)
   const context = canvas.getContext('2d');
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.reset();
   let slider = document.getElementById(idSlider);
   slider.value =  (+slider.max+(+slider.min))/2;
+  slider.oninput = function() {}
 }

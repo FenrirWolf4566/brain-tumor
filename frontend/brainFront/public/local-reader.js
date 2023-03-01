@@ -16,10 +16,12 @@ function readNIFTI(data,canvas, slider) {
     var slices = niftiHeader.dims[3];
     slider.max = slices - 1;
     slider.value = Math.round(slices / 2);
-    slider.oninput = function() {
+    
+
+    slider.oninput = function() { // L'image sera recalculée à chaque mouvement du slider
         drawCanvas(canvas, slider.value, niftiHeader, niftiImage);
     }; 
-    // draw slice
+    // Affiche image initiale
     drawCanvas(canvas, slider.value, niftiHeader, niftiImage);
 }
 
@@ -36,7 +38,6 @@ function classesDeSegmentation(typedData){
 
 function drawCanvas(canvas, slice, niftiHeader, niftiImage) {
     isAsegmentationFile = false;
-    // console.log(niftiHeader)
     // console.log(niftiImage)
     // get nifti dimensions
     var cols = niftiHeader.dims[1];
@@ -76,30 +77,36 @@ function drawCanvas(canvas, slice, niftiHeader, niftiImage) {
     } else {
         return;
     }
-   
+
+    //TODO: comprendre à quoi correspond  le sliceOffset pour pouvoir proposer une vue sagittale & coronale
     // offset to specified slice
     var sliceSize = cols * rows;
-    var sliceOffset = sliceSize * slice;
+    var sliceOffset = sliceSize * slice ;
     
-    // draw pixels
+
+    // // draw pixels
     for (var row = 0; row < rows; row++) {
         var rowOffset = row * cols;
-        var colsnumber  = parseInt(""+cols);
-        for (var col = 0; col < colsnumber; col++) {
+        for (var col = 0; col < cols; col++) {
             var offset = sliceOffset + rowOffset + col;
             var value = typedData[offset];  
             if(isAsegmentationFile && value!==0){
                 value= value * (255/classesSegmentation.length);
             }
-            canvasImageData.data[(rowOffset + col) * 4] = value & 0xFF;
-            canvasImageData.data[(rowOffset + col) * 4 + 1] = value & 0xFF;
-            canvasImageData.data[(rowOffset + col) * 4 + 2] = value & 0xFF;
-            canvasImageData.data[(rowOffset + col) * 4 + 3] = 0xFF;
+            canvasImageData = setPixelValue(rowOffset + col,canvasImageData,value)
         }
     }
 
     
     ctx.putImageData(canvasImageData, 0, 0);
+}
+
+function setPixelValue(index,canvasImageData,value){
+    canvasImageData.data[index * 4] = value & 0xFF;
+    canvasImageData.data[index * 4 + 1] = value & 0xFF;
+    canvasImageData.data[index * 4 + 2] = value & 0xFF;
+    canvasImageData.data[index * 4 + 3] = 0xFF;
+    return canvasImageData;
 }
 
 function makeSlice(file, start, length) {

@@ -40,12 +40,13 @@ function drawCanvas(canvas, slice, niftiHeader, niftiImage) {
     isAsegmentationFile = false;
     // console.log(niftiImage)
     // get nifti dimensions
-    var cols = niftiHeader.dims[1];
-    var rows = niftiHeader.dims[2];
+    let xmax = niftiHeader.dims[1];
+    let ymax = niftiHeader.dims[2];
+    let zmax = niftiHeader.dims[3]
     
     // set canvas dimensions to nifti slice dimensions
-    canvas.width = cols;
-    canvas.height = rows;
+    canvas.width = xmax;
+    canvas.height = ymax;
     
     // make canvas image data
     var ctx = canvas.getContext("2d");
@@ -54,7 +55,6 @@ function drawCanvas(canvas, slice, niftiHeader, niftiImage) {
     // convert raw data to typed array based on nifti datatype
     var typedData;
     
-
     if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_UINT8) {
         typedData = new Uint8Array(niftiImage);
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_INT16) {
@@ -80,32 +80,52 @@ function drawCanvas(canvas, slice, niftiHeader, niftiImage) {
 
     //TODO: comprendre à quoi correspond  le sliceOffset pour pouvoir proposer une vue sagittale & coronale
     // offset to specified slice
-    var sliceSize = cols * rows;
+    var sliceSize = xmax * ymax;
     var sliceOffset = sliceSize * slice ;
-    
-
-    // // draw pixels
-    for (var row = 0; row < rows; row++) {
-        var rowOffset = row * cols;
-        for (var col = 0; col < cols; col++) {
-            var offset = sliceOffset + rowOffset + col;
-            var value = typedData[offset];  
-            if(isAsegmentationFile && value!==0){
-                value= value * (255/classesSegmentation.length);
-            }
-            canvasImageData = setPixelValue(rowOffset + col,canvasImageData,value)
+    for (let i = 0; i < ymax; i++) {
+            var rowOffset = i * xmax;
+            for (let j = 0; j < xmax; j++) {
+                let offset = sliceOffset + rowOffset + j;
+                var value = typedData[offset];  
+                if(isAsegmentationFile && value!==0){
+                    hue = value*(360/(classesSegmentation.length-1));
+                    rgbValue = HSVtoRGB(hue,100,50);
+                    canvasImageData = setPixelValue(rowOffset+j,canvasImageData,rgbValue.r,rgbValue.g,rgbValue.b,255);
+                   
+                }
+                else {
+                    canvasImageData = setPixelValue(rowOffset + j,canvasImageData,value,value,value,255)
+                }
         }
     }
 
-    
+
+    // // // draw pixels
+    // for (var row = 0; row < rows; row++) {
+    //     var rowOffset = row * cols;
+    //     for (var col = 0; col < cols; col++) {
+    //         var offset = sliceOffset + rowOffset + col;
+    //         var value = typedData[offset];  
+    //         if(isAsegmentationFile && value!==0){
+    //             value= value * (255/classesSegmentation.length);
+    //         }
+    //         canvasImageData = setPixelValue(rowOffset + col,canvasImageData,value)
+    //     }
+    // }
     ctx.putImageData(canvasImageData, 0, 0);
 }
 
-function setPixelValue(index,canvasImageData,value){
-    canvasImageData.data[index * 4] = value & 0xFF;
-    canvasImageData.data[index * 4 + 1] = value & 0xFF;
-    canvasImageData.data[index * 4 + 2] = value & 0xFF;
-    canvasImageData.data[index * 4 + 3] = 0xFF;
+function HSVtoRGB(h, s, v) {
+    //https://stackoverflow.com/questions/17242144/javascript-convert-hsb-hsv-color-to-rgb-accurately
+    let f= (n,k=(n+h/60)%6) => v - v*s*Math.max( Math.min(k,4-k,1), 0);     
+    return {"r":f(5),"g":f(3),"b":f(1)};    
+}   
+
+function setPixelValue(index,canvasImageData,red,green,blue,opacity){
+    canvasImageData.data[index * 4] = red & 0xFF;
+    canvasImageData.data[index * 4 + 1] = green & 0xFF;
+    canvasImageData.data[index * 4 + 2] = blue & 0xFF;
+    canvasImageData.data[index * 4 + 3] = opacity & 0xFF;
     return canvasImageData;
 }
 

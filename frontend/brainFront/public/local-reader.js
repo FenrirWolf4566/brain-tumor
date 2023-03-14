@@ -1,33 +1,3 @@
-function readNIFTI(data,canvas, slider) {
-  
-    var niftiHeader, niftiImage;
-
-    // parse nifti
-    if (nifti.isCompressed(data)) {
-        data = nifti.decompress(data);
-    }
-
-    if (nifti.isNIFTI(data)) {
-        niftiHeader = nifti.readHeader(data);
-        niftiImage = nifti.readImage(niftiHeader, data);
-    }
-
-    // set up slider
-    var slices = niftiHeader.dims[3];
-    slider.max = slices - 1;
-    slider.value = Math.round(slices / 2);
-    
-    let typed = getTypedData(niftiHeader,niftiImage);
-    let typedData = typed.typedData;
-    let isAsegmentationFile = typed.isAsegmentationFile;
-
-    slider.oninput = function() { // L'image sera recalculée à chaque mouvement du slider
-        drawCanvas(canvas, slider.value, niftiHeader, typedData,isAsegmentationFile);
-    }; 
-    // Affiche image initiale
-    drawCanvas(canvas, slider.value, niftiHeader, typedData,isAsegmentationFile);   
-}
-
 /**
  * 
  * @param typedData les données d'une image de segmentation
@@ -58,30 +28,55 @@ function getTypedData(niftiHeader,niftiImage){
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_UINT16) { // Par ici que passent les fichiers de segmentation
         typedData = new Uint16Array(niftiImage);
         isAsegmentationFile =true;
-        classesSegmentation = classesDeSegmentation(typedData); // Les différentes classes possibles (et qui seront rendues par l'IA). si doute, appeler classesDeSegmentation
+        classesSegmentation = classesDeSegmentation(typedData); // Les différentes classes possibles 
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_UINT32) {
         typedData = new Uint32Array(niftiImage);
     } 
     return {typedData,isAsegmentationFile};
 }
 
+function readNIFTI(data,canvas, slider) {
+  
+    var niftiHeader, niftiImage;
+
+    // parse nifti
+    if (nifti.isCompressed(data)) {
+        data = nifti.decompress(data);
+    }
+
+    if (nifti.isNIFTI(data)) {
+        niftiHeader = nifti.readHeader(data);
+        niftiImage = nifti.readImage(niftiHeader, data);
+    }
+
+    
+    let typed = getTypedData(niftiHeader,niftiImage);
+    let typedData = typed.typedData;
+    let isAsegmentationFile = typed.isAsegmentationFile;
+
+    slider.value = 0.5 *slider.max;
+    
+    slider.oninput = function() { // L'image sera recalculée à chaque mouvement du slider
+        drawCanvas(canvas, slider.value/slider.max, niftiHeader, typedData,isAsegmentationFile);
+    }; 
+    // Affiche image initiale
+    drawCanvas(canvas, 0.5, niftiHeader, typedData,isAsegmentationFile);   
+}
+
 function drawCanvas(canvas, slice, niftiHeader, typedData, isAsegmentationFile) {
-    // console.log(niftiImage)
     // get nifti dimensions
     let xmax = niftiHeader.dims[1];
     let ymax = niftiHeader.dims[2];
-    let zmax = niftiHeader.dims[3]
-    
+    let zmax = niftiHeader.dims[3];
     // set canvas dimensions to nifti slice dimensions
     canvas.width = xmax;
     canvas.height = ymax;
     
+    slice= Math.floor(slice*zmax);
     // make canvas image data
     var ctx = canvas.getContext("2d");
     var canvasImageData = ctx.createImageData(canvas.width, canvas.height);
-    
 
-    //TODO: comprendre à quoi correspond  le sliceOffset pour pouvoir proposer une vue sagittale & coronale
     // offset to specified slice
     var sliceSize = xmax * ymax;
     var sliceOffset = sliceSize * slice ;
@@ -102,7 +97,9 @@ function drawCanvas(canvas, slice, niftiHeader, typedData, isAsegmentationFile) 
     ctx.putImageData(canvasImageData, 0, 0);
 }
 
-function selectColor(perct,palette_index=2){
+
+
+function selectColor(perct,palette_index=0){
    dutch_field_palette = [[230, 0, 73], [11, 180, 255], [80, 233, 145], [230, 215, 0],[155, 25, 245], [255, 163, 0], [220, 10, 181], [179, 212, 255], [0, 191, 159]]
     blue_yellow_palette =  [[17, 95, 154], [25, 131, 197], [34, 167, 240],[72, 181, 196] , [118, 198, 143], [166, 215, 91], [202, 229, 47], [208, 238, 17], [244, 240, 0]]
     blue_red_palette = [[25, 132, 197],[34, 168, 240], [99, 191, 240], [167, 213, 237], [226, 226, 226], [225, 166, 146], [222, 110, 86], [225, 75, 49], [194, 55, 40]]

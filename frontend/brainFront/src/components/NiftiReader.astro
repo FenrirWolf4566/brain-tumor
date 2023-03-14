@@ -8,29 +8,58 @@ import '../styles/reader.scss';
     <canvas id="nifticanvas" class="nifticanvas"  ></canvas>
     <input type="file" id="file" name="files" />
     <div class="controllers">
-        <div class="duoslider">
-            <label for="niftisliderAxial">Vue axiale</label>
-            <input id="niftisliderAxial" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
+        <div class="coupeselecter">
+            <label for="selecoupe">Sélectionnez une vue</label>
+            <div>
+                <input type="radio" id="axiale" name="selecoupe" value="axiale" checked>
+                 <label for="axiale">Axiale</label>
+                 <input type="radio" id="sagitalle" name="selecoupe" value="sagitalle">
+                 <label for="sagitalle">Sagitalle</label>
+                 <input type="radio" id="coronale" name="selecoupe" value="coronale">
+                 <label for="coronale">Coronale</label>
+            </div>
         </div>
         <div class="duoslider">
-            <label for="niftisliderCoronal">Vue coronale</label>
-            <input id="niftisliderCoronal" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
+            <label for="niftislider">Déplacez le curseur</label>
+            <input id="niftislider" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
         </div>
-        <div class="duoslider">
-            <label for="niftisliderSagittal">Vue sagittale</label>
-            <input id="niftisliderSagittal" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
-        </div>
+        
     </div>
 </div>
 
 <script type="text/javascript">
 function loadBlob(blob){
     var file = new File([blob], "name");
-    handleFileSelect([file],'nifticanvas','niftisliderAxial')
+    handleFileSelect([file],'nifticanvas','niftislider')
 }
-document.getElementById('file').addEventListener('change', (evt)=> handleFileSelect(evt.target.files,'nifticanvas','niftisliderAxial'), false);
+let currentfiles = [];
+function displayCurrentFiles(){
+    handleFileSelect(currentfiles,'nifticanvas','niftislider',getCoupe());
+}
+document.getElementById('file').addEventListener('change', (evt)=> {
+    currentfiles = evt.target.files;
+    displayCurrentFiles();
+}, false);
+
+updateCurrentCoupe();
 
 function resetLoadedCanvas(){
-    resetCanvas('nifticanvas','niftisliderAxial')
+    resetCanvas('nifticanvas','niftislider');
+    currentfiles = [];
 }
+function getCoupe(){
+    let coupe = "axiale";
+    if(document.getElementById("sagitalle").checked)coupe = "sagitalle";
+    else if(document.getElementById("coronale").checked)coupe = "coronale";
+    return coupe;
+}
+function updateCurrentCoupe(){
+    let coupes = document.getElementsByName("selecoupe");
+    for(let selecoupe of coupes){
+        selecoupe.addEventListener('change',(evt)=> {
+            displayCurrentFiles();
+        })
+    }
+}
+getCoupe();
 </script>

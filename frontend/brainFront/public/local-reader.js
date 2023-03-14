@@ -35,7 +35,7 @@ function getTypedData(niftiHeader,niftiImage){
     return {typedData,isAsegmentationFile};
 }
 
-function readNIFTI(data,canvas, slider) {
+function readNIFTI(data,canvas, slider,coupe) {
   
     var niftiHeader, niftiImage;
 
@@ -57,13 +57,13 @@ function readNIFTI(data,canvas, slider) {
     slider.value = 0.5 *slider.max;
     
     slider.oninput = function() { // L'image sera recalculée à chaque mouvement du slider
-        drawCanvas(canvas, slider.value/slider.max, niftiHeader, typedData,isAsegmentationFile);
+        drawCanvas(canvas, slider.value/slider.max, niftiHeader, typedData,isAsegmentationFile,coupe);
     }; 
     // Affiche image initiale
-    drawCanvas(canvas, 0.5, niftiHeader, typedData,isAsegmentationFile);   
+    drawCanvas(canvas, 0.5, niftiHeader, typedData,isAsegmentationFile,coupe);   
 }
 
-function drawCanvas(canvas, slice, niftiHeader, typedData, isAsegmentationFile) {
+function drawCanvas(canvas, slice, niftiHeader, typedData, isAsegmentationFile,coupe="axiale") {
     let dimA = niftiHeader.dims[1];
     let dimB = niftiHeader.dims[2]; 
     let dimC = niftiHeader.dims[3];
@@ -74,7 +74,9 @@ function drawCanvas(canvas, slice, niftiHeader, typedData, isAsegmentationFile) 
     canvas.height = dimB;
     
     // slice est un chiffre entre 0 et 1, on le remet aux dimensions de la coupe.
-    slice= Math.floor(slice*dimA); // swicth entre dimA et dimC
+    slice= Math.floor(slice*dimC); 
+   // if(coupe==="sagitalle")slice= Math.floor(slice*dimA);
+
     
     // make canvas image data
     var ctx = canvas.getContext("2d");
@@ -86,7 +88,11 @@ function drawCanvas(canvas, slice, niftiHeader, typedData, isAsegmentationFile) 
     for (let i = 0; i < dimB; i++) {
             var rowOffset = i * dimA;
             for (let j = 0; j < dimA; j++) {
-                let offset = slice + j * sliceSize + rowOffset;//sliceOffset + rowOffset + j;
+                let offset = sliceOffset + rowOffset + j;
+                if(coupe==="sagitalle"){
+                    offset = slice + j * sliceSize + rowOffset;
+                }
+                
                 var value = typedData[offset];  
                 if(isAsegmentationFile && value!==0 && value!==undefined){
                     rgbValue = selectColor(classesSegmentation.indexOf(value)/classesSegmentation.length)
@@ -142,23 +148,23 @@ function makeSlice(file, start, length) {
     return null;
 }
 
-function readFile(file,canvas, slider) {
+function readFile(file,canvas, slider,coupe) {
     var blob = makeSlice(file, 0, file.size);
     var reader = new FileReader();
 
     reader.onloadend = function (evt) {
         if (evt.target.readyState === FileReader.DONE) {
-            readNIFTI(evt.target.result,canvas, slider);
+            readNIFTI(evt.target.result,canvas, slider,coupe);
         }
     };
 
     reader.readAsArrayBuffer(blob);
 }
 
-function handleFileSelect(files,idCanvas,idSlider) {
+function handleFileSelect(files,idCanvas,idSlider,coupe) {
     var canvas = document.getElementById(idCanvas);
     var slider = document.getElementById(idSlider);
-    if(files.length>0 && slider!==null && canvas!==null) readFile(files[0],canvas,slider);
+    if(files.length>0 && slider!==null && canvas!==null) readFile(files[0],canvas,slider,coupe);
 }
 
 function resetCanvas(idCanvas,idSlider){

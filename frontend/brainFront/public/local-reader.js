@@ -64,28 +64,31 @@ function readNIFTI(data,canvas, slider) {
 }
 
 function drawCanvas(canvas, slice, niftiHeader, typedData, isAsegmentationFile) {
+    let dimA = niftiHeader.dims[1];
+    let dimB = niftiHeader.dims[2]; 
+    let dimC = niftiHeader.dims[3];
     // get nifti dimensions
-    let xmax = niftiHeader.dims[1];
-    let ymax = niftiHeader.dims[2];
-    let zmax = niftiHeader.dims[3];
-    // set canvas dimensions to nifti slice dimensions
-    canvas.width = xmax;
-    canvas.height = ymax;
     
-    slice= Math.floor(slice*zmax);
+    // set canvas dimensions to nifti slice dimensions
+    canvas.width = dimA;
+    canvas.height = dimB;
+    
+    // slice est un chiffre entre 0 et 1, on le remet aux dimensions de la coupe.
+    slice= Math.floor(slice*dimA); // swicth entre dimA et dimC
+    
     // make canvas image data
     var ctx = canvas.getContext("2d");
     var canvasImageData = ctx.createImageData(canvas.width, canvas.height);
 
     // offset to specified slice
-    var sliceSize = xmax * ymax;
+    var sliceSize = dimA * dimB;
     var sliceOffset = sliceSize * slice ;
-    for (let i = 0; i < ymax; i++) {
-            var rowOffset = i * xmax;
-            for (let j = 0; j < xmax; j++) {
-                let offset = sliceOffset + rowOffset + j;
+    for (let i = 0; i < dimB; i++) {
+            var rowOffset = i * dimA;
+            for (let j = 0; j < dimA; j++) {
+                let offset = slice + j * sliceSize + rowOffset;//sliceOffset + rowOffset + j;
                 var value = typedData[offset];  
-                if(isAsegmentationFile && value!==0){
+                if(isAsegmentationFile && value!==0 && value!==undefined){
                     rgbValue = selectColor(classesSegmentation.indexOf(value)/classesSegmentation.length)
                     canvasImageData = setPixelValue(rowOffset+j,canvasImageData,rgbValue.r,rgbValue.g,rgbValue.b,255);
                 }

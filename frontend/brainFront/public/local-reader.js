@@ -64,6 +64,7 @@ function readNIFTI(data,canvas, slider,coupe) {
 }
 
 function drawCanvas(canvas, slice, niftiHeader, typedData, isAsegmentationFile,coupe="axiale") {
+
     let dimA = niftiHeader.dims[1];
     let dimB = niftiHeader.dims[2]; 
     let dimC = niftiHeader.dims[3];
@@ -83,7 +84,7 @@ function drawCanvas(canvas, slice, niftiHeader, typedData, isAsegmentationFile,c
     var canvasImageData = ctx.createImageData(canvas.width, canvas.height);
 
     let currentview = loadAxialView(slice,dimA,dimB,typedData);
-    //TODO: appeler loadSagitalView & load AxialView lorsque l'on aura compris comment faire
+    //TODO: appeler loadSagitalView & load CoronalView lorsque l'on aura compris comment faire
     
     // display current view
     for(let i=0;i<currentview.length;i++){
@@ -99,25 +100,28 @@ function drawCanvas(canvas, slice, niftiHeader, typedData, isAsegmentationFile,c
             }
         }
     }
-    console.log(currentview)
+ //   console.log(currentview)
     ctx.putImageData(canvasImageData, 0, 0);
 }
 
 function loadAxialView(slice,dimA, dimB,typedData){
     let axial = []
-    // offset to specified slice
-    for (let i = 0; i < dimB; i++) {
-        let currentRow = []
-            for (let j = 0; j < dimA; j++) {
-                let offset = ((dimA * dimB) * slice) + (i * dimA) + j;
-                var value = typedData[offset];  
-                currentRow.push(value);
-            }
-            axial.push(currentRow)
+    let start = (dimA*dimB)*(slice);
+    let currentRow = []
+    for(let i=0;i<(dimA*dimB);i++){
+        let offset = i+ start;
+        var value = typedData[offset];  
+        currentRow.push(value);
+        if(currentRow.length==dimA){
+            axial.push(currentRow);
+            currentRow = []
+        }
     }
     return axial;
 }
 
+//4435200, 4435201, 4435202, 4435203, 4435204, 4435205, 4435206, 4435207, 4435208, 4435209, 4435210, 4435211, 4435212, 4435213, 4435214, 4435215, 4435216, 4435217, 4435218, 4435219, 4435220, 4435221, 4435222, 4435223, 4435224, 4435225, 4435226, 4435227, 4435228, 4435229, 4435230, 4435231, 4435232, 4435233, 4435234, 4435235, 4435236, 4435237, 4435238, 4435239, 4435240, 4435241, 4435242, 4435243, 4435244, 4435245, 4435246, 4435247, 4435248, 4435249, 4435250, 4435251, 4435252, 4435253, 4435254, 4435255, 4435256, 4435257, 4435258, 4435259, 4435260, 4435261, 4435262, 4435263, 4435264, 4435265, 4435266, 4435267, 4435268, 4435269, 4435270, 4435271, 4435272, 4435273, 4435274, 4435275, 4435276, 4435277, 4435278, 4435279, 4435280, 4435281, 4435282, 4435283, 4435284, 4435285, 4435286, 4435287, 4435288, 4435289, 4435290, 4435291, 4435292, 4435293, 4435294, 4435295, 4435296, 4435297, 4435298, 4435299
+//4492799
 
 
 function selectColor(perct,palette_index=0){

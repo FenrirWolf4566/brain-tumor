@@ -82,28 +82,40 @@ function drawCanvas(canvas, slice, niftiHeader, typedData, isAsegmentationFile,c
     var ctx = canvas.getContext("2d");
     var canvasImageData = ctx.createImageData(canvas.width, canvas.height);
 
-    // offset to specified slice
-    var sliceSize = dimA * dimB;
-    var sliceOffset = sliceSize * slice ;
-    for (let i = 0; i < dimB; i++) {
-            var rowOffset = i * dimA;
-            for (let j = 0; j < dimA; j++) {
-                let offset = sliceOffset + rowOffset + j;
-                if(coupe==="sagitalle"){
-                    offset = slice + j * sliceSize + rowOffset;
-                }
-                
-                var value = typedData[offset];  
-                if(isAsegmentationFile && value!==0 && value!==undefined){
-                    rgbValue = selectColor(classesSegmentation.indexOf(value)/classesSegmentation.length)
-                    canvasImageData = setPixelValue(rowOffset+j,canvasImageData,rgbValue.r,rgbValue.g,rgbValue.b,255);
-                }
-                else {
-                    canvasImageData = setPixelValue(rowOffset + j,canvasImageData,value,value,value,255)
-                }
+    let currentview = loadAxialView(slice,dimA,dimB,typedData);
+    //TODO: appeler loadSagitalView & load AxialView lorsque l'on aura compris comment faire
+    
+    // display current view
+    for(let i=0;i<currentview.length;i++){
+        let row = currentview[i];
+        for(let j=0;j<row.length;j++){
+            let value = row[j];
+            if(isAsegmentationFile && value!==0 && value!==undefined){
+                rgbValue = selectColor(classesSegmentation.indexOf(value)/classesSegmentation.length)
+                canvasImageData = setPixelValue((i * dimA)+j,canvasImageData,rgbValue.r,rgbValue.g,rgbValue.b,255);
+            }
+            else {
+                canvasImageData = setPixelValue((i * dimA) + j,canvasImageData,value,value,value,255)
+            }
         }
     }
+    console.log(currentview)
     ctx.putImageData(canvasImageData, 0, 0);
+}
+
+function loadAxialView(slice,dimA, dimB,typedData){
+    let axial = []
+    // offset to specified slice
+    for (let i = 0; i < dimB; i++) {
+        let currentRow = []
+            for (let j = 0; j < dimA; j++) {
+                let offset = ((dimA * dimB) * slice) + (i * dimA) + j;
+                var value = typedData[offset];  
+                currentRow.push(value);
+            }
+            axial.push(currentRow)
+    }
+    return axial;
 }
 
 

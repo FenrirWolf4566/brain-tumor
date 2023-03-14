@@ -73,8 +73,9 @@ IMG_SIZE=128
 """
 A changer mais pas tout de suite
 """
-TRAIN_DATASET_PATH = 'brats20-dataset-training-validation'
-VALIDATION_DATASET_PATH = 'brats20-dataset-training-validation'
+TRAIN_DATASET_PATH = os.path.join("test_IA", "notebook_true", "dataset","training")
+# 'test_IA/notebook_true/dataset/training'
+VALIDATION_DATASET_PATH = os.path.join("test_IA", "notebook_true", "dataset","validation")
 
 #test_image_flair=nib.load(TRAIN_DATASET_PATH + 'BraTS20_Training_001/BraTS20_Training_001_flair.nii').get_fdata()
 #test_image_t1=nib.load(TRAIN_DATASET_PATH + 'BraTS20_Training_001/BraTS20_Training_001_t1.nii').get_fdata()
@@ -202,10 +203,10 @@ model.compile(loss="categorical_crossentropy", optimizer=keras.optimizers.Adam(l
 #############################################################################
 
 # lists of directories with studies
-train_and_val_directories = [f.path for f in os.scandir(TRAIN_DATASET_PATH) if f.is_dir()]
+train_directories = [f.path for f in os.scandir(TRAIN_DATASET_PATH) if f.is_dir()]
 
 # file BraTS20_Training_355 has ill formatted name for for seg.nii file
-train_and_val_directories.remove(TRAIN_DATASET_PATH+'BraTS20_Training_355')
+# train_and_val_directories.remove(TRAIN_DATASET_PATH+'BraTS20_Training_355')
 
 
 def pathListIntoIds(dirList):
@@ -215,8 +216,11 @@ def pathListIntoIds(dirList):
     x = []
     for i in range(0,len(dirList)):
         x.append(dirList[i][dirList[i].rfind('/')+1:])
+        #(dirList[i][dirList[i].rfind('/')+1:])
     return x
-train_and_test_ids = pathListIntoIds(train_and_val_directories); 
+
+train_and_test_ids = pathListIntoIds(train_directories); 
+
 
 
 
@@ -225,8 +229,9 @@ train_and_test_ids = pathListIntoIds(train_and_val_directories);
 # Split data into train, validation and test sets
 # Changer avec notre formule
 """
-train_test_ids, val_ids = train_test_split(train_and_test_ids,test_size=0.2) 
-train_ids, test_ids = train_test_split(train_test_ids,test_size=0.15) 
+#train_test_ids, val_ids = train_test_split(train_and_test_ids,test_size=0.2)
+val_ids = pathListIntoIds(VALIDATION_DATASET_PATH)
+train_ids, test_ids = train_test_split(train_and_test_ids,test_size=0.15) 
 
 
 
@@ -275,21 +280,33 @@ class DataGenerator(keras.utils.Sequence):
 
         # Generate data
         for c, i in enumerate(Batch_ids):
-            case_path = os.path.join(TRAIN_DATASET_PATH, i)
+            print("Batch ID : ", i)
+            case_path = i
+            file_case= i[-15:]
+            #os.path.join(TRAIN_DATASET_PATH, i)
 
-            data_path = os.path.join(case_path, f'{i}_flair.nii');
+            # il en manque 2
+
+            data_path = os.path.join(case_path, f'{file_case}_t1.nii');
+            t1 = nib.load(data_path).get_fdata()    
+
+            data_path = os.path.join(case_path, f'{file_case}_t2.nii');
+            t2 = nib.load(data_path).get_fdata()
+
+            data_path = os.path.join(case_path, f'{file_case}_flair.nii');
             flair = nib.load(data_path).get_fdata()    
 
-            data_path = os.path.join(case_path, f'{i}_t1ce.nii');
+            data_path = os.path.join(case_path, f'{file_case}_t1ce.nii');
             ce = nib.load(data_path).get_fdata()
             
-            data_path = os.path.join(case_path, f'{i}_seg.nii');
+            data_path = os.path.join(case_path, f'{file_case}_seg.nii');
             seg = nib.load(data_path).get_fdata()
         
             for j in range(VOLUME_SLICES):
                  X[j +VOLUME_SLICES*c,:,:,0] = cv2.resize(flair[:,:,j+VOLUME_START_AT], (IMG_SIZE, IMG_SIZE));
                  X[j +VOLUME_SLICES*c,:,:,1] = cv2.resize(ce[:,:,j+VOLUME_START_AT], (IMG_SIZE, IMG_SIZE));
-
+                 #X[j +VOLUME_SLICES*c,:,:,2] = cv2.resize(t1[:,:,j+VOLUME_START_AT], (IMG_SIZE, IMG_SIZE));
+                 #X[j +VOLUME_SLICES*c,:,:,3] = cv2.resize(t2[:,:,j+VOLUME_START_AT], (IMG_SIZE, IMG_SIZE));
                  y[j +VOLUME_SLICES*c] = seg[:,:,j+VOLUME_START_AT];
                     
         # Generate masks
@@ -393,7 +410,7 @@ ax[3].plot(epoch,hist['mean_io_u'],'b',label='Training mean IOU')
 ax[3].plot(epoch,hist['val_mean_io_u'],'r',label='Validation mean IOU')
 ax[3].legend()
 
-plt.show()
+#plt.show()
 
 
 #############################################################################
@@ -438,10 +455,10 @@ def predictByPath(case_path,case):
     X = np.empty((VOLUME_SLICES, IMG_SIZE, IMG_SIZE, 2))
   #  y = np.empty((VOLUME_SLICES, IMG_SIZE, IMG_SIZE))
     
-    vol_path = os.path.join(case_path, f'BraTS20_Training_{case}_flair.nii');
+    vol_path = os.path.join(case_path, f'BraTS2021_{case}_flair.nii');
     flair=nib.load(vol_path).get_fdata()
     
-    vol_path = os.path.join(case_path, f'BraTS20_Training_{case}_t1ce.nii');
+    vol_path = os.path.join(case_path, f'BraTS2021_{case}_t1ce.nii');
     ce=nib.load(vol_path).get_fdata() 
     
  #   vol_path = os.path.join(case_path, f'BraTS20_Training_{case}_seg.nii');
@@ -458,16 +475,16 @@ def predictByPath(case_path,case):
 
 
 def showPredictsById(case, start_slice = 60):
-    path = f"../input/brats20-dataset-training-validation/BraTS2020_TrainingData/MICCAI_BraTS2020_TrainingData/BraTS20_Training_{case}"
-    gt = nib.load(os.path.join(path, f'BraTS20_Training_{case}_seg.nii')).get_fdata()
-    origImage = nib.load(os.path.join(path, f'BraTS20_Training_{case}_flair.nii')).get_fdata()
+    path = f"{TRAIN_DATASET_PATH}\BraTS2021_{case}"
+    gt = nib.load(os.path.join(path, f'BraTS2021_{case}_seg.nii')).get_fdata()
+    origImage = nib.load(os.path.join(path, f'BraTS2021_{case}_flair.nii')).get_fdata()
     p = predictByPath(path,case)
 
     core = p[:,:,:,1]
     edema= p[:,:,:,2]
     enhancing = p[:,:,:,3]
 
-    plt.figure(figsize=(18, 50))
+    #plt.figure(figsize=(18, 50))
     f, axarr = plt.subplots(1,6, figsize = (18, 50)) 
 
     for i in range(6): # for each image, add brain background
@@ -488,14 +505,14 @@ def showPredictsById(case, start_slice = 60):
     axarr[5].title.set_text(f'{SEGMENT_CLASSES[3]} predicted')
     plt.show()
     
-    
-showPredictsById(case=test_ids[0][-3:])
-showPredictsById(case=test_ids[1][-3:])
-showPredictsById(case=test_ids[2][-3:])
-showPredictsById(case=test_ids[3][-3:])
-showPredictsById(case=test_ids[4][-3:])
-showPredictsById(case=test_ids[5][-3:])
-showPredictsById(case=test_ids[6][-3:])
+
+showPredictsById(case=test_ids[0][-5:])
+showPredictsById(case=test_ids[1][-5:])
+#showPredictsById(case=test_ids[2][-5:])
+#showPredictsById(case=test_ids[3][-5:])
+#showPredictsById(case=test_ids[4][-5:])
+#showPredictsById(case=test_ids[5][-5:])
+#showPredictsById(case=test_ids[6][-5:])
 
 
 # mask = np.zeros((10,10))
@@ -517,9 +534,9 @@ showPredictsById(case=test_ids[6][-3:])
 # Evaluator 
 #############################################################################
 
-case = case=test_ids[3][-3:]
-path = f"../input/brats20-dataset-training-validation/BraTS2020_TrainingData/MICCAI_BraTS2020_TrainingData/BraTS20_Training_{case}"
-gt = nib.load(os.path.join(path, f'BraTS20_Training_{case}_seg.nii')).get_fdata()
+case = test_ids[0][-5:]
+path = f"{TRAIN_DATASET_PATH}\BraTS2021_{case}"
+gt = nib.load(os.path.join(path, f'BraTS2021_{case}_seg.nii')).get_fdata()
 p = predictByPath(path,case)
 
 core = p[:,:,:,1]

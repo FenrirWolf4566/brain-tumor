@@ -35,10 +35,21 @@ function getTypedData(niftiHeader,niftiImage){
     return {typedData,isAsegmentationFile};
 }
 
-function readNIFTI(data,canvas, slider,coupe) {
-  
-    var niftiHeader, niftiImage;
+function getImage(dim, slice, array,header){
+    let image
+    if (dim === 1) {
+        image = array.pick(slice, null, null)
+    } else if (dim === 2) {
+        image = array.pick(null, slice, null)
+    } else if (dim === 3) {
+        image = array.pick(null, null, header.dims[3] - slice - 1)
+    }
+    return image
+}
 
+function readNIFTI(data,canvas, slider,coupe) {
+    let coupeId = coupe=="axiale"?3:coupe=="sagitalle"?1:2;
+    var niftiHeader, niftiImage;
     // parse nifti
     if (nifti.isCompressed(data)) {
         data = nifti.decompress(data);
@@ -48,19 +59,45 @@ function readNIFTI(data,canvas, slider,coupe) {
         niftiHeader = nifti.readHeader(data);
         niftiImage = nifti.readImage(niftiHeader, data);
     }
-
+    
     
     let typed = getTypedData(niftiHeader,niftiImage);
     let typedData = typed.typedData;
     let isAsegmentationFile = typed.isAsegmentationFile;
+    
+    let dims = niftiHeader.dims
+    let stride = [1, dims[1], dims[1] * dims[2]]
+    let array = ndarray(typedData, [dims[1], dims[2], dims[3]], stride).step(1, 1, -1) 
 
     slider.value = 0.5 *slider.max;
     
     slider.oninput = function() { // L'image sera recalculée à chaque mouvement du slider
-        drawCanvas(canvas, slider.value/slider.max, niftiHeader, typedData,isAsegmentationFile,coupe);
+       //drawCanvas(canvas, slider.value/slider.max, niftiHeader, typedData,isAsegmentationFile,coupe);
+       drawIt(canvas,niftiHeader,getImage(coupeId,+slider.value,array,niftiHeader))
     }; 
     // Affiche image initiale
-    drawCanvas(canvas, 0.5, niftiHeader, typedData,isAsegmentationFile,coupe);   
+    //drawCanvas(canvas, 0.5, niftiHeader, typedData,isAsegmentationFile,coupe);   
+    drawIt(canvas,niftiHeader,getImage(coupeId,+slider.value,array,niftiHeader))
+}
+
+
+function drawIt(canvas,niftiHeader,image){
+    var cols = niftiHeader.dims[1];
+    var rows = niftiHeader.dims[2];
+    let ctx = canvas.getContext('2d')
+    let canvasImageData = ctx.createImageData(cols, rows)
+    // draw pixels
+    for (let row = 0; row < rows; row++) {
+        let rowOffset = row * cols;
+        for (let col = 0; col < cols; col++) {
+            let value = image.get(col, row)
+            canvasImageData.data[(rowOffset + col) * 4] = value & 0xFF;
+            canvasImageData.data[(rowOffset + col) * 4 + 1] = value & 0xFF;
+            canvasImageData.data[(rowOffset + col) * 4 + 2] = value & 0xFF;
+            canvasImageData.data[(rowOffset + col) * 4 + 3] = 0xFF;
+        }
+    }
+    ctx.putImageData(canvasImageData, 0, 0);
 }
 
 function drawCanvas(canvas, slice, niftiHeader, typedData, isAsegmentationFile,coupe="axiale") {

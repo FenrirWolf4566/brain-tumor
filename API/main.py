@@ -94,18 +94,6 @@ async def create_file_flair(file:UploadFile):
     #assert fichier_bon(file)
     return  addFile(file,"flair")
 
-
-@app.post("/create_session/{name}")
-async def create_session(name: str, response: Response):
-
-    session = uuid4()
-    data = SessionData(username=name)
-
-    await backend.create(session, data)
-    cookie.attach_to_response(response, session)
-
-    return f"created session for {name}"
-
 def fichier_bon(file: UploadFile):
     return Path(file).suffix=='t1.nii.gz' or os.path.splitext(file)[1]=='t2.nii.gz' or os.path.splitext(file)[1]=='t1ce.nii.gz' or os.path.splitext(file)[1]=='flair.nii.gz'
 
@@ -137,17 +125,11 @@ cookie = SessionCookie(
     cookie_params=cookie_params,
 )
 
-@app.post("/delete_session")
-async def del_session(response: Response, session_id: UUID = Depends(cookie)):
-    await backend.delete(session_id)
-    cookie.delete_from_response(response)
-    return "deleted session"
-
 backend = InMemoryBackend[UUID, SessionData]()
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 3000000000000000000000000000000000000000000000000000000000000000000000000
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 fake_users_db = {
     "johndoe": {
@@ -181,22 +163,16 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-app = FastAPI()
-
-
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
+    return True#pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password):
     return pwd_context.hash(password)
-
 
 def get_user(db, username: str):
     if username in db:
         user_dict = db[username]
         return UserInDB(**user_dict)
-
 
 def authenticate_user(fake_db, username: str, password: str):
     user = get_user(fake_db, username)

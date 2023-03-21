@@ -14,14 +14,12 @@ from skimage.transform import rotate
 from skimage.transform import resize
 from PIL import Image, ImageOps  
 
-
 # neural imaging
 import nilearn as nl
 import nibabel as nib
 import nilearn.plotting as nlplt
 #"!pip install git+https://github.com/miykael/gif_your_nifti # nifti to gif"
 #import gif_your_nifti.core as gif2nif
-
 
 # ml libs
 import keras
@@ -41,22 +39,15 @@ from keras.layers import *
 from keras.optimizers import *
 from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping, TensorBoard
 
-#from tensorflow.keras.models import *
-#from tensorflow.keras.layers import *
-#from tensorflow.keras.optimizers import *
-#from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping, TensorBoard
-#from tensorflow.keras.layers.experimental import preprocessing
-
-
 # Make numpy printouts easier to read.
 np.set_printoptions(precision=3, suppress=True)
 
 # DEFINE seg-areas  
 SEGMENT_CLASSES = {
     0 : 'NOT tumor',
-    1 : 'NECROTIC/CORE', # or NON-ENHANCING tumor CORE
-    2 : 'EDEMA',
-    3 : 'ENHANCING' # original 4 -> converted into 3 later
+    1 : 'NECROTIC/CORE', # tumor CORE
+    2 : 'EDEMA',         # Whole Tumor
+    3 : 'ENHANCING'      # Propogation (original 4 -> converted into 3 later)
 }
 
 # there are 155 slices per volume
@@ -106,8 +97,7 @@ def dice_coef(y_true, y_pred, smooth=1.0):
 #    K.print_tensor(total_loss, message=' total dice coef: ')
     return total_loss
 
-# define per class evaluation of dice coef
-# inspired by https://github.com/keras-team/keras/issues/9395
+
 def dice_coef_necrotic(y_true, y_pred, epsilon=1e-6):
     intersection = K.sum(K.abs(y_true[:,:,:,1] * y_pred[:,:,:,1]))
     return (2. * intersection) / (K.sum(K.square(y_true[:,:,:,1])) + K.sum(K.square(y_pred[:,:,:,1])) + epsilon)
@@ -392,23 +382,23 @@ val_loss=hist['val_loss']
 train_dice=hist['dice_coef']
 val_dice=hist['val_dice_coef']
 
-f,ax=plt.subplots(1,4,figsize=(16,8))
+#f,ax=plt.subplots(1,4,figsize=(16,8))
 
-ax[0].plot(epoch,acc,'b',label='Training Accuracy')
-ax[0].plot(epoch,val_acc,'r',label='Validation Accuracy')
-ax[0].legend()
+#ax[0].plot(epoch,acc,'b',label='Training Accuracy')
+#ax[0].plot(epoch,val_acc,'r',label='Validation Accuracy')
+#ax[0].legend()
 
-ax[1].plot(epoch,loss,'b',label='Training Loss')
-ax[1].plot(epoch,val_loss,'r',label='Validation Loss')
-ax[1].legend()
+#ax[1].plot(epoch,loss,'b',label='Training Loss')
+#ax[1].plot(epoch,val_loss,'r',label='Validation Loss')
+#ax[1].legend()
 
-ax[2].plot(epoch,train_dice,'b',label='Training dice coef')
-ax[2].plot(epoch,val_dice,'r',label='Validation dice coef')
-ax[2].legend()
+#ax[2].plot(epoch,train_dice,'b',label='Training dice coef')
+#ax[2].plot(epoch,val_dice,'r',label='Validation dice coef')
+#ax[2].legend()
 
-ax[3].plot(epoch,hist['mean_io_u'],'b',label='Training mean IOU')
-ax[3].plot(epoch,hist['val_mean_io_u'],'r',label='Validation mean IOU')
-ax[3].legend()
+#ax[3].plot(epoch,hist['mean_io_u'],'b',label='Training mean IOU')
+#ax[3].plot(epoch,hist['val_mean_io_u'],'r',label='Validation mean IOU')
+#ax[3].legend()
 
 #plt.show()
 
@@ -453,7 +443,7 @@ def loadDataFromDir(path, list_of_files, mriType, n_images):
 def predictByPath(case_path,case):
     files = next(os.walk(case_path))[2]
     X = np.empty((VOLUME_SLICES, IMG_SIZE, IMG_SIZE, 2))
-  #  y = np.empty((VOLUME_SLICES, IMG_SIZE, IMG_SIZE))
+    y = np.empty((VOLUME_SLICES, IMG_SIZE, IMG_SIZE))
     
     vol_path = os.path.join(case_path, f'BraTS2021_{case}_flair.nii');
     flair=nib.load(vol_path).get_fdata()
@@ -468,7 +458,7 @@ def predictByPath(case_path,case):
     for j in range(VOLUME_SLICES):
         X[j,:,:,0] = cv2.resize(flair[:,:,j+VOLUME_START_AT], (IMG_SIZE,IMG_SIZE))
         X[j,:,:,1] = cv2.resize(ce[:,:,j+VOLUME_START_AT], (IMG_SIZE,IMG_SIZE))
- #       y[j,:,:] = cv2.resize(seg[:,:,j+VOLUME_START_AT], (IMG_SIZE,IMG_SIZE))
+        y[j,:,:] = cv2.resize(seg[:,:,j+VOLUME_START_AT], (IMG_SIZE,IMG_SIZE))
         
   #  model.evaluate(x=X,y=y[:,:,:,0], callbacks= callbacks)
     return model.predict(X/np.max(X), verbose=1)

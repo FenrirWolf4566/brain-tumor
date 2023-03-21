@@ -55,3 +55,42 @@ canvas {
 .niftireader input[type="file"]{
     display: none;
 }
+
+.dot {
+    height: 1.5em;
+    width: 1.5em;
+    overflow: hidden;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+}
+.dot  input[type=color] {
+    position: absolute;
+    height: 4em;
+    width: 4em;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+#bodylegend {
+    display: flex;
+    gap: 10px;
+  //  justify-content: space-around;
+}
+
+.duocolor{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+#legend {
+    h3{
+        margin: 0px;
+    }
+}

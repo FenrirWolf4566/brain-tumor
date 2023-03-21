@@ -36,12 +36,16 @@ function getTypedData(niftiHeader,niftiImage){
 }
 
 function getImage(dim, slice, array,header){
+    slice /=100;
     let image
     if (dim === 1) {
+        slice = Math.floor(slice*header.dims[1]);
         image = array.pick(slice, null, null)
     } else if (dim === 2) {
+        slice = Math.floor(slice*header.dims[2]);
         image = array.pick(null, slice, null)
     } else if (dim === 3) {
+        slice = Math.floor(slice*header.dims[3]);
         image = array.pick(null, null, header.dims[3] - slice - 1)
     }
     return image
@@ -60,7 +64,6 @@ function readNIFTI(data,canvas, slider,coupe) {
         niftiImage = nifti.readImage(niftiHeader, data);
     }
     
-    
     let typed = getTypedData(niftiHeader,niftiImage);
     let typedData = typed.typedData;
     let isAsegmentationFile = typed.isAsegmentationFile;
@@ -68,100 +71,48 @@ function readNIFTI(data,canvas, slider,coupe) {
     let dims = niftiHeader.dims
     let stride = [1, dims[1], dims[1] * dims[2]]
     let array = ndarray(typedData, [dims[1], dims[2], dims[3]], stride).step(1, 1, -1) 
-
-    slider.value = 0.5 *slider.max;
+    
+    
+    slider.value = (0.5 *(+slider.max));
     
     slider.oninput = function() { // L'image sera recalculée à chaque mouvement du slider
-       //drawCanvas(canvas, slider.value/slider.max, niftiHeader, typedData,isAsegmentationFile,coupe);
-       drawIt(canvas,niftiHeader,getImage(coupeId,+slider.value,array,niftiHeader))
+        drawIt(canvas,niftiHeader,getImage(coupeId,+slider.value,array,niftiHeader),isAsegmentationFile)
     }; 
-    // Affiche image initiale
-    //drawCanvas(canvas, 0.5, niftiHeader, typedData,isAsegmentationFile,coupe);   
-    drawIt(canvas,niftiHeader,getImage(coupeId,+slider.value,array,niftiHeader))
+    // Affiche image initiale  
+    drawIt(canvas, niftiHeader, getImage(coupeId, +slider.value, array, niftiHeader),isAsegmentationFile)
 }
 
 
-function drawIt(canvas,niftiHeader,image){
-    var cols = niftiHeader.dims[1];
-    var rows = niftiHeader.dims[2];
-    let ctx = canvas.getContext('2d')
-    let canvasImageData = ctx.createImageData(cols, rows)
+function drawIt(canvas,niftiHeader,image,isAsegmentationFile){
+    let cols = niftiHeader.dims[1];
+    let rows = niftiHeader.dims[2];
+    // set canvas dimensions to nifti slice dimensions
+    canvas.width = cols;
+    canvas.height = rows;
+    // slice est un chiffre entre 0 et 1, on le remet aux dimensions de la coupe.
+    
+    // make canvas image data
+    var ctx = canvas.getContext("2d");
+    var canvasImageData = ctx.createImageData(canvas.width, canvas.height);
     // draw pixels
     for (let row = 0; row < rows; row++) {
         let rowOffset = row * cols;
         for (let col = 0; col < cols; col++) {
             let value = image.get(col, row)
-            canvasImageData.data[(rowOffset + col) * 4] = value & 0xFF;
-            canvasImageData.data[(rowOffset + col) * 4 + 1] = value & 0xFF;
-            canvasImageData.data[(rowOffset + col) * 4 + 2] = value & 0xFF;
-            canvasImageData.data[(rowOffset + col) * 4 + 3] = 0xFF;
-        }
-    }
-    ctx.putImageData(canvasImageData, 0, 0);
-}
-
-function drawCanvas(canvas, slice, niftiHeader, typedData, isAsegmentationFile,coupe="axiale") {
-
-    let dimA = niftiHeader.dims[1];
-    let dimB = niftiHeader.dims[2]; 
-    let dimC = niftiHeader.dims[3];
-    // get nifti dimensions
-    
-    // set canvas dimensions to nifti slice dimensions
-    canvas.width = dimA;
-    canvas.height = dimB;
-    
-    // slice est un chiffre entre 0 et 1, on le remet aux dimensions de la coupe.
-    slice= Math.floor(slice*dimC); 
-   // if(coupe==="sagitalle")slice= Math.floor(slice*dimA);
-
-    
-    // make canvas image data
-    var ctx = canvas.getContext("2d");
-    var canvasImageData = ctx.createImageData(canvas.width, canvas.height);
-
-    let currentview = loadAxialView(slice,dimA,dimB,typedData);
-    //TODO: appeler loadSagitalView & load CoronalView lorsque l'on aura compris comment faire
-    
-    // display current view
-    for(let i=0;i<currentview.length;i++){
-        let row = currentview[i];
-        for(let j=0;j<row.length;j++){
-            let value = row[j];
             if(isAsegmentationFile && value!==0 && value!==undefined){
                 rgbValue = selectColor(classesSegmentation.indexOf(value)/classesSegmentation.length)
-                canvasImageData = setPixelValue((i * dimA)+j,canvasImageData,rgbValue.r,rgbValue.g,rgbValue.b,255);
+                canvasImageData = setPixelValue(rowOffset+col,canvasImageData,rgbValue.r,rgbValue.g,rgbValue.b,255);
             }
             else {
-                canvasImageData = setPixelValue((i * dimA) + j,canvasImageData,value,value,value,255)
+                canvasImageData = setPixelValue(rowOffset+col,canvasImageData,value,value,value,255)
             }
         }
     }
- //   console.log(currentview)
     ctx.putImageData(canvasImageData, 0, 0);
 }
 
-function loadAxialView(slice,dimA, dimB,typedData){
-    let axial = []
-    let start = (dimA*dimB)*(slice);
-    let currentRow = []
-    for(let i=0;i<(dimA*dimB);i++){
-        let offset = i+ start;
-        var value = typedData[offset];  
-        currentRow.push(value);
-        if(currentRow.length==dimA){
-            axial.push(currentRow);
-            currentRow = []
-        }
-    }
-    return axial;
-}
 
-//4435200, 4435201, 4435202, 4435203, 4435204, 4435205, 4435206, 4435207, 4435208, 4435209, 4435210, 4435211, 4435212, 4435213, 4435214, 4435215, 4435216, 4435217, 4435218, 4435219, 4435220, 4435221, 4435222, 4435223, 4435224, 4435225, 4435226, 4435227, 4435228, 4435229, 4435230, 4435231, 4435232, 4435233, 4435234, 4435235, 4435236, 4435237, 4435238, 4435239, 4435240, 4435241, 4435242, 4435243, 4435244, 4435245, 4435246, 4435247, 4435248, 4435249, 4435250, 4435251, 4435252, 4435253, 4435254, 4435255, 4435256, 4435257, 4435258, 4435259, 4435260, 4435261, 4435262, 4435263, 4435264, 4435265, 4435266, 4435267, 4435268, 4435269, 4435270, 4435271, 4435272, 4435273, 4435274, 4435275, 4435276, 4435277, 4435278, 4435279, 4435280, 4435281, 4435282, 4435283, 4435284, 4435285, 4435286, 4435287, 4435288, 4435289, 4435290, 4435291, 4435292, 4435293, 4435294, 4435295, 4435296, 4435297, 4435298, 4435299
-//4492799
-
-
-function selectColor(perct,palette_index=0){
+function selectColor(perct,palette_index=2){
    dutch_field_palette = [[230, 0, 73], [11, 180, 255], [80, 233, 145], [230, 215, 0],[155, 25, 245], [255, 163, 0], [220, 10, 181], [179, 212, 255], [0, 191, 159]]
     blue_yellow_palette =  [[17, 95, 154], [25, 131, 197], [34, 167, 240],[72, 181, 196] , [118, 198, 143], [166, 215, 91], [202, 229, 47], [208, 238, 17], [244, 240, 0]]
     blue_red_palette = [[25, 132, 197],[34, 168, 240], [99, 191, 240], [167, 213, 237], [226, 226, 226], [225, 166, 146], [222, 110, 86], [225, 75, 49], [194, 55, 40]]
@@ -172,6 +123,7 @@ function selectColor(perct,palette_index=0){
 }
 
 function setPixelValue(index,canvasImageData,red,green,blue,opacity){
+    
     canvasImageData.data[index * 4] = red & 0xFF;
     canvasImageData.data[index * 4 + 1] = green & 0xFF;
     canvasImageData.data[index * 4 + 2] = blue & 0xFF;

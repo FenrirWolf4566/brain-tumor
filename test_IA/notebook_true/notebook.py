@@ -505,9 +505,8 @@ def showPredictsById(case, start_slice = 60):
     axarr[5].title.set_text(f'{SEGMENT_CLASSES[3]} predicted')
     plt.show()
     
-
 showPredictsById(case=test_ids[0][-5:])
-showPredictsById(case=test_ids[1][-5:])
+#showPredictsById(case=test_ids[1][-5:])
 #showPredictsById(case=test_ids[2][-5:])
 #showPredictsById(case=test_ids[3][-5:])
 #showPredictsById(case=test_ids[4][-5:])

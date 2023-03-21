@@ -58,20 +58,16 @@ function readNIFTI(data,canvas, slider,coupe) {
     if (nifti.isCompressed(data)) {
         data = nifti.decompress(data);
     }
-
     if (nifti.isNIFTI(data)) {
         niftiHeader = nifti.readHeader(data);
         niftiImage = nifti.readImage(niftiHeader, data);
     }
-    
     let typed = getTypedData(niftiHeader,niftiImage);
     let typedData = typed.typedData;
     let isAsegmentationFile = typed.isAsegmentationFile;
-    
     let dims = niftiHeader.dims
     let stride = [1, dims[1], dims[1] * dims[2]]
     let array = ndarray(typedData, [dims[1], dims[2], dims[3]], stride).step(1, 1, -1) 
-    
     
     slider.value = (0.5 *(+slider.max));
     

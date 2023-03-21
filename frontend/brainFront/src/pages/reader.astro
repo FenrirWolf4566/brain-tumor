@@ -7,9 +7,28 @@ const title="Visionneur";
 ---
 <Layout title={title}>
     <Navigation title={title}></Navigation>
-    <p class="instructions">
-        C'est ici que l'on visualise les fichiers
-    </p>
+    <div class="instructions" id="introbloc">
+        <div id="basic-instruction" hidden>
+          C'est ici que se passe l'analyse.
+        </div>
+        <div id="legend">
+            <h3>Légende</h3>
+            <div id="bodylegend">
+                <div class="duocolor">
+                    <span class="dot" ><input type="color" id="dot-class1" value="#eb7734"></span>
+                    <span class="classname">Classe 1</span>
+                </div>
+                <div class="duocolor">
+                    <span class="dot" ><input type="color" id="dot-class1" value="#34ebd3"></span>
+                    <span class="classname">Classe 2</span>
+                </div>
+                <div class="duocolor">
+                    <span class="dot" ><input type="color" id="dot-class1" value="#a834eb"></span>
+                    <span class="classname">Classe 3</span>
+                </div>
+            </div>
+        </div>
+        </div>
 
     <div class="instructions reader">
         <label class="filelabel" for="file">Sélectionnez un fichier</label>

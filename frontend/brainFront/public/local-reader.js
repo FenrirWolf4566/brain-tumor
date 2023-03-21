@@ -28,7 +28,8 @@ function getTypedData(niftiHeader,niftiImage){
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_UINT16) { // Par ici que passent les fichiers de segmentation
         typedData = new Uint16Array(niftiImage);
         isAsegmentationFile =true;
-        classesSegmentation = classesDeSegmentation(typedData); // Les différentes classes possibles 
+        classesSegmentation = classesDeSegmentation(typedData); // Les différentes classes possibles
+        createLegend(classesSegmentation); 
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_UINT32) {
         typedData = new Uint32Array(niftiImage);
     } 
@@ -96,7 +97,7 @@ function drawIt(canvas,niftiHeader,image,isAsegmentationFile){
         for (let col = 0; col < cols; col++) {
             let value = image.get(col, row)
             if(isAsegmentationFile && value!==0 && value!==undefined){
-                rgbValue = selectColor(classesSegmentation.indexOf(value)/classesSegmentation.length)
+                rgbValue = selectColor(classesSegmentation.indexOf(value))//selectColor(classesSegmentation.indexOf(value)/classesSegmentation.length)
                 canvasImageData = setPixelValue(rowOffset+col,canvasImageData,rgbValue.r,rgbValue.g,rgbValue.b,255);
             }
             else {
@@ -108,18 +109,39 @@ function drawIt(canvas,niftiHeader,image,isAsegmentationFile){
 }
 
 
-function selectColor(perct,palette_index=2){
-   dutch_field_palette = [[230, 0, 73], [11, 180, 255], [80, 233, 145], [230, 215, 0],[155, 25, 245], [255, 163, 0], [220, 10, 181], [179, 212, 255], [0, 191, 159]]
-    blue_yellow_palette =  [[17, 95, 154], [25, 131, 197], [34, 167, 240],[72, 181, 196] , [118, 198, 143], [166, 215, 91], [202, 229, 47], [208, 238, 17], [244, 240, 0]]
-    blue_red_palette = [[25, 132, 197],[34, 168, 240], [99, 191, 240], [167, 213, 237], [226, 226, 226], [225, 166, 146], [222, 110, 86], [225, 75, 49], [194, 55, 40]]
-    palette = [dutch_field_palette,blue_yellow_palette,blue_red_palette][palette_index]
-    value_index = Math.floor(perct*(palette.length-1));
-    value = palette[value_index]
-    return {"r":value[0],"g":value[1],"b":value[2]};
+function createLegend(classesSegmentation){
+    document.getElementById('basic-instruction').hidden=true;
+    palette = ["#F87060","#8AE9C1","#801a86","#e2adf2"]
+    let doc = document.getElementById('legend');
+    if(document.getElementsByClassName('duocolor').length==0){ //éviter les duplicats lors du changement de couleur
+        let content = "<h3>Légende</h3> <div id='bodylegend'>";
+        for(let idclasse in classesSegmentation){
+            if(+idclasse!==0){ // On ne gère pas la couleur du fond
+                content+="<div class='duocolor'>";
+                content+='<span class="dot" ><input type="color" id="dot-class'+idclasse+'" value="'+palette[idclasse%palette.length]+'"></span>';
+                content+='<span class="classname">Classe '+idclasse+'</span></div>';
+            }
+        }
+        content+="</div>"
+        doc.innerHTML+=content;
+    }
 }
 
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  }
+function selectColor(idclasse){
+    value = document.getElementById('dot-class'+idclasse).value
+    return hexToRgb(value);
+}
+
+
 function setPixelValue(index,canvasImageData,red,green,blue,opacity){
-    
     canvasImageData.data[index * 4] = red & 0xFF;
     canvasImageData.data[index * 4 + 1] = green & 0xFF;
     canvasImageData.data[index * 4 + 2] = blue & 0xFF;

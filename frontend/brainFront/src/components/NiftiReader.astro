@@ -31,7 +31,7 @@ import '../styles/reader.scss';
 <script type="text/javascript">
 function loadBlob(blob){
     var file = new File([blob], "name");
-    handleFileSelect([file],'nifticanvas','niftislider')
+    handleFileSelect([file],'nifticanvas','niftislider',getCoupe())
 }
 let currentfiles = [];
 function displayCurrentFiles(){

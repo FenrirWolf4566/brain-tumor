@@ -154,10 +154,8 @@ class User(BaseModel):
     full_name: Union[str, None] = None
     disabled: Union[bool, None] = None
 
-
 class UserInDB(User):
     hashed_password: str
-
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

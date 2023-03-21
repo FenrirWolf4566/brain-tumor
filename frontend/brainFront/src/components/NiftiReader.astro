@@ -14,8 +14,8 @@ import '../styles/reader.scss';
             <div>
                 <input type="radio" id="axiale" name="selecoupe" value="axiale" checked>
                  <label for="axiale">Axial</label>
-                 <input type="radio" id="sagitalle" name="selecoupe" value="sagitalle">
-                 <label for="sagitalle">Sagittal</label>
+                 <input type="radio" id="sagittale" name="selecoupe" value="sagittale">
+                 <label for="sagittale">Sagittal</label>
                  <input type="radio" id="coronale" name="selecoupe" value="coronale">
                  <label for="coronale">Coronal</label>
             </div>
@@ -24,7 +24,7 @@ import '../styles/reader.scss';
             <label for="niftislider">Déplacez le curseur</label>
             <input id="niftislider" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
         </div>
-        
+        <div id="legend"></div>
     </div>
 </div>
 
@@ -50,7 +50,7 @@ function resetLoadedCanvas(){
 }
 function getCoupe(){
     let coupe = "axiale";
-    if(document.getElementById("sagitalle").checked)coupe = "sagitalle";
+    if(document.getElementById("sagittale").checked)coupe = "sagittale";
     else if(document.getElementById("coronale").checked)coupe = "coronale";
     return coupe;
 }

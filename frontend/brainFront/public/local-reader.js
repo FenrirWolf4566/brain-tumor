@@ -21,6 +21,7 @@ function getTypedData(niftiHeader,niftiImage){
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_FLOAT32) { // Par ici que passent les fichiers d'anatomie
         typedData = new Float32Array(niftiImage);
         isAsegmentationFile =false;
+        removeLegend();
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_FLOAT64) {
         typedData = new Float64Array(niftiImage);
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_INT8) {
@@ -53,7 +54,7 @@ function getImage(dim, slice, array,header){
 }
 
 function readNIFTI(data,canvas, slider,coupe) {
-    let coupeId = coupe=="axiale"?3:coupe=="sagitalle"?1:2;
+    let coupeId = coupe=="axiale"?3:coupe=="sagittale"?1:2;
     var niftiHeader, niftiImage;
     // parse nifti
     if (nifti.isCompressed(data)) {
@@ -71,33 +72,33 @@ function readNIFTI(data,canvas, slider,coupe) {
     let array = ndarray(typedData, [dims[1], dims[2], dims[3]], stride).step(1, 1, -1) 
     
     slider.value = (0.5 *(+slider.max));
-    
-    slider.oninput = function() { // L'image sera recalculée à chaque mouvement du slider
-        drawIt(canvas,niftiHeader,getImage(coupeId,+slider.value,array,niftiHeader),isAsegmentationFile)
-    }; 
+    let draw =function() { drawIt(canvas,niftiHeader,getImage(coupeId,+slider.value,array,niftiHeader),isAsegmentationFile)}; 
+    // L'image sera recalculée à chaque mouvement du slider
+    slider.oninput = draw;
+    if(isAsegmentationFile){
+        let colorinputs = document.getElementsByClassName('dot');
+        for(let col of colorinputs){
+            col.oninput =draw;
+        }
+    }
     // Affiche image initiale  
-    drawIt(canvas, niftiHeader, getImage(coupeId, +slider.value, array, niftiHeader),isAsegmentationFile)
+    draw();
 }
 
 
 function drawIt(canvas,niftiHeader,image,isAsegmentationFile){
     let cols = niftiHeader.dims[1];
     let rows = niftiHeader.dims[2];
-    // set canvas dimensions to nifti slice dimensions
     canvas.width = cols;
     canvas.height = rows;
-    // slice est un chiffre entre 0 et 1, on le remet aux dimensions de la coupe.
-    
-    // make canvas image data
     var ctx = canvas.getContext("2d");
     var canvasImageData = ctx.createImageData(canvas.width, canvas.height);
-    // draw pixels
     for (let row = 0; row < rows; row++) {
         let rowOffset = row * cols;
         for (let col = 0; col < cols; col++) {
             let value = image.get(col, row)
             if(isAsegmentationFile && value!==0 && value!==undefined){
-                rgbValue = selectColor(classesSegmentation.indexOf(value))//selectColor(classesSegmentation.indexOf(value)/classesSegmentation.length)
+                rgbValue = selectColor(classesSegmentation.indexOf(value))
                 canvasImageData = setPixelValue(rowOffset+col,canvasImageData,rgbValue.r,rgbValue.g,rgbValue.b,255);
             }
             else {
@@ -108,12 +109,17 @@ function drawIt(canvas,niftiHeader,image,isAsegmentationFile){
     ctx.putImageData(canvasImageData, 0, 0);
 }
 
+function removeLegend(){
+    let doc = document.getElementById('legend');
+    if(doc!=undefined){
+        doc.innerHTML="";
+    }
+}
 
 function createLegend(classesSegmentation){
-    document.getElementById('basic-instruction').hidden=true;
     palette = ["#F87060","#8AE9C1","#801a86","#e2adf2"]
     let doc = document.getElementById('legend');
-    if(document.getElementsByClassName('duocolor').length==0){ //éviter les duplicats lors du changement de couleur
+    if(doc.childElementCount==0){ //éviter les duplicats lors du changement de couleur
         let content = "<h3>Légende</h3> <div id='bodylegend'>";
         for(let idclasse in classesSegmentation){
             if(+idclasse!==0){ // On ne gère pas la couleur du fond
@@ -155,19 +161,15 @@ function makeSlice(file, start, length) {
     if (fileType === 'undefined') {
         return function () { };
     }
-
     if (File.prototype.slice) {
         return file.slice(start, start + length);
     }
-
     if (File.prototype.mozSlice) {
         return file.mozSlice(start, length);
     }
-
     if (File.prototype.webkitSlice) {
         return file.webkitSlice(start, length);
     }
-
     return null;
 }
 

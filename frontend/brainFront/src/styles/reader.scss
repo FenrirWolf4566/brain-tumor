@@ -46,7 +46,7 @@ canvas {
 
 .duoslider{
     display: flex;
-    flex-direction: column;
+    flex-direction: row-reverse;
     width: 200px;
     text-align: center;
     margin: 10px;
@@ -81,7 +81,7 @@ canvas {
 #bodylegend {
     display: flex;
     gap: 10px;
-  //  justify-content: space-around;
+    flex-direction: column;
 }
 
 .duocolor{

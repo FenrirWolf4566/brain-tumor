@@ -21,7 +21,7 @@ import '../styles/reader.scss';
             </div>
         </div>
         <div class="duoslider">
-            <label for="niftislider">Déplacez le curseur</label>
+            <label for="niftislider" id="slider-progress">50%</label>
             <input id="niftislider" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
         </div>
         <div id="legend"></div>
@@ -34,13 +34,18 @@ function loadBlob(blob){
     handleFileSelect([file],'nifticanvas','niftislider',getCoupe())
 }
 let currentfiles = [];
-function displayCurrentFiles(){
-    handleFileSelect(currentfiles,'nifticanvas','niftislider',getCoupe());
+function displayCurrentFile(f){
+    handleFileSelect([f],'nifticanvas','niftislider',getCoupe());
+    currentfiles.push(f)
 }
 document.getElementById('file').addEventListener('change', (evt)=> {
-    currentfiles = evt.target.files;
-    displayCurrentFiles();
+    let currentfile = evt.target.files[0];
+    displayCurrentFile(currentfile);
 }, false);
+
+document.getElementById('niftislider').addEventListener("input", (event) => {
+  document.getElementById('slider-progress').textContent = event.target.value +"%"
+})
 
 updateCurrentCoupe();
 
@@ -58,7 +63,7 @@ function updateCurrentCoupe(){
     let coupes = document.getElementsByName("selecoupe");
     for(let selecoupe of coupes){
         selecoupe.addEventListener('change',(evt)=> {
-            displayCurrentFiles();
+            displayCurrentFile(currentfiles[0]);
         })
     }
 }

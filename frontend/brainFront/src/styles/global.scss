@@ -2,6 +2,8 @@
     --accent: 124, 58, 237;
     --accent-gradient: linear-gradient(45deg, rgb(var(--accent)), #da62c4 30%, white 60%);
     --accent-gradient2: linear-gradient(45deg, #e71414, #f0e6e6 30%, #ffb908 60%);
+    --accent-validate:  linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+    --accent-cancel: linear-gradient(45deg, #e71414 0%, #f0e6e6 100%);
 }
 html {
     font-family: system-ui, sans-serif;

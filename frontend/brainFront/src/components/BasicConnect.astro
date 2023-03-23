@@ -1,0 +1,18 @@
+---
+import '../styles/connect.scss';
+---
+<form class="connectform" name="connectform" method="post">
+    <input id="username" type="text" placeholder="Identifiant" name="username" required autocomplete="on">  
+    <input id="password" type="password" placeholder="Mot de passe" name="password" required autocomplete="on">  
+    <button id="submitconnect" type="submit">Se connecter</button>   
+</form>
+<script type="text/javascript">
+
+
+document.getElementById('submitconnect').addEventListener('click',(evt)=>{
+  const f = document.forms["connectform"];
+  const username = f["username"].value;
+  const password = f["password"].value;
+  //TODO: appel API avec les identifiants
+})
+</script>

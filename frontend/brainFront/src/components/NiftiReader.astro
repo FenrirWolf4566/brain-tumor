@@ -36,7 +36,7 @@ function loadBlob(blob){
 let currentfiles = [];
 function displayCurrentFile(f){
     handleFileSelect([f],'nifticanvas','niftislider',getCoupe());
-    currentfiles.push(f)
+    currentfiles.push(f);
 }
 document.getElementById('file').addEventListener('change', (evt)=> {
     let currentfile = evt.target.files[0];
@@ -62,7 +62,7 @@ function getCoupe(){
 function updateCurrentCoupe(){
     let coupes = document.getElementsByName("selecoupe");
     for(let selecoupe of coupes){
-        selecoupe.addEventListener('change',(evt)=> {
+        selecoupe.addEventListener('change',(evt)=> {   
             displayCurrentFile(currentfiles[0]);
         })
     }

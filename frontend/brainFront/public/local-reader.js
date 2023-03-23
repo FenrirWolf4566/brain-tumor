@@ -72,7 +72,8 @@ function readNIFTI(data,canvas, slider,coupe) {
     let stride = [1, dims[1], dims[1] * dims[2]]
     let array = ndarray(typedData, [dims[1], dims[2], dims[3]], stride).step(1, 1, -1) 
     
-    slider.value = (0.5 *(+slider.max));
+    updateSliderValue(slider,(0.5 *(+slider.max)));
+
     let draw =function() { drawIt(canvas,niftiHeader,getImage(coupeId,+slider.value,array,niftiHeader),isAsegmentationFile)}; 
     // L'image sera recalculée à chaque mouvement du slider
     slider.oninput = draw;
@@ -84,6 +85,22 @@ function readNIFTI(data,canvas, slider,coupe) {
     }
     // Affiche image initiale  
     draw();
+}
+
+function updateSliderValue(slider,newvalue){
+    slider.value = newvalue;
+    if(document.createEvent){
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("input", true, true);
+        evt.eventName = "input";
+        slider.dispatchEvent(evt);
+    }
+    else {
+        let evt = document.createEventObject();
+        evt.eventName = "dataavailable";
+        evt.eventType = "dataavailable";
+        slider.fireEvent("on" + evt.eventType, evt);
+    }
 }
 
 
@@ -202,6 +219,6 @@ function resetCanvas(idCanvas,idSlider){
   const context = canvas.getContext('2d');
   context.reset();
   let slider = document.getElementById(idSlider);
-  slider.value =  (+slider.max+(+slider.min))/2;
+  updateSliderValue(slider,(+slider.max+(+slider.min))/2)
   slider.oninput = function() {}
 }

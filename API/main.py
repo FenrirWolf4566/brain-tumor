@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import FastAPI, File, UploadFile, HTTPException, Response, Depends
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -10,11 +10,6 @@ from fastapi.responses import FileResponse
 
 from pydantic import BaseModel
 
-from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters
-
-from uuid import UUID, uuid4
-
-from fastapi_sessions.backends.implementations import InMemoryBackend
 
 from datetime import datetime, timedelta
 from typing import Union
@@ -26,11 +21,11 @@ from passlib.context import CryptContext
 
 import os
 
-import requests
-
-import json
-
 app = FastAPI()
+
+################################
+#  Fonctionnalités principales #
+################################
 
 fichiers_locaux = {}
 
@@ -111,23 +106,16 @@ def sendFilesToCalculatingMachine(files: List[UploadFile]):
 async def get_analyse():
     return FileResponse("brats_seg.nii.gz",media_type="application/gzip",filename="estimation_seg.nii.gz")
 
-class SessionData(BaseModel):
-    username: str
 
-cookie_params = CookieParameters()
 
-# Uses UUID
-cookie = SessionCookie(
-    cookie_name="cookie",
-    identifier="general_verifier",
-    auto_error=True,
-    secret_key="DONOTUSE",
-    cookie_params=cookie_params,
-)
+#############################
+#     Authentification      #
+#############################
 
-backend = InMemoryBackend[UUID, SessionData]()
-
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+## Détails pour la création du token
+# Exécuter la ligne de commande suivante pour obtenir une clé secrète
+# openssl rand -hex 32q
+SECRET_KEY = "d520e683e9d5c4c47818f83d44a0112117e02bd6c2ec28f2120c48aa6b6efeae"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -136,7 +124,7 @@ fake_users_db = {
         "username": "johndoe",
         "full_name": "John Doe",
         "email": "johndoe@example.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
+        "hashed_password": "$2b$12$XpffqqZIaTEERJL19DLq1.KbganP7S4s9pBRN77fmDAUKZ77iYlCy",
         "disabled": False,
     }
 }
@@ -162,7 +150,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def verify_password(plain_password, hashed_password):
-    return True#pwd_context.verify(plain_password, hashed_password)
+    return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password):
     return pwd_context.hash(password)
@@ -239,3 +227,5 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 @app.get("/users/me/items/")
 async def read_own_items(current_user: User = Depends(get_current_active_user)):
     return [{"item_id": "Foo", "owner": current_user.username}]
+
+#print(pwd_context.hash("bonjour"))

@@ -1,18 +1,29 @@
 ---
 import '../styles/connect.scss';
 ---
-<form class="connectform" name="connectform" method="post">
+
+<form class="connectform" name="connectform" method="post" onsubmit="connect();return false;">
     <input id="username" type="text" placeholder="Identifiant" name="username" required autocomplete="on">  
     <input id="password" type="password" placeholder="Mot de passe" name="password" required autocomplete="on">  
     <button id="submitconnect" type="submit">Se connecter</button>   
 </form>
 <script type="text/javascript">
 
-
-document.getElementById('submitconnect').addEventListener('click',(evt)=>{
+async function connect(){
   const f = document.forms["connectform"];
   const username = f["username"].value;
   const password = f["password"].value;
-  //TODO: appel API avec les identifiants
-})
+  if(username.length >0 && password.length>0){
+    let token = await getToken(username,password);
+    localStorage.setItem('token', token.access_token);
+    console.log("token stocké !");
+  }
+}
+
+async function getToken(username,password) {
+  const url = 'http://127.0.0.1:8000/account/auth';
+  const data = new URLSearchParams({'grant_type': '','username': username,'password': password,'scope': '','client_id': '','client_secret': ''});
+  const res = await fetch(url, {method: 'POST',headers: {'Content-Type': 'application/x-www-form-urlencoded','Accept': 'application/json'},body: data}).then(response => response.json())
+  return res
+}
 </script>

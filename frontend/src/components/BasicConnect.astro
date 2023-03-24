@@ -18,9 +18,8 @@ async function connect(){
     let token = await getToken(username,password);
     if(token.access_token.length>0) {
       localStorage.setItem(SESSION_TOKEN, token.access_token);
-      let who = await whoami();
-      console.log(who);
       document.getElementById('submitconnect').innerText="Connecté !"
+      triggerConnectedEvent();
     }
     else console.log("token non stocké car vide !");
   }
@@ -33,9 +32,8 @@ async function getToken(username,password) {
   return res
 }
 
-async function whoami(){
-  const url = ROOT_URL+'account/me/';
-  const token = localStorage.getItem(SESSION_TOKEN)
- return await fetch(url, {method: 'GET',headers: {'Accept': 'application/json','Authorization': `Bearer ${token}`}}).then(response => response.json())
-}
+document.addEventListener('disconnected',()=>{
+  document.getElementById('submitconnect').innerText="Se connecter";
+})
+
 </script>

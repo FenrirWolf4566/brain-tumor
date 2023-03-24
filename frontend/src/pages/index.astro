@@ -7,29 +7,59 @@ const title = "Home";
 ---
 
 <Layout title={title}>
+<script is:inline src="/account.js"></script>
 		<h1>Bienvenue sur <span class="text-gradient">Visual Gliome</span></h1>
 		<p class="instructions">
 			Analysez et visualisez des gliomes facilement et rapidement.
 		</p>
-		
 		<ul role="list" class="link-card-grid">
-			<div class="cardconnect">
+			<LinkCard
+			href="/analyzer"
+			title="Analyseur"
+			body="Déposez des fichiers  au format .nii.gz et obtenez une prédiction"
+			/>
+			<LinkCard
+			href="/reader"
+			title="Visionneur"
+			body="Visionnez des fichiers .nii.gz"
+			/>
+			<LinkCard
+			href="/about"
+			title="À propos"
+			body="Informations au sujet de ce projet"
+			/>
+			<div  id="cardconnect" >
+				<div class="cardconnect">
 					<BasicConnect></BasicConnect>
+				</div>
 			</div>
-			<LinkCard
-				href="/analyzer"
-				title="Analyseur"
-				body="Déposez des fichiers  au format .nii.gz et obtenez une prédiction"
-			/>
-			<LinkCard
-				href="/reader"
-				title="Visionneur"
-				body="Visionnez des fichiers .nii.gz"
-			/>
-			<LinkCard
-				href="/about"
-				title="À propos"
-				body="Informations au sujet de ce projet"
-			/>
+			<div id="cardisconnect" hidden>
+				<div class="cardaccount">
+					<div>
+						<h2>[NAME]</h2>
+						<p></p>
+					</div>
+					<div class="disconnectwrapper">
+						<button  onclick="seDeconnecter()">Se déconnecter</button>
+					</div>
+				</div>
+			</div>
 		</ul>
-</Layout>
+	</Layout>
+<script>
+	document.addEventListener('connected',async ()=>{
+		document.getElementById('cardconnect').hidden = true;
+		let who = await whoami();
+		let disco = document.getElementById('cardisconnect');
+		disco.getElementsByTagName('h2')[0].innerHTML=who.full_name;
+		disco.getElementsByTagName('p')[0].innerHTML=who.email;
+		disco.hidden=false;
+	});
+	document.addEventListener('disconnected',()=>{
+		document.getElementById('cardconnect').hidden = false;
+		document.getElementById('cardisconnect').hidden=true;
+	})
+	
+	if(estConnecte())triggerConnectedEvent();
+	else triggerDisconnectedEvent();
+</script>

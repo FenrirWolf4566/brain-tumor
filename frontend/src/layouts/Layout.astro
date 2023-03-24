@@ -15,11 +15,9 @@ const  title  = "Visual Gliome | "+ Astro.props.title;
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+		<script is:inline src="/consts.js"></script>
 	</head>
-	<body>
+	<body>	
 		<slot />
 	</body>
 </html>
-<style is:global>
-	
-</style>

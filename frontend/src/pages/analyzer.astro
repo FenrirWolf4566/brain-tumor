@@ -51,17 +51,16 @@ const title="Analyseur";
 </Layout>
 
 <script is:inline>
-  fetch('http://127.0.0.1:8000/files/').then(response=>response.json()).then((states)=>{
+  fetch(ROOT_URL+'files/').then(response=>response.json()).then((states)=>{
     filestatesupdate(states)
   })
 
 
   function fileLoader(files,filetype){
-    const url = "http://127.0.0.1:8000/";
     const data = new FormData()
     data.append('file', files[0])
   
-    fetch('http://127.0.0.1:8000/files/'+filetype, {
+    fetch(ROOT_URL+'files/'+filetype, {
       method: 'POST',
       body: data
     })
@@ -91,10 +90,10 @@ const title="Analyseur";
   }
 
   function startAnalysis(){
-    const url = "http://127.0.0.1:8000/analyse";
+    const url = ROOT_URL+"analyse";
     fetch(url)
     .then( (res) => res.blob()).then(blob=>{
-      loadBlob(blob)
+      displayCurrentFile(new File([blob], "response_seq.nii.gz"));
       setDownloadButton(blob)
     }) 
   }
@@ -108,7 +107,7 @@ const title="Analyseur";
   }
 
   function cancelUploads(){
-    fetch('http://127.0.0.1:8000/files/cancel').then(response=>response.json()).then((states)=>{
+    fetch(ROOT_URL+'files/cancel').then(response=>response.json()).then((states)=>{
       let filedroppers = document.getElementsByClassName('filedropper');
       for(let dropper of filedroppers){
         let label = dropper.children[0]

@@ -196,8 +196,8 @@ function makeSlice(file, start, length) {
 }
 
 function readFile(file, canvas, slider, coupe) {
-    var blob = makeSlice(file, 0, file.size);
-    var reader = new FileReader();
+    let blob = makeSlice(file, 0, file.size);
+    let reader = new FileReader();
 
     reader.onloadend = function (evt) {
         if (evt.target.readyState === FileReader.DONE) {
@@ -209,16 +209,14 @@ function readFile(file, canvas, slider, coupe) {
 }
 
 function handleFileSelect(files, idCanvas, idSlider, coupe) {
-    var canvas = document.getElementById(idCanvas);
-    var slider = document.getElementById(idSlider);
+    let canvas = document.getElementById(idCanvas);
+    let slider = document.getElementById(idSlider);
     if (files.length > 0 && slider !== null && canvas !== null) readFile(files[0], canvas, slider, coupe);
 }
 
 function resetCanvas(idCanvas, idSlider) {
-    let canvas = document.getElementById(idCanvas)
-    const context = canvas.getContext('2d');
-    context.reset();
     let slider = document.getElementById(idSlider);
     updateSliderValue(slider, (+slider.max + (+slider.min)) / 2)
     slider.oninput = function () { }
+    document.getElementById(idCanvas).getContext('2d').reset();
 }

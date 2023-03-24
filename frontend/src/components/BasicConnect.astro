@@ -17,7 +17,7 @@ async function connect(){
     document.getElementById('submitconnect').innerText="Connexion..."
     let token = await getToken(username,password);
     if(token.access_token.length>0) {
-      localStorage.setItem('token', token.access_token);
+      localStorage.setItem(SESSION_TOKEN, token.access_token);
       let who = await whoami();
       console.log(who);
       document.getElementById('submitconnect').innerText="Connecté !"
@@ -27,15 +27,15 @@ async function connect(){
 }
 
 async function getToken(username,password) {
-  const url = 'http://127.0.0.1:8000/account/auth';
+  const url = ROOT_URL+'account/auth';
   const data = new URLSearchParams({'grant_type': '','username': username,'password': password,'scope': '','client_id': '','client_secret': ''});
   const res = await fetch(url, {method: 'POST',headers: {'Content-Type': 'application/x-www-form-urlencoded','Accept': 'application/json'},body: data}).then(response => response.json())
   return res
 }
 
 async function whoami(){
-  const url = 'http://127.0.0.1:8000/account/me/';
-  const token = localStorage.getItem('token')
+  const url = ROOT_URL+'account/me/';
+  const token = localStorage.getItem(SESSION_TOKEN)
  return await fetch(url, {method: 'GET',headers: {'Accept': 'application/json','Authorization': `Bearer ${token}`}}).then(response => response.json())
 }
 </script>

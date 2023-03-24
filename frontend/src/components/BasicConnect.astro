@@ -15,8 +15,12 @@ async function connect(){
   const password = f["password"].value;
   if(username.length >0 && password.length>0){
     let token = await getToken(username,password);
-    localStorage.setItem('token', token.access_token);
-    console.log("token stocké !");
+    if(token.access_token.length>0) {
+      localStorage.setItem('token', token.access_token);
+      let who = await whoami();
+      console.log(who);
+    }
+    else console.log("token non stocké car vide !");
   }
 }
 
@@ -25,5 +29,11 @@ async function getToken(username,password) {
   const data = new URLSearchParams({'grant_type': '','username': username,'password': password,'scope': '','client_id': '','client_secret': ''});
   const res = await fetch(url, {method: 'POST',headers: {'Content-Type': 'application/x-www-form-urlencoded','Accept': 'application/json'},body: data}).then(response => response.json())
   return res
+}
+
+async function whoami(){
+  const url = 'http://127.0.0.1:8000/account/me/';
+  const token = localStorage.getItem('token')
+ return await fetch(url, {method: 'GET',headers: {'Accept': 'application/json','Authorization': `Bearer ${token}`}}).then(response => response.json())
 }
 </script>

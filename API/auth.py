@@ -52,6 +52,7 @@ def get_user(db, username: str):
     if username in db:
         user_dict = db[username]
         return UserInDB(**user_dict)
+    else: return False
 
 def authenticate_user(fake_db, username: str, password: str):
     user = get_user(fake_db, username)
@@ -84,7 +85,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-    if not user: return {"res_status":"error","error_status":status.HTTP_401_UNAUTHORIZED, "detail":"Incorrect username or password"}
+    if user==False: 
+        return {"access_token":"","token_type": "bearer"}
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
-    return {"access_token": access_token, "token_type": "bearer","res_status":"success"}
+    return {"access_token": access_token, "token_type": "bearer"}

@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
+import BasicConnect from '../components/BasicConnect.astro';
+
 const title = "Home";
 ---
 
@@ -9,7 +11,11 @@ const title = "Home";
 		<p class="instructions">
 			Analysez et visualisez des gliomes facilement et rapidement.
 		</p>
+		
 		<ul role="list" class="link-card-grid">
+			<div class="cardconnect">
+					<BasicConnect></BasicConnect>
+			</div>
 			<Card
 				href="/analyzer"
 				title="Analyseur"

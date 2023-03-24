@@ -1,35 +1,63 @@
 .connectform {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap:10px;
-
+    width: min-content;
+    
     input {
         border: 1px solid rgba(var(--accent), 25%);
         border-radius: 5px;
         height: 2em;
     }
     input:focus{
-       border-color: rgba(var(--accent),100%);
-       outline: 0px;
+        border-color: rgba(var(--accent),100%);
+        outline: 0px;
     }
-
+    
     button {
-        color: white;
+        background-color: white;
+        color: rgba(var(--accent));
         font-weight: bold;
-        border:0px;
+        border: 1px solid rgba(var(--accent), 25%);
         padding: 0.75em;
         border-radius: 5px;
-        background-image: var(--accent-gradient);
         background-size: 400%;
+        border-radius: 0.5rem;
+        background-position: 100%;
+        transition: background-position 1s cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        
     }
     button:hover{
-        color: black;
+        background-image: linear-gradient(45deg, rgb(var(--accent)), #da62c4 30%, white 60%);
+        color: white;
         cursor: pointer;
-        background-image: var(--accent-validate);
-        transform: scale(1.1);
+        background-size: 400%;
+        background-position: 0;
     }
     button:focus{
         outline-color: rgba(var(--accent));
     }
+}
+
+.cardconnect {
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+
+    
+}
+.cardconnect .connectform{
+    text-decoration: none;
+    line-height: 1.4;
+    padding: 1rem 1.3rem;
+    border-radius: 0.35rem;
+    color: #111;
+    opacity: 0.8;
+}
+#cardconnect{
+    display: none;
 }

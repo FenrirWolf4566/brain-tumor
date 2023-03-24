@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
+import LinkCard from '../components/LinkCard.astro';
 import BasicConnect from '../components/BasicConnect.astro';
 
 const title = "Home";
@@ -16,17 +16,17 @@ const title = "Home";
 			<div class="cardconnect">
 					<BasicConnect></BasicConnect>
 			</div>
-			<Card
+			<LinkCard
 				href="/analyzer"
 				title="Analyseur"
 				body="Déposez des fichiers  au format .nii.gz et obtenez une prédiction"
 			/>
-			<Card
+			<LinkCard
 				href="/reader"
 				title="Visionneur"
 				body="Visionnez des fichiers .nii.gz"
 			/>
-			<Card
+			<LinkCard
 				href="/about"
 				title="À propos"
 				body="Informations au sujet de ce projet"

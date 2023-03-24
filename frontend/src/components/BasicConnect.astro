@@ -14,11 +14,13 @@ async function connect(){
   const username = f["username"].value;
   const password = f["password"].value;
   if(username.length >0 && password.length>0){
+    document.getElementById('submitconnect').innerText="Connexion..."
     let token = await getToken(username,password);
     if(token.access_token.length>0) {
       localStorage.setItem('token', token.access_token);
       let who = await whoami();
       console.log(who);
+      document.getElementById('submitconnect').innerText="Connecté !"
     }
     else console.log("token non stocké car vide !");
   }

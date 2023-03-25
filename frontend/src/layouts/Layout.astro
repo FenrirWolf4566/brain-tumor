@@ -2,9 +2,12 @@
 import '../styles/global.scss';
 export interface Props {
 	title: string;
+	account?;
 }
 
-const  title  = "Visual Gliome | "+ Astro.props.title;
+let { title,account } = Astro.props;
+
+title  = "Visual Gliome | "+ Astro.props.title;
 ---
 
 <!DOCTYPE html>
@@ -16,6 +19,7 @@ const  title  = "Visual Gliome | "+ Astro.props.title;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<script is:inline src="/consts.js"></script>
+		<script is:inline src={account?"/account.js":""}></script>
 	</head>
 	<body>	
 		<slot />

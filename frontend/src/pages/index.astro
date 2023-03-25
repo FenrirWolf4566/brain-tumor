@@ -6,8 +6,7 @@ import BasicConnect from '../components/BasicConnect.astro';
 const title = "Home";
 ---
 
-<Layout title={title}>
-<script is:inline src="/account.js"></script>
+<Layout title={title} account>
 		<h1>Bienvenue sur <span class="text-gradient">Visual Gliome</span></h1>
 		<p class="instructions">
 			Analysez et visualisez des gliomes facilement et rapidement.
@@ -29,13 +28,10 @@ const title = "Home";
 			title="À propos"
 			body="Informations au sujet de ce projet"
 			/>
-			<div  id="cardconnect">
-				<div class="cardconnect">
-					<BasicConnect></BasicConnect>
-				</div>
-			</div>
-			<div id="cardisconnect" hidden>
-				<div class="cardaccount">
+			<li id="cardconnect" class="cardconnect">
+				<BasicConnect></BasicConnect>
+			</li>
+			<li class="cardaccount" id="cardisconnect" hidden>
 					<div>
 						<h2>[NAME]</h2>
 						<p></p>
@@ -43,8 +39,7 @@ const title = "Home";
 					<div class="disconnectwrapper">
 						<button  onclick="seDeconnecter()">Se déconnecter</button>
 					</div>
-				</div>
-			</div>
+			</li>
 		</ul>
 	</Layout>
 <script>

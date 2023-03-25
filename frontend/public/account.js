@@ -22,3 +22,9 @@ function seDeconnecter(){
     localStorage.removeItem(SESSION_TOKEN);
     triggerDisconnectedEvent();
 }
+
+function guard(){
+    if(!estConnecte()){
+        location.href='/';
+    }
+}

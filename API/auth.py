@@ -90,5 +90,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     if user==False: 
         return {"res_status":"error","detail":"user_password-not-found"}
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    end_time = datetime.now()+ (access_token_expires)
     access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
-    return {"access_token": access_token,"res_status":"success"}
+    return {"access_token": access_token,"res_status":"success","expires":end_time}    

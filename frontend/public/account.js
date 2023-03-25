@@ -1,6 +1,11 @@
 function estConnecte(){
     let token =  localStorage.getItem(SESSION_TOKEN);
-    return token !== null && token.length > 0;
+    let item_end = localStorage.getItem(SESSION_END);
+    if(token==null || item_end==null)return false;
+    let end_session = +item_end;
+    let remainingtime = end_session - Date.now();
+    //console.log("Temps restant avant fin de session :"+(new Date(remainingtime).toUTCString()))
+    return token.length > 0 && remainingtime>0;
 }
 async function whoami(){
     const url = ROOT_URL+'account/me/';
@@ -19,7 +24,7 @@ function triggerDisconnectedEvent(){
 }
 
 function seDeconnecter(){
-    localStorage.removeItem(SESSION_TOKEN);
+    localStorage.clear()
     triggerDisconnectedEvent();
 }
 

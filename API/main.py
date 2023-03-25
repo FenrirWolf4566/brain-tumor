@@ -108,7 +108,7 @@ async def get_analyse():
 #     GESTION DE COMPTE     #
 #############################
 
-@app.post(TOKEN_URL, response_model=auth.Token)
+@app.post(TOKEN_URL)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return await auth.login_for_access_token(form_data)
 

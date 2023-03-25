@@ -16,7 +16,7 @@ async function connect(){
   if(username.length >0 && password.length>0){
     document.getElementById('submitconnect').innerText="Connexion..."
     let token = await getToken(username,password);
-    if(token.access_token.length>0) {
+    if(token.res_status==="success") {
       localStorage.setItem(SESSION_TOKEN, token.access_token);
       document.getElementById('submitconnect').innerText="Connecté !"
       triggerConnectedEvent();

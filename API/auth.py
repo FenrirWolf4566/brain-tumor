@@ -69,6 +69,7 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
+    print(token)
     err =  {"res_status":"error","error_status":status.HTTP_401_UNAUTHORIZED, "detail":"Could not validate credentials"}
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -81,7 +82,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     user = get_user(fake_users_db, username=token_data.username)
     if user is None:
         return err
-    return user
+    res = user.copy().__dict__
+    res['res_status']='success'
+    return res
 
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)

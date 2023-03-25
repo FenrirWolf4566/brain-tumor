@@ -21,7 +21,7 @@ async function connect(){
       document.getElementById('submitconnect').innerText="Connecté !"
       triggerConnectedEvent();
     }
-    else console.log("token non stocké car vide !");
+    else  triggerDisconnectedEvent();
   }
 }
 

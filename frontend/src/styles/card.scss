@@ -1,4 +1,4 @@
-$boxshadow:0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+$boxshadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
 
 .link-card {
     list-style: none;
@@ -13,7 +13,7 @@ $boxshadow:0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
     box-shadow: $boxshadow;
 }
 
-.link-card > .link {
+.link-card>.link {
     width: 100%;
     text-decoration: none;
     line-height: 1.4;
@@ -23,19 +23,23 @@ $boxshadow:0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
     background-color: white;
     opacity: 0.8;
 }
+
 h2 {
     margin: 0;
     font-size: 1.25rem;
     transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
 p {
     margin-top: 0.5rem;
     margin-bottom: 0;
     color: #444;
 }
+
 .link-card:is(:hover, :focus-within) {
     background-position: 0;
 }
+
 .link-card:is(:hover, :focus-within) h2 {
     color: rgb(var(--accent));
 }
@@ -48,7 +52,8 @@ p {
     border-radius: 0.5rem;
     box-shadow: $boxshadow;
 }
-.cardconnect .connectform{
+
+.cardconnect .connectform {
     text-decoration: none;
     line-height: 1.4;
     padding: 1rem 1.3rem;
@@ -56,6 +61,7 @@ p {
     color: #111;
     opacity: 0.8;
 }
+
 .cardaccount {
     opacity: 0.8;
     list-style: none;
@@ -71,21 +77,21 @@ p {
     flex-direction: column;
     justify-content: space-between;
 
-    h2{
+    h2 {
         padding: 0.7rem 1.3rem;
         padding-bottom: 0px;
     }
+
     p {
         padding-left: 1.3rem;
     }
-        // background-size: 400%;
-        // background-position: 100%;
-        // transition: background-position 1s cubic-bezier(0.22, 1, 0.36, 1);
-        // box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-    .disconnectwrapper{
+
+    .disconnectwrapper {
         display: flex;
         justify-content: center;
-        margin: 0.75em;
+        margin-top: 3em;
+        margin-bottom: 0.75em;
+
         button {
             width: 10rem;
             background-color: white;
@@ -99,7 +105,8 @@ p {
             background-position: 100%;
             transition: background-position 1s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        button:hover{
+
+        button:hover {
             background-image: linear-gradient(45deg, #e71414, #f0e6e6 60%);
             color: white;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
@@ -107,15 +114,32 @@ p {
             background-size: 400%;
             background-position: 0;
         }
-        button:focus{
+
+        button:focus {
             outline-color: rgba(var(--accent));
         }
     }
-        // background-image: var(--accent-gradient2);
-        // color: white;
-        // cursor: pointer;
-        // background-size: 400%;
-        // background-position: 0;
-        // cursor: pointer;
-    
+}
+
+.disabled {
+    background-image: none;
+    background-position: 0px;
+
+    .link {
+        background-color: transparent;
+    }
+
+    background: repeating-linear-gradient(320deg,
+        transparent,
+        transparent 10px,
+        lightgray 1px,
+        lightgray 20px);
+
+    :hover * {
+        cursor: not-allowed;
+        color: #111 !important;
+    }
+    :hover {
+        cursor: not-allowed;
+    }
 }

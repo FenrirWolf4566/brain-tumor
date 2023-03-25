@@ -5,12 +5,13 @@ export interface Props {
 	title: string;
 	body: string;
 	href: string;
+	id?:string;
 }
 
-const { href, title, body } = Astro.props;
+const { href, title, body,id } = Astro.props;
 ---
 
-<li class="link-card">
+<li class="link-card" id={id}>
 	<a class="link" href={href}>
 		<h2>
 			{title}

@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import FastAPI, File, UploadFile, Depends
+from fastapi import FastAPI, File, Request, UploadFile, Depends
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -112,6 +112,7 @@ async def get_analyse():
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return await auth.login_for_access_token(form_data)
 
-@app.get("/account/me/", response_model=auth.User)
-async def read_users_me(current_user: auth.User = Depends(auth.get_current_user)):
-    return current_user
+
+@app.get("/account/me/")
+async def whoami(me = Depends(auth.get_current_user)):
+    return me

@@ -5,8 +5,7 @@ function estConnecte(){
 async function whoami(){
     const url = ROOT_URL+'account/me/';
     const token = localStorage.getItem(SESSION_TOKEN);
-    console.log(token)
-   return await fetch(url, {method: 'GET',headers: {'Accept': 'application/json','Authorization': `Bearer `+token}}).then(response => response.json())
+   return  fetch(url, {method: 'GET',headers: {'Accept': 'application/json','Authorization': `Bearer `+token}}).then(response => response.json())
 }
 
 function triggerConnectedEvent(){

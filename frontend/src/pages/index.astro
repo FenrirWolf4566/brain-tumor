@@ -17,6 +17,7 @@ const title = "Home";
 			href="/analyzer"
 			title="Analyseur"
 			body="Déposez des fichiers  au format .nii.gz et obtenez une prédiction"
+			id="analyzecard"
 			/>
 			<LinkCard
 			href="/reader"
@@ -28,7 +29,7 @@ const title = "Home";
 			title="À propos"
 			body="Informations au sujet de ce projet"
 			/>
-			<div  id="cardconnect" >
+			<div  id="cardconnect">
 				<div class="cardconnect">
 					<BasicConnect></BasicConnect>
 				</div>
@@ -49,15 +50,25 @@ const title = "Home";
 <script>
 	document.addEventListener('connected',async ()=>{
 		document.getElementById('cardconnect').hidden = true;
-		let who = await whoami();
-		let disco = document.getElementById('cardisconnect');
-		disco.getElementsByTagName('h2')[0].innerHTML=who.full_name;
-		disco.getElementsByTagName('p')[0].innerHTML=who.email;
-		disco.hidden=false;
+		whoami().then((res)=>{
+			if(res.res_status==='success'){
+				let who = res;
+				let disco = document.getElementById('cardisconnect');
+				disco.getElementsByTagName('h2')[0].innerHTML=who.full_name;
+				disco.getElementsByTagName('p')[0].innerHTML=who.email;
+				disco.hidden=false;
+				document.getElementById('analyzecard').setAttribute('class','link-card')
+			}
+			else {seDeconnecter();}
+		})
+		.catch(e=>{
+			console.log("Hors connexion");
+		});
 	});
 	document.addEventListener('disconnected',()=>{
 		document.getElementById('cardconnect').hidden = false;
 		document.getElementById('cardisconnect').hidden=true;
+		document.getElementById('analyzecard').setAttribute('class','link-card disabled')
 	})
 	
 	if(estConnecte())triggerConnectedEvent();

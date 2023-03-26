@@ -14,7 +14,7 @@
 }
 
 .filelabel:hover {
-    background: linear-gradient(45deg, rgb(var(--accent)), #da62c4 60%, white 200%);
+    background: linear-gradient(45deg, var(--accent-color), var(--accent-color-light) 60%, white 200%);
     color: white;
     cursor: pointer;
 }
@@ -47,7 +47,8 @@ canvas {
 .duoslider{
     display: flex;
     flex-direction: row-reverse;
-    width: 200px;
+    justify-content: space-between;
+    width: 180px;
     text-align: center;
     margin: 10px;
 }
@@ -93,4 +94,7 @@ canvas {
     h3{
         margin: 0px;
     }
+}
+input[type='radio'],input[type='range'] {
+    accent-color: var(--accent-color);
 }

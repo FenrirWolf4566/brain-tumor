@@ -1,9 +1,16 @@
 :root {
     --accent: 124, 58, 237;
-    --accent-gradient: linear-gradient(45deg, rgb(var(--accent)), #da62c4 30%, white 60%);
-    --accent-gradient2: linear-gradient(45deg, #e71414, #f0e6e6 30%, #ffb908 60%);
-    --accent-validate:  linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
-    --accent-cancel: linear-gradient(45deg, #e71414 0%, #f0e6e6 100%);
+    --accent-color:rgb(var(--accent));
+    --accent-color-light:#da62c4;
+    --cancel-color:#e71414;
+    --cancel-color-middle:#ffb908;
+    --good-color:#84fab0;
+    --good-color-middle:#8fd3f4;
+   --gradient: linear-gradient(45deg,var(--accent-color), var(--accent-color-light) 30%, white 60%);
+    --accent-validate:  linear-gradient(120deg, var(--good-color) 0%, var(--good-color-middle) 100%);
+    --accent-cancel: linear-gradient(45deg, var(--cancel-color) 0%, #f0e6e6 100%);
+    --hover-transition: background-position 1s cubic-bezier(0.22, 1, 0.36, 1);
+    --hover-reverse-transition: background-position 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 html {
     font-family: system-ui, sans-serif;
@@ -28,7 +35,7 @@ h2{
     margin: 0;
 }
 .text-gradient {
-   background-image: var(--accent-gradient);
+   background-image: var(--gradient);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -47,12 +54,12 @@ h2{
     font-size: 0.875em;
     font-weight: bold;
     background: rgba(var(--accent), 12%);
-    color: rgb(var(--accent));
+    color: var(--accent-color);
     border-radius: 4px;
     padding: 0.3em 0.45em;
 }
 .instructions strong {
-    color: rgb(var(--accent));
+    color: var(--accent-color);
 }
 .link-card-grid {
     display: grid;

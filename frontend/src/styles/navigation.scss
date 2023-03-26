@@ -2,5 +2,5 @@
     text-decoration: none;
 }
 .title-link :hover{
-    background-image: var(--accent-gradient2);
+    background-image: linear-gradient(45deg,var(--cancel-color), #f0e6e6 30%);
 }

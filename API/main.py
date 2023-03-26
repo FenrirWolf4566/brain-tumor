@@ -68,20 +68,20 @@ def loadedfiles():
     return  nomsfichierslocaux
 
 @app.post("/files/t1")
-async def create_file_t1(file:UploadFile):
+async def create_file_t1(file:UploadFile,me = Depends(auth.get_current_user)):
     return  addFile(file,"t1")
 
 @app.post("/files/t2")
-async def create_file_t2(file:UploadFile):
+async def create_file_t2(file:UploadFile,me = Depends(auth.get_current_user)):
     #assert fichier_bon(file)
     return  addFile(file,"t2")
 
 @app.post("/files/t1ce")
-async def create_file_t1ce(file:UploadFile):
+async def create_file_t1ce(file:UploadFile,me = Depends(auth.get_current_user)):
     return  addFile(file,"t1ce")
 
 @app.post("/files/flair")
-async def create_file_flair(file:UploadFile):
+async def create_file_flair(file:UploadFile,me = Depends(auth.get_current_user)):
     #assert fichier_bon(file)
     return  addFile(file,"flair")
 
@@ -95,10 +95,7 @@ def sendFilesToCalculatingMachine(files: List[UploadFile]):
     #TODO
     return fichiers_locaux['t1']
 
-@app.get("/analyse",responses={200:{
-    "content":{"application/gzip"}
-    }})
-
+@app.get("/analyse",responses={200:{"content":{"application/gzip"}}})
 async def get_analyse():
     return FileResponse("brats_seg.nii.gz",media_type="application/gzip",filename="estimation_seg.nii.gz")
 

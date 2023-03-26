@@ -58,12 +58,16 @@ const title="Analyseur";
 
 
   function fileLoader(files,filetype){
+    const token = localStorage.getItem(SESSION_TOKEN);
     const data = new FormData()
     data.append('file', files[0])
   
     fetch(ROOT_URL+'files/'+filetype, {
       method: 'POST',
-      body: data
+      headers: {
+      'Authorization': `Bearer ${token}`,
+      },
+      body: data,
     })
     .then(response => response.json())
     .then(data => {

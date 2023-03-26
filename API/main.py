@@ -96,7 +96,7 @@ def sendFilesToCalculatingMachine(files: List[UploadFile]):
     return fichiers_locaux['t1']
 
 @app.get("/analyse",responses={200:{"content":{"application/gzip"}}})
-async def get_analyse():
+async def get_analyse(me = Depends(auth.get_current_user)):
     return FileResponse("brats_seg.nii.gz",media_type="application/gzip",filename="estimation_seg.nii.gz")
 
 

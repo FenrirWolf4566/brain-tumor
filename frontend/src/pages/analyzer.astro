@@ -95,8 +95,14 @@ const title="Analyseur";
   }
 
   function startAnalysis(){
+    const token = localStorage.getItem(SESSION_TOKEN);
     const url = ROOT_URL+"analyse";
-    fetch(url)
+    fetch(url,{
+      method:"GET",
+      headers: {
+      'Authorization': `Bearer ${token}`,
+      }
+    })
     .then( (res) => res.blob()).then(blob=>{
       displayCurrentFile(new File([blob], "response_seq.nii.gz"));
       setDownloadButton(blob)

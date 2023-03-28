@@ -23,8 +23,6 @@ app = FastAPI()
 #  Fonctionnalités principales #
 ################################
 
-fichiers_locaux = {}
-
 origins = [
     "http://localhost.tiangolo.com",
     "https://localhost.tiangolo.com",
@@ -52,38 +50,50 @@ async def root():
     return {"message": "Hello World"}
 
 def addFile(file : UploadFile, filetype):
-   fichiers_locaux[filetype]=file
+   auth.User.fichiers_locaux[filetype]=file
    return loadedfiles()
 
 @app.get("/files/cancel")
 def cancelfiles():
-    fichiers_locaux.clear()
-    return fichiers_locaux
+    auth.User.fichiers_locaux.clear()
+    return auth.User.fichiers_locaux
 
 @app.get("/files")
 def loadedfiles():
     nomsfichierslocaux = {}
-    for key in fichiers_locaux.keys():
-        nomsfichierslocaux[key] = fichiers_locaux[key].filename
+    for key in auth.User.fichiers_locaux.keys():
+        nomsfichierslocaux[key] = auth.User.fichiers_locaux[key].filename
     return  nomsfichierslocaux
 
 @app.post("/files/t1")
 async def create_file_t1(file:UploadFile,me = Depends(auth.get_current_user)):
-    return  addFile(file,"t1")
+    if(me.get_current_user == 'success'):
+        return  addFile(file,"t1")
+    else:
+        return me
 
 @app.post("/files/t2")
 async def create_file_t2(file:UploadFile,me = Depends(auth.get_current_user)):
     #assert fichier_bon(file)
-    return  addFile(file,"t2")
+    if(me.get_current_user == 'success'):
+        return  addFile(file,"t2")
+    else:
+        return me
 
 @app.post("/files/t1ce")
 async def create_file_t1ce(file:UploadFile,me = Depends(auth.get_current_user)):
-    return  addFile(file,"t1ce")
+    if(me.get_current_user == 'success'):
+        return  addFile(file,"t1ce")
+    else:
+        return me
 
 @app.post("/files/flair")
 async def create_file_flair(file:UploadFile,me = Depends(auth.get_current_user)):
     #assert fichier_bon(file)
-    return  addFile(file,"flair")
+    if(me.get_current_user == 'success'):
+        return  addFile(file,"flair")
+    else:
+        return me
 
 def fichier_bon(file: UploadFile):
     return Path(file).suffix=='t1.nii.gz' or os.path.splitext(file)[1]=='t2.nii.gz' or os.path.splitext(file)[1]=='t1ce.nii.gz' or os.path.splitext(file)[1]=='flair.nii.gz'
@@ -93,11 +103,14 @@ def filenames(files : List[UploadFile]):
 
 def sendFilesToCalculatingMachine(files: List[UploadFile]):
     #TODO
-    return fichiers_locaux['t1']
+    return auth.User.fichiers_locaux['t1']
 
 @app.get("/analyse",responses={200:{"content":{"application/gzip"}}})
 async def get_analyse(me = Depends(auth.get_current_user)):
-    return FileResponse("brats_seg.nii.gz",media_type="application/gzip",filename="estimation_seg.nii.gz")
+    if(me.get_current_user == 'success'):
+        return FileResponse("brats_seg.nii.gz",media_type="application/gzip",filename="estimation_seg.nii.gz")
+    else:
+        return me
 
 
 

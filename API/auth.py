@@ -37,6 +37,7 @@ class User(BaseModel):
     username: str
     email: Union[str, None] = None
     full_name: Union[str, None] = None
+    fichiers_locaux = {}
 
 class UserInDB(User):
     hashed_password: str

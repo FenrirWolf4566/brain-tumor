@@ -27,9 +27,12 @@ cd frontend/
 npm run start
 ```
 
+## A propos
+Dataset utilisé
+https://www.kaggle.com/datasets/dschettler8845/brats-2021-task1
+
 ## Auteurs
 FILOCHE Léo
 MORLOT-PINTA Louis
 DE ZORDO Benjamin
 LEGRAND Quentin
-PINAULT guillaume

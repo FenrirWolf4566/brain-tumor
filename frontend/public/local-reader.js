@@ -22,7 +22,6 @@ function getTypedData(niftiHeader, niftiImage) {
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_FLOAT32) { // Par ici que passent les fichiers d'anatomie
         typedData = new Float32Array(niftiImage);
         isAsegmentationFile = false;
-        removeLegend();
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_FLOAT64) {
         typedData = new Float64Array(niftiImage);
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_INT8) {
@@ -30,8 +29,6 @@ function getTypedData(niftiHeader, niftiImage) {
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_UINT16) { // Par ici que passent les fichiers de segmentation
         typedData = new Uint16Array(niftiImage);
         isAsegmentationFile = true;
-        classesSegmentation = classesDeSegmentation(typedData); // Les différentes classes possibles
-        createLegend(classesSegmentation);
     } else if (niftiHeader.datatypeCode === nifti.NIFTI1.TYPE_UINT32) {
         typedData = new Uint32Array(niftiImage);
     }
@@ -68,13 +65,16 @@ function readNIFTI(data, canvas, slider, coupe) {
     let typed = getTypedData(niftiHeader, niftiImage);
     let typedData = typed.typedData;
     let isAsegmentationFile = typed.isAsegmentationFile;
+    let classesSegmentation = [];
+    if(isAsegmentationFile)classesSegmentation = classesDeSegmentation(typedData); // Les différentes classes possibles
+    if(isAsegmentationFile) createLegend(classesSegmentation);
+    else removeLegend();
     let dims = niftiHeader.dims
     let stride = [1, dims[1], dims[1] * dims[2]]
     let array = ndarray(typedData, [dims[1], dims[2], dims[3]], stride).step(1, 1, -1)
 
-    updateSliderValue(slider, (0.5 * (+slider.max)));
-
-    let draw = function () { drawIt(canvas, niftiHeader, getImage(coupeId, +slider.value, array, niftiHeader), isAsegmentationFile) };
+    
+    let draw = function () { drawIt(canvas, niftiHeader, getImage(coupeId, +slider.value, array, niftiHeader), isAsegmentationFile,classesSegmentation) };
     // L'image sera recalculée à chaque mouvement du slider
     slider.oninput = draw;
     if (isAsegmentationFile) {
@@ -84,6 +84,7 @@ function readNIFTI(data, canvas, slider, coupe) {
         }
     }
     // Affiche image initiale  
+    updateSliderValue(slider, (0.5 * (+slider.max)));
     draw();
 }
 
@@ -104,7 +105,7 @@ function updateSliderValue(slider, newvalue) {
 }
 
 
-function drawIt(canvas, niftiHeader, image, isAsegmentationFile) {
+function drawIt(canvas, niftiHeader, image, isAsegmentationFile,classesSegmentation) {
     let cols = niftiHeader.dims[1];
     let rows = niftiHeader.dims[2];
     canvas.width = cols;

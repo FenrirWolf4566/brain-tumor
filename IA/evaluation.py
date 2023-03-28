@@ -78,7 +78,7 @@ def specificity(y_true, y_pred):
 #############################################################################
 # Model evaluation 
 #############################################################################
-print(" ///// Test")
+print("deja appel de méthode de predict by id")
 train_ids, val_ids, test_ids = data_loader.load_data()
 
 case = test_ids[0][-5:]

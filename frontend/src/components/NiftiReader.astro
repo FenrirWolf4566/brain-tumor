@@ -32,19 +32,36 @@ import '../styles/reader.scss';
 <script type="text/javascript">
 let currentfiles = [];
 function displayCurrentFile(f){
-    handleFileSelect([f],'nifticanvas','niftislider',getCoupe());
     currentfiles.push(f);
+    displaySpecificFile(currentfiles.length-1);
+}
+function displaySpecificFile(id){
+    let f = currentfiles[id];
+    handleFileSelect([f],'nifticanvas','niftislider',getCoupe());
 }
 document.getElementById('file').addEventListener('change', (evt)=> {
     let currentfile = evt.target.files[0];
-    // TODO: Continuer à ce niveau ( gestion de différents fichiers )
-    // let filenameControl = "<div id=file"+currentfiles.length+">";
-    //     filenameControl+=  currentfile.name;
-    //     filenameControl+="";
-    //     filenameControl+"<\div>";
-    // document.getElementById('filenames').innerHTML+= filenameControl;
     displayCurrentFile(currentfile);
+    displayFileNames();
 }, false);
+
+function displayFileNames(){
+    let filenameControl = "";
+    for(let i in currentfiles){
+        let file = currentfiles[i];
+        filenameControl += "<div class=filename id=file"+i+">";
+        filenameControl+=  file.name;
+        filenameControl+='<'+'/'+"div>"; 
+    }
+    let filenamesEl =  document.getElementById('filenames');
+    filenamesEl.innerHTML = filenameControl;
+    for(let filename of filenamesEl.getElementsByClassName('filename')){
+        filename.addEventListener('click',(evt)=>{
+            let id = +evt.target.id.replace("file","");
+            displaySpecificFile(id);
+        })
+    }
+}
 
 document.getElementById('niftislider').addEventListener("input", (event) => {
   document.getElementById('slider-progress').textContent = event.target.value +"%"

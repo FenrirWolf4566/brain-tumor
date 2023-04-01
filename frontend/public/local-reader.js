@@ -70,6 +70,18 @@ function readNIFTI(data, canvas, slider, coupe) {
     if(isAsegmentationFile) createLegend(classesSegmentation);
     else removeLegend();
     let dims = niftiHeader.dims
+    //compute voxel intensity range
+    let mn = typedData[0];
+    let mx = mn;
+    for (let i = 0; i < (dims[1] * dims[2] * dims[3]); i++) {
+        mn = Math.min(mn, typedData[i]);
+        mx = Math.max(mx, typedData[i]);
+    }
+    //console.log('Voxel intensity range ', typedData[0], mn, mx);
+    // set slope and intercept to convert range to 0..255, 
+    niftiHeader.displayIntercept = mn; //make darkest value 0
+    niftiHeader.displaySlope = 255.0 / (mx - mn); //make brightest value 255
+    //
     let stride = [1, dims[1], dims[1] * dims[2]]
     let array = ndarray(typedData, [dims[1], dims[2], dims[3]], stride).step(1, 1, -1)
 
@@ -121,6 +133,7 @@ function drawIt(canvas, niftiHeader, image, isAsegmentationFile,classesSegmentat
                 canvasImageData = setPixelValue(rowOffset + col, canvasImageData, rgbValue.r, rgbValue.g, rgbValue.b, 255);
             }
             else {
+                value = (value - niftiHeader.displayIntercept) * niftiHeader.displaySlope;
                 canvasImageData = setPixelValue(rowOffset + col, canvasImageData, value, value, value, 255)
             }
         }

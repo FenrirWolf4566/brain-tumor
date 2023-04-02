@@ -77,6 +77,10 @@ function readNIFTI(data, canvas, slider, coupe) {
         mn = Math.min(mn, typedData[i]);
         mx = Math.max(mx, typedData[i]);
     }
+    // special case (to avoid dividing by 0)
+    if(mn==mx){ 
+        mx = mn+1;
+    }
     //console.log('Voxel intensity range ', typedData[0], mn, mx);
     // set slope and intercept to convert range to 0..255, 
     niftiHeader.displayIntercept = mn; //make darkest value 0

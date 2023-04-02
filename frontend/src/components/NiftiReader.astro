@@ -31,17 +31,19 @@ import '../styles/reader.scss';
 
 <script type="text/javascript">
 let currentfiles = [];
-function displayCurrentFile(f){
-    currentfiles.push(f);
-    displaySpecificFile(currentfiles.length-1);
+let id_current = -1;
+function displayCurrentFile(){
+    displaySpecificFile(id_current);
 }
 function displaySpecificFile(id){
     let f = currentfiles[id];
     handleFileSelect([f],'nifticanvas','niftislider',getCoupe());
 }
 document.getElementById('file').addEventListener('change', (evt)=> {
-    let currentfile = evt.target.files[0];
-    displayCurrentFile(currentfile);
+    let f = evt.target.files[0];
+    currentfiles.push(f);
+    id_current = currentfiles.length-1;
+    displayCurrentFile();
     displayFileNames();
 }, false);
 
@@ -58,7 +60,8 @@ function displayFileNames(){
     for(let filename of filenamesEl.getElementsByClassName('filename')){
         filename.addEventListener('click',(evt)=>{
             let id = +evt.target.id.replace("file","");
-            displaySpecificFile(id);
+            id_current = id;
+            displayCurrentFile();
         })
     }
 }
@@ -83,7 +86,7 @@ function updateCurrentCoupe(){
     let coupes = document.getElementsByName("selecoupe");
     for(let selecoupe of coupes){
         selecoupe.addEventListener('change',(evt)=> {   
-            displayCurrentFile(currentfiles[0]);
+            displayCurrentFile(id_current);
         })
     }
 }

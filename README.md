@@ -1,7 +1,8 @@
 # brain-tumor
 Vous aurez ici accès à notre code source et à la documentation de notre projet d'ESIR 2 SI
 ## Demo
-![demobrainfrontfast](https://user-images.githubusercontent.com/62034725/225095053-7b6e2e60-490d-43cd-8084-0fcc218b3b38.gif)
+![demovgvisionneur](https://user-images.githubusercontent.com/62034725/229370877-f31c9523-1c7b-40bc-8a7a-78a36803799b.gif)
+
 
 ## Installation 
 ### IA

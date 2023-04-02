@@ -52,16 +52,16 @@ const title="Analyseur";
 </Layout>
 
 <script is:inline>
-  fetch(ROOT_URL+'files/').then(response=>response.json()).then((states)=>{
+  const token = localStorage.getItem(SESSION_TOKEN);
+
+  fetch(ROOT_URL+'files/',{method:'GET',headers:{'Authorization': `Bearer ${token}`}}).then(response=>response.json()).then((states)=>{
     filestatesupdate(states)
   })
 
 
   function fileLoader(files,filetype){
-    const token = localStorage.getItem(SESSION_TOKEN);
     const data = new FormData()
     data.append('file', files[0])
-  
     fetch(ROOT_URL+'files/'+filetype, {
       method: 'POST',
       headers: {
@@ -104,7 +104,8 @@ const title="Analyseur";
       }
     })
     .then( (res) => res.blob()).then(blob=>{
-      displayCurrentFile(new File([blob], "response_seq.nii.gz"));
+      addNewFile(new File([blob],"response_seq.nii.gz"));
+      displayCurrentFile();
       setDownloadButton(blob)
     }) 
   }
@@ -118,7 +119,7 @@ const title="Analyseur";
   }
 
   function cancelUploads(){
-    fetch(ROOT_URL+'files/cancel').then(response=>response.json()).then((states)=>{
+    fetch(ROOT_URL+'files/cancel',{method:'GET',headers:{'Authorization': `Bearer ${token}`}}).then(response=>response.json()).then((states)=>{
       let filedroppers = document.getElementsByClassName('filedropper');
       for(let dropper of filedroppers){
         let label = dropper.children[0]

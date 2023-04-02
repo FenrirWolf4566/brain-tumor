@@ -39,10 +39,14 @@ function displaySpecificFile(id){
     let f = currentfiles[id];
     handleFileSelect([f],'nifticanvas','niftislider',getCoupe());
 }
-document.getElementById('file').addEventListener('change', (evt)=> {
-    let f = evt.target.files[0];
+
+function addNewFile(f){
     currentfiles.push(f);
     id_current = currentfiles.length-1;
+}
+document.getElementById('file').addEventListener('change', (evt)=> {
+    let f = evt.target.files[0];
+    addNewFile(f)
     displayCurrentFile();
     displayFileNames();
 }, false);

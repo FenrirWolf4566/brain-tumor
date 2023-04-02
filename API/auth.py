@@ -12,19 +12,18 @@ from constants import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY,TOKEN_U
 
 ## Détails pour la création du token
 
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=TOKEN_URL)
 
 fake_users_db = {
     "johndoe": {
+        "id":"1",
         "username": "johndoe",
         "full_name": "John Doe",
         "email": "johndoe@example.com",
         "hashed_password": pwd_context.hash("bonjour"),
     }
 }
-
 
 class Token(BaseModel):
     access_token: str
@@ -34,10 +33,10 @@ class TokenData(BaseModel):
     username: Union[str, None] = None
 
 class User(BaseModel):
+    id : int
     username: str
     email: Union[str, None] = None
     full_name: Union[str, None] = None
-    fichiers_locaux = {}
 
 class UserInDB(User):
     hashed_password: str

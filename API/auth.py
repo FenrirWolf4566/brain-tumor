@@ -22,6 +22,13 @@ fake_users_db = {
         "full_name": "John Doe",
         "email": "johndoe@example.com",
         "hashed_password": pwd_context.hash("bonjour"),
+    },
+    "alicefontaine": {
+        "id":"2",
+        "username": "alicefontaine",
+        "full_name": "Alice Fontaine",
+        "email": "alicefontaine@example.com",
+        "hashed_password": pwd_context.hash("salut"),
     }
 }
 

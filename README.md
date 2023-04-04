@@ -8,7 +8,10 @@ Vous aurez ici accès à notre code source et à la documentation de notre proje
 ### IA
 //TODO 
 ### Backend
-//TODO (installer les dépendances python --voir les import)
+```
+cd API/
+pip install -r requirements.txt (installer les dépendances python --voir les import)
+```
 ### Frontend
 ```
 cd frontend/

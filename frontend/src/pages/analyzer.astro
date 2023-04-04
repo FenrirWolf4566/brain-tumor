@@ -16,6 +16,7 @@ const title="Analyseur";
         C'est ici que se passe l'analyse.
       </span>
         <div class="analyzebuttons">
+          <span id="loading-analyse" hidden>Analyse en cours...</span>
           <a class="analysebutton" id="download-button" hidden>
             Télécharger
           </a>
@@ -95,6 +96,8 @@ const title="Analyseur";
   }
 
   function startAnalysis(){
+    let loadingEl = document.getElementById('loading-analyse');
+    loadingEl.hidden = false;
     const token = localStorage.getItem(SESSION_TOKEN);
     const url = ROOT_URL+"analyse";
     fetch(url,{
@@ -105,6 +108,7 @@ const title="Analyseur";
     })
     .then( (res) => res.blob()).then(blob=>{
       addNewFile(new File([blob],"response_seq.nii.gz"));
+      loadingEl.hidden = true;
       displayCurrentFile();
       setDownloadButton(blob)
     }) 

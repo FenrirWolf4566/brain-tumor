@@ -1,3 +1,5 @@
 API/__pycache__/*.pyc
 IA/dataset
 IA/Sample_BRATZ
+API/niftis/patients/*
+API/niftis/predictions/*

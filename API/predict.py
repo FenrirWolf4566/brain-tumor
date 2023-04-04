@@ -18,14 +18,12 @@ from train_model import model
 
 
 def predictByPath(case_path,case):
-    files = next(os.walk(case_path))[2]
     X = np.empty((VOLUME_SLICES, IMG_SIZE, IMG_SIZE, 2))
-    y = np.empty((VOLUME_SLICES, IMG_SIZE, IMG_SIZE))
     
-    vol_path = os.path.join(case_path, f'{case}_flair.nii');
+    vol_path = case_path+"/" f'{case}_flair.nii'
     flair=nib.load(vol_path).get_fdata()
     
-    vol_path = os.path.join(case_path, f'{case}_t1ce.nii');
+    vol_path = os.path.join(case_path, f'{case}_t1ce.nii')
     ce=nib.load(vol_path).get_fdata() 
     
     for j in range(VOLUME_SLICES):
@@ -39,7 +37,7 @@ def predictsById(case):
     """
     Combine and save the .nii of prediction
     """
-    path = f"{PATIENT_PATH}\{case}"
+    path = f"{PATIENT_PATH}/{case}"
     p = predictByPath(path,case)
     core = p[:,:,:,2]
     edema= p[:,:,:,1]
@@ -74,5 +72,7 @@ def saveNifti(image, case) :
     template_nii = nib.load(TEMPLATE_PATH)
     result = nib.Nifti1Image(image, template_nii.affine, template_nii.header)
     nib.save(result, PREDICTION_PATH+"/"+"{}".format(case)+"_seg.nii")
+    print("FICHIER SAUVE"+PREDICTION_PATH+"/"+"{}".format(case)+"_seg.nii")
 
-predictsById(case="01572")
+
+# predictsById(case="01572")

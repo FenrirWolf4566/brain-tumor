@@ -4,6 +4,7 @@ import keras.backend as K
 import tensorflow as tf
 from tensorflow import keras
 import pandas as pd
+from variables import *
 
 
 #############################################################################
@@ -60,19 +61,10 @@ def specificity(y_true, y_pred):
 
 K.clear_session()
 
-# Sauvegarde du model .h5
-# history =  model.fit(training_generator,
-#                     epochs=35,
-#                     steps_per_epoch=len(train_ids),
-#                     callbacks= callbacks,
-#                     validation_data = valid_generator
-#                     )  
-# model.save("model_x1_1.h5")
 
 ############ load trained model ################
-#model = keras.models.load_model('../input/modelperclasseval/model_per_class.h5', 
 
-model = keras.models.load_model('IA/model/model_per_class.h5', 
+model = keras.models.load_model(MODEL_PATH +'model_per_class.h5', 
                                    custom_objects={ 'accuracy' : tf.keras.metrics.MeanIoU(num_classes=4),
                                                    "dice_coef": dice_coef,
                                                    "precision": precision,
@@ -83,7 +75,7 @@ model = keras.models.load_model('IA/model/model_per_class.h5',
                                                    "dice_coef_enhancing": dice_coef_enhancing
                                                   }, compile=False)
 
-history = pd.read_csv('IA/model/training_per_class.log', sep=',', engine='python')
+history = pd.read_csv(MODEL_PATH+'training_per_class.log', sep=',', engine='python')
 
 hist=history
 
@@ -99,23 +91,3 @@ val_loss=hist['val_loss']
 
 train_dice=hist['dice_coef']
 val_dice=hist['val_dice_coef']
-
-#f,ax=plt.subplots(1,4,figsize=(16,8))
-
-#ax[0].plot(epoch,acc,'b',label='Training Accuracy')
-#ax[0].plot(epoch,val_acc,'r',label='Validation Accuracy')
-#ax[0].legend()
-
-#ax[1].plot(epoch,loss,'b',label='Training Loss')
-#ax[1].plot(epoch,val_loss,'r',label='Validation Loss')
-#ax[1].legend()
-
-#ax[2].plot(epoch,train_dice,'b',label='Training dice coef')
-#ax[2].plot(epoch,val_dice,'r',label='Validation dice coef')
-#ax[2].legend()
-
-#ax[3].plot(epoch,hist['mean_io_u'],'b',label='Training mean IOU')
-#ax[3].plot(epoch,hist['val_mean_io_u'],'r',label='Validation mean IOU')
-#ax[3].legend()
-
-#plt.show()

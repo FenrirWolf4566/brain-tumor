@@ -16,6 +16,8 @@ from constants import TOKEN_URL
 
 import auth
 
+import predict
+
 # uvicorn main:app --reload
 
 app = FastAPI()
@@ -114,8 +116,11 @@ def sendFilesToCalculatingMachine(files: List[UploadFile], user : auth.User):
 
 
 @app.get("/analyse", responses={200: {"content": {"application/gzip"}}})
-async def get_analyse(me=Depends(auth.get_current_user)):
-    return FileResponse("brats_seg.nii.gz", media_type="application/gzip", filename="estimation_seg.nii.gz")
+async def get_analyse():
+    print("Fichier créé")
+    predict.predictsById(case="01572") #01572
+    # return FileResponse("brats_seg.nii.gz", media_type="application/gzip", filename="estimation_seg.nii.gz")
+    return FileResponse("01572_seg"+".nii", media_type="application/gzip", filename="estimation_seg.nii")
 
 
 #############################

@@ -17,7 +17,7 @@ from train_model import model
 #############################################################################
 
 
-def predictByPath(case_path,case):
+async def predictByPath(case_path,case):
     X = np.empty((VOLUME_SLICES, IMG_SIZE, IMG_SIZE, 2))
     
     vol_path = case_path+"/" f'{case}_flair.nii'
@@ -30,19 +30,19 @@ def predictByPath(case_path,case):
         X[j,:,:,0] = cv2.resize(flair[:,:,j+VOLUME_START_AT], (IMG_SIZE,IMG_SIZE))
         X[j,:,:,1] = cv2.resize(ce[:,:,j+VOLUME_START_AT], (IMG_SIZE,IMG_SIZE))
         
-    return model.predict(X/np.max(X), verbose=1)
+    return  model.predict(X/np.max(X), verbose=1)
 
 
-def predictsById(case):
+async def predictsById(case):
     """
     Combine and save the .nii of prediction
     """
     path = f"{PATIENT_PATH}/{case}"
-    p = predictByPath(path,case)
+    p = await predictByPath(path,case)
     core = p[:,:,:,2]
     edema= p[:,:,:,1]
     enhancing = p[:,:,:,3]
-    predictionNii = combine(core, edema, enhancing)
+    predictionNii =  combine(core, edema, enhancing)
     saveNifti(predictionNii, case)
     
 
@@ -72,7 +72,6 @@ def saveNifti(image, case) :
     template_nii = nib.load(TEMPLATE_PATH)
     result = nib.Nifti1Image(image, template_nii.affine, template_nii.header)
     nib.save(result, PREDICTION_PATH+"/"+"{}".format(case)+"_seg.nii")
-    print("FICHIER SAUVE"+PREDICTION_PATH+"/"+"{}".format(case)+"_seg.nii")
 
 
 # predictsById(case="01572")

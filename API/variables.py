@@ -1,9 +1,10 @@
+#### VARIABLES UTILISEES POUR LA PREDICTION
 VOLUME_SLICES = 100 
 VOLUME_START_AT = 22
 IMG_SIZE=128
 
 PATIENT_PATH = "niftis/patients"
-PREDICTION_PATH = "."
+PREDICTION_PATH = "niftis/predictions"
 TEMPLATE_PATH = "niftis/template_seg.nii"
 
 MODEL_PATH = "model/"

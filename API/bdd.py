@@ -28,3 +28,8 @@ def insert_data_into_patients_table(conn):
 def close_connection(conn):
     conn.close()
 
+def create_user(conn, id, username, full_name, email, hashed_password):
+    conn.execute(f'''INSERT INTO comptes (id, username, full_name, email, hashed_password)
+                     VALUES ('{id}', '{username}', '{full_name}', '{email}', '{hashed_password}')''')
+
+

@@ -3,11 +3,6 @@ pydantic
 datetime
 typing
 jose
-passlib
-fastapi.middleware.cors
-pathlib
-base64
-secrets
 opencv-python
 glob2
 numpy

@@ -2,7 +2,8 @@ fastapi
 pydantic
 datetime
 typing
-jose
+python-jose[cryptography]
+passlib[bcrypt]
 opencv-python
 glob2
 numpy

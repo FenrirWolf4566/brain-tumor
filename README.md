@@ -7,6 +7,11 @@ Vous aurez ici accès à notre code source et à la documentation de notre proje
 ## Installation 
 ### Configuration
 Assurez-vous que  [Python](https://www.python.org/downloads/) est installé sur votre machine, avec une version <3.11. (Pour le développement, nous avons utilisé les versions 3.9 et 3.10).
+### Clone du projet
+Le projet est assez lourd (par son passif), nous vous conseillons de ne cloner que la dernière version :
+```bash
+git clone --depth 1 https://github.com/FenrirWolf4566/brain-tumor.git 
+```
 
 ### IA
 //TODO 

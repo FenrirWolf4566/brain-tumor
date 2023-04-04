@@ -11,6 +11,7 @@ Vous aurez ici accès à notre code source et à la documentation de notre proje
 ```
 cd API/
 pip install -r requirements.txt (installer les dépendances python --voir les import)
+```
 ### Frontend
 ```
 cd frontend/

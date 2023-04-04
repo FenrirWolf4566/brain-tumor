@@ -5,12 +5,15 @@ Vous aurez ici accès à notre code source et à la documentation de notre proje
 
 
 ## Installation 
+### Configuration
+Ensure that you have [Python](https://www.python.org/downloads/) installed on your system with a version <3.11. (For development, we used versions 3.9 and 3.10)
+
 ### IA
 //TODO 
 ### Backend
 ```
 cd API/
-pip install -r requirements.txt (installer les dépendances python --voir les import)
+pip install -r requirements.txt 
 ```
 ### Frontend
 ```

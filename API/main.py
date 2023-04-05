@@ -13,7 +13,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 import os
 
-from variables import PATIENT_PATH,PREDICTION_PATH
+from variables import PATIENT_PATH,PREDICTION_PATH,temp_folder
 from constants import TOKEN_URL
 
 import auth
@@ -23,6 +23,7 @@ import predict
 import os
 import gzip
 import io
+import tempfile
 
 # uvicorn main:app --reload
 
@@ -51,9 +52,13 @@ app.add_middleware(
 
 fichiers_locaux = {} #dictionnaire de dictionnaires
 
+
 async def write_file(file_path, file_name,file: UploadFile = File(...)):
+    file_path = os.path.join(temp_folder.name,file_path)
+    print(file_path)
     Path(file_path).mkdir(parents=True, exist_ok=True)
-    with open(file_path+file_name, "wb") as f:
+    file_path = os.path.join(file_path,file_name)
+    with open(file_path, "wb") as f:
         f.write(file.file.read())
         return {"filename": file_name}
     
@@ -100,7 +105,6 @@ async def root():
 def addFile(file : UploadFile, filetype : str,user:auth.User):
    if user['res_status']=='success':
         fichiers_locaux[user['id']][filetype]=file
-        print(fichiers_locaux[user['id']])
         return loadedfiles(user)
    return user
 
@@ -125,38 +129,37 @@ def loadedfiles(me=Depends(auth.get_current_user)):
 async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
     if(me['res_status']=='success'):
         patient_id = str(me['id'])
-        #await write_file(PATIENT_PATH+"/"+patient_id+"/",patient_id+"_t1.nii",file)
-        res = await write_niftii_file(PATIENT_PATH+"/"+patient_id+"/",patient_id+"_t1.nii",file)
+        res =  await write_niftii_file((os.path.join(PATIENT_PATH,patient_id)),patient_id+"_t1.nii",file)
         if("res_status" in res and res['res_status']=='error'):
             return res
         return addFile(file,"t1",me)
     return me
 
 @app.post("/files/t2")
-async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
+async def create_file_t2(file: UploadFile, me=Depends(auth.get_current_user)):
     if me['res_status'] == 'success': 
         patient_id = str(me['id'])
-        res = await write_niftii_file(PATIENT_PATH+"/"+patient_id+"/",patient_id+"_t2.nii",file)
+        res =  await write_niftii_file((os.path.join(PATIENT_PATH,patient_id)),patient_id+"_t2.nii",file)
         if("res_status" in res and res['res_status']=='error'):
             return res
         return addFile(file, "t2",me)
     else : return me
 
 @app.post("/files/t1ce")
-async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
+async def create_file_t1ce(file: UploadFile, me=Depends(auth.get_current_user)):
     if me['res_status'] == 'success': 
         patient_id = str(me['id'])
-        res = await write_niftii_file(PATIENT_PATH+"/"+patient_id+"/",patient_id+"_t1ce.nii",file)
+        res =  await write_niftii_file((os.path.join(PATIENT_PATH,patient_id)),patient_id+"_t1ce.nii",file)
         if("res_status" in res and res['res_status']=='error'):
             return res
         return addFile(file, "t1ce",me)
     else : return me
 
 @app.post("/files/flair")
-async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
+async def create_file_flair(file: UploadFile, me=Depends(auth.get_current_user)):
     if me['res_status'] == 'success': 
         patient_id = str(me['id'])
-        res = await write_niftii_file(PATIENT_PATH+"/"+patient_id+"/",patient_id+"_flair.nii",file)
+        res =  await write_niftii_file((os.path.join(PATIENT_PATH,patient_id)),patient_id+"_flair.nii",file)
         if("res_status" in res and res['res_status']=='error'):
             return res
         return addFile(file, "flair",me)
@@ -174,9 +177,9 @@ def filenames(files: List[UploadFile]):
 async def get_analyse(me=Depends(auth.get_current_user)):
     if me['res_status'] == 'success':
         patient_id = str(me['id'])
-        await predict.predictsById(case=patient_id) 
+        seg_file_path = await predict.predictsById(case=patient_id) 
         # return FileResponse("brats_seg.nii.gz", media_type="application/gzip", filename="estimation_seg.nii.gz")
-        return FileResponse(PREDICTION_PATH+'/' +patient_id+"_seg"+".nii", media_type="application/gzip", filename="estimation_seg.nii")
+        return FileResponse(seg_file_path, media_type="application/gzip", filename="estimation_seg.nii")
     return me
 
 #############################

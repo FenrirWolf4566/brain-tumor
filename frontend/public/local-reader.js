@@ -238,4 +238,5 @@ function resetCanvas(idCanvas, idSlider) {
     slider.oninput = function () { }
     let canvas = document.getElementById(idCanvas)
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    removeLegend();
 }

@@ -77,7 +77,14 @@ const title="Analyseur";
     })
     .then(response => response.json())
     .then(data => {
-       document.getElementById(callinginput.id+"label").innerHTML+='<span>:'+file.name+"</span>";
+      let span = callinginput.querySelector("span");
+      if(span!==null)span.remove();
+      const shortenString = (s, N1, N2) => s.length > N1 + N2 + 3 ? `${s.slice(0, N1)}...${s.slice(-N2)}` : s;
+       let name = file.name
+       let shortname = shortenString(name,3,9);
+       let label =document.getElementById(callinginput.id+"label")
+       label.innerHTML+='<span>'+(shortname)+"</span>";
+       label.setAttribute('title',name)
       filestatesupdate(data.loaded_files);
     })
     .catch(error => {
@@ -98,7 +105,7 @@ const title="Analyseur";
       document.getElementById('cancelbutton').hidden=true;
     }
     else document.getElementById('cancelbutton').hidden=false;
-    if(loadedFiles==4){
+    if(loadedFiles>=4){ //tous les fichiers d'anatomie sont chargés
       startAnalysis();
     }
   }

@@ -23,8 +23,11 @@ function triggerDisconnectedEvent(){
     document.dispatchEvent(event);
 }
 
-function seDeconnecter(){
-    localStorage.clear()
+async function seDeconnecter(){
+    const token = localStorage.getItem(SESSION_TOKEN);
+    const url = ROOT_URL+'account/disconnect/';
+    await fetch(url, {method: 'GET',headers: {'Accept': 'application/json','Authorization': `Bearer `+token}})
+    localStorage.clear();
     triggerDisconnectedEvent();
 }
 

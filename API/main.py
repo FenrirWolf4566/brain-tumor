@@ -179,6 +179,11 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         if not doctorExists(me['id']): dossiers_patients[me['id']] = {TMP_PATIENT_ID : tempfile.TemporaryDirectory()}
     return res
 
+@app.get("/account/disconnect")
+async def  logout(me=Depends(auth.get_current_user)):
+    if me['res_status'] == 'success':
+        eraseAllDossiersPatientDoctor(me['id'])
+    return me
 
 @app.get("/account/me/")
 async def whoami(me=Depends(auth.get_current_user)):

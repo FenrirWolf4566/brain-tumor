@@ -2,7 +2,6 @@
 import os
 from pathlib import Path
 import cv2
-import glob
 import numpy as np
 import matplotlib.pyplot as plt 
 import nibabel as nib
@@ -18,23 +17,18 @@ from train_model import model
 #############################################################################
 
 
-import os
-import nibabel as nib
 
 
 def loadNiftiFile(file_path):
-    file_path = os.path.join(temp_folder.name, file_path)
     img = nib.load(file_path)
     return img.get_fdata()
 
 def saveNiftiFile(data, file_path, file_name):
-    file_path = os.path.join(temp_folder.name, file_path)
     Path(file_path).mkdir(parents=True, exist_ok=True)
     file_path = os.path.join(file_path,file_name)
     nib.save(data, file_path)
+    print("Nifti File saved :"+file_path)
     return file_path
-
-
 
 
 async def predictByPath(case_path,case):
@@ -49,17 +43,17 @@ async def predictByPath(case_path,case):
     return  model.predict(X/np.max(X), verbose=1)
 
 
-async def predictsById(case):
+async def predictsById(patient_folder,case):
     """
     Combine and save the .nii of prediction
     """
-    path = os.path.join(PATIENT_PATH,case) 
+    path = patient_folder 
     p = await predictByPath(path,case)
     core = p[:,:,:,2]
     edema= p[:,:,:,1]
     enhancing = p[:,:,:,3]
     predictionNii =  combine(core, edema, enhancing)
-    return saveNifti(predictionNii, case)
+    return saveNifti(predictionNii, os.path.join(patient_folder,case),case)
 
     
 
@@ -85,10 +79,10 @@ def thesholding(tab, threshold, contrast):
     return resultat
 
 
-def saveNifti(image, case) :
+def saveNifti(image, case,path) :
     template_nii = nib.load(TEMPLATE_PATH)
     result = nib.Nifti1Image(image, template_nii.affine, template_nii.header)
-    return saveNiftiFile(result,PREDICTION_PATH,case+"_seg.nii")
+    return saveNiftiFile(result,path,case+"_seg.nii")
 
 
 # predictsById(case="01572")

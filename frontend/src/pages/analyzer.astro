@@ -25,7 +25,7 @@ const title="Analyseur";
             Télécharger
           </a>
           <button class="analysebutton" id="cancelbutton" onclick="cancelUploads()" hidden>
-            Annuler
+            Effacer
           </button>
         </div>
       </div>
@@ -34,19 +34,19 @@ const title="Analyseur";
       <div class="instructions filedroppers">
         <div class="filedropper">
           <label id="filet1label" for="filet1">T1</label>
-          <input id="filet1" type="file"  onchange="fileLoader(this.files,'t1')">
+          <input id="filet1" type="file"  onchange="fileLoader(this.files,'t1',this);">
         </div>
         <div class="filedropper">
           <label id="filet1celabel" for="filet1ce">T1ce</label>
-          <input id="filet1ce" type="file"  onchange="fileLoader(this.files,'t1ce')">
+          <input id="filet1ce" type="file"  onchange="fileLoader(this.files,'t1ce',this);">
         </div>
         <div class="filedropper">
           <label id="filet2label" for="filet2">T2</label>
-          <input id="filet2" type="file"  onchange="fileLoader(this.files,'t2')">
+          <input id="filet2" type="file"  onchange="fileLoader(this.files,'t2',this)">
         </div>
         <div class="filedropper">
-          <label id="fileflairlabel" for="filetflair">Flair</label>
-          <input id="filetflair" type="file"  onchange="fileLoader(this.files,'flair')">
+          <label id="fileflairlabel" for="fileflair">Flair</label>
+          <input id="fileflair" type="file"  onchange="fileLoader(this.files,'flair',this)">
         </div>
       </div>  
       <div class="instructions">
@@ -60,13 +60,14 @@ const title="Analyseur";
   const token = localStorage.getItem(SESSION_TOKEN);
 
   fetch(ROOT_URL+'files/',{method:'GET',headers:{'Authorization': `Bearer ${token}`}}).then(response=>response.json()).then((states)=>{
-    filestatesupdate(states)
+    filestatesupdate(states.loaded_files)
   })
 
 
-  function fileLoader(files,filetype){
+  function fileLoader(files,filetype,callinginput){
     const data = new FormData()
-    data.append('file', files[0])
+    let file = files[0]
+    data.append('file', file)
     fetch(ROOT_URL+'files/'+filetype, {
       method: 'POST',
       headers: {
@@ -76,18 +77,21 @@ const title="Analyseur";
     })
     .then(response => response.json())
     .then(data => {
-      filestatesupdate(data);
+       document.getElementById(callinginput.id+"label").innerHTML+='<span>:'+file.name+"</span>";
+      filestatesupdate(data.loaded_files);
     })
     .catch(error => {
       console.error(error)
     }); 
+    //pouvoir recharger plusieurs fois le même fichier
+    callinginput.value = null; 
   }
 
   function filestatesupdate(states){
     loadedFiles = 0;
-    for (let filetype in states){
+    for (let filetype of states){
      let filelabel =  document.getElementById("file"+filetype+"label");
-     filelabel.setAttribute("state","loaded")
+     if(filelabel!==null) filelabel.setAttribute("state","loaded")
      loadedFiles++;
     }
     if(loadedFiles==0){
@@ -127,6 +131,10 @@ const title="Analyseur";
   }
 
   function cancelUploads(){
+    Array.from(document.getElementsByClassName('filedroppers')[0].getElementsByClassName('filedropper')).forEach(e=>{
+       let span = e.querySelector("span");
+       if(span!==null)span.remove();
+    })
     fetch(ROOT_URL+'files/cancel',{method:'GET',headers:{'Authorization': `Bearer ${token}`}}).then(response=>response.json()).then((states)=>{
       let filedroppers = document.getElementsByClassName('filedropper');
       for(let dropper of filedroppers){

@@ -1,5 +1,6 @@
-API/__pycache__/*.pyc
+API/__pycache__/*
 IA/dataset
 IA/Sample_BRATZ
 API/niftis/patients/*
 API/niftis/predictions/*
+IA/__pycache__/*

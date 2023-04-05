@@ -138,10 +138,12 @@ const title="Analyseur";
   }
 
   function cancelUploads(){
+    // suppression des noms de fichiers
     Array.from(document.getElementsByClassName('filedroppers')[0].getElementsByClassName('filedropper')).forEach(e=>{
        let span = e.querySelector("span");
        if(span!==null)span.remove();
     })
+    //appel de l'API pour indiquer que l'on souhaite effacer les fichiers déposés
     fetch(ROOT_URL+'files/cancel',{method:'GET',headers:{'Authorization': `Bearer ${token}`}}).then(response=>response.json()).then((states)=>{
       let filedroppers = document.getElementsByClassName('filedropper');
       for(let dropper of filedroppers){

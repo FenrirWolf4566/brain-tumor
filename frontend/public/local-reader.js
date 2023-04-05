@@ -236,5 +236,6 @@ function resetCanvas(idCanvas, idSlider) {
     let slider = document.getElementById(idSlider);
     updateSliderValue(slider, (+slider.max + (+slider.min)) / 2)
     slider.oninput = function () { }
-    document.getElementById(idCanvas).getContext('2d').reset();
+    let canvas = document.getElementById(idCanvas)
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 }

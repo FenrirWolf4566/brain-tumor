@@ -33,3 +33,8 @@ function guard(){
         location.href='/';
     }
 }
+
+async function updateConnectedState(){
+    let who = await whoami()
+    if(who['res_status']=='error')seDeconnecter();
+}

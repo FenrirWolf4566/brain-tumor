@@ -9,7 +9,11 @@ const title="Analyseur";
 ---
 
 <Layout title={title} account>
-  <script is:inline>guard()</script>
+  <script is:inline type="module">
+    guard();
+    await updateConnectedState()
+    guard()
+  </script>
     <Navigation title={title}></Navigation>
     <div class="instructions" id="introbloc">
       <span>

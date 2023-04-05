@@ -20,6 +20,10 @@ import auth
 
 import predict
 
+import os
+import gzip
+import io
+
 # uvicorn main:app --reload
 
 app = FastAPI()
@@ -52,6 +56,41 @@ async def write_file(file_path, file_name,file: UploadFile = File(...)):
     with open(file_path+file_name, "wb") as f:
         f.write(file.file.read())
         return {"filename": file_name}
+    
+
+
+async def write_niftii_file(file_path, file_name, file: UploadFile = File(...)):
+    # Check if file is gzipped NIfTI (.nii.gz)
+    filename, file_extension = os.path.splitext(file.filename)
+    if file_extension == '.gz':
+        with gzip.open(file.file, 'rb') as f_in:
+            f_out = io.BytesIO()
+            while True:
+                chunk = f_in.read(4096)
+                if not chunk:
+                    break
+                f_out.write(chunk)
+            f_out.seek(0)
+            file_to_write = UploadFile(filename=filename[:-3], file=f_out)
+    else:
+        file_to_write = file
+
+    # Check if file is NIfTI (.nii) or gzipped NIfTI (.nii.gz)
+    _, ext = os.path.splitext(file_name)
+    if ext not in ['.nii', '.nii.gz']:
+        # If a temporary file was created, close it
+        if file_to_write != file:
+            file_to_write.file.close()
+        return {"res_status":"error", "detail":"File is not a .nii or .nii.gz"}
+
+    # Write file
+    result = await write_file(file_path, file_name, file_to_write)
+
+    # If a temporary file was created, close it
+    if file_to_write != file:
+        file_to_write.file.close()
+
+    return result
 
 
 @app.get("/")
@@ -72,7 +111,6 @@ def cancelfiles(me=Depends(auth.get_current_user)):
         return fichiers_locaux[me['id']]
     return me
 
-
 @app.get("/files")
 def loadedfiles(me=Depends(auth.get_current_user)):
     if me['res_status'] == 'success':
@@ -87,7 +125,10 @@ def loadedfiles(me=Depends(auth.get_current_user)):
 async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
     if(me['res_status']=='success'):
         patient_id = str(me['id'])
-        await write_file(PATIENT_PATH+"/"+patient_id+"/",patient_id+"_t1.nii",file)
+        #await write_file(PATIENT_PATH+"/"+patient_id+"/",patient_id+"_t1.nii",file)
+        res = await write_niftii_file(PATIENT_PATH+"/"+patient_id+"/",patient_id+"_t1.nii",file)
+        if("res_status" in res and res['res_status']=='error'):
+            return res
         return addFile(file,"t1",me)
     return me
 
@@ -95,7 +136,9 @@ async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
 async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
     if me['res_status'] == 'success': 
         patient_id = str(me['id'])
-        await write_file(PATIENT_PATH+"/"+patient_id+"/",patient_id+"_t2.nii",file)
+        res = await write_niftii_file(PATIENT_PATH+"/"+patient_id+"/",patient_id+"_t2.nii",file)
+        if("res_status" in res and res['res_status']=='error'):
+            return res
         return addFile(file, "t2",me)
     else : return me
 
@@ -103,7 +146,9 @@ async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
 async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
     if me['res_status'] == 'success': 
         patient_id = str(me['id'])
-        await write_file(PATIENT_PATH+"/"+patient_id+"/",patient_id+"_t1ce.nii",file)
+        res = await write_niftii_file(PATIENT_PATH+"/"+patient_id+"/",patient_id+"_t1ce.nii",file)
+        if("res_status" in res and res['res_status']=='error'):
+            return res
         return addFile(file, "t1ce",me)
     else : return me
 
@@ -111,7 +156,9 @@ async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
 async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
     if me['res_status'] == 'success': 
         patient_id = str(me['id'])
-        await write_file(PATIENT_PATH+"/"+patient_id+"/",patient_id+"_flair.nii",file)
+        res = await write_niftii_file(PATIENT_PATH+"/"+patient_id+"/",patient_id+"_flair.nii",file)
+        if("res_status" in res and res['res_status']=='error'):
+            return res
         return addFile(file, "flair",me)
     else : return me
 

@@ -1,8 +1,9 @@
 # brain-tumor
-Vous aurez ici accès à notre code source et à la documentation de notre projet d'ESIR 2 SI
+brain-tumor est le nom de ce projet notre projet d'ESIR2 SI. Ce dépôt contient notre code source et sa documentation.
+Nous avons développé une solution intitulée "Visual Gliome" : une application web permettant de prédire les zones cancéreuses d'un cerveau, appelées "gliomes", sur bases d'images d'IRM.
 ## Demo
+### Visualiseur
 ![demovgvisionneur](https://user-images.githubusercontent.com/62034725/229370877-f31c9523-1c7b-40bc-8a7a-78a36803799b.gif)
-
 
 ## Installation 
 ### Configuration
@@ -12,9 +13,6 @@ Le projet est assez lourd (par son passif), nous vous conseillons de ne cloner q
 ```bash
 git clone --depth 1 https://github.com/FenrirWolf4566/brain-tumor.git 
 ```
-
-### IA
-//TODO 
 ### Backend
 ```
 cd API/
@@ -25,9 +23,12 @@ pip install -r requirements.txt
 cd frontend/
 npm install
 ```
-## Execution (en local)
 ### IA
-//TODO
+Le dossier contient les fichiers qui permettent de construire le modèle d'IA.
+La prédiction effective de l'application est gérée dans le backend.
+Il n'est donc pas nécessaire d'installer les dépendances de ce dossier si vous souhaitez seulement exécuter l'application.
+//TODO (Un environnement Python est en cours de préparation)
+## Execution (en local)
 ### Backend
 ```
 cd API/
@@ -39,6 +40,10 @@ cd frontend/
 npm run start
 ```
 
+*Note : si vous utilisez Visual Studio Code, vous pouvez lancer le backend, le frontend et Chrome en 1 seule action (Sélectionner le profil 'All' dans 'Exécuter et Débuguer', puis appuyez sur F5).*
+
+### IA
+//TODO
 ## A propos
 Dataset utilisé
 https://www.kaggle.com/datasets/dschettler8845/brats-2021-task1

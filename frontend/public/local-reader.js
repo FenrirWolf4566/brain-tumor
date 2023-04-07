@@ -100,7 +100,7 @@ function readNIFTI(data, canvas, slider, coupe) {
         }
     }
     // Affiche image initiale  
-    updateSliderValue(slider, (0.5 * (+slider.max)));
+   // updateSliderValue(slider, (0.5 * (+slider.max)));
     draw();
 }
 

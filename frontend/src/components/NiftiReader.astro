@@ -6,27 +6,37 @@ import '../styles/reader.scss';
 <script is:inline src="/local-reader.js"> </script>
 
 <div class="niftireader">
-    <canvas id="nifticanvas" class="nifticanvas"  ></canvas>
     <input type="file" id="file" name="files" />
     <div class="controllers">
-        <div class="coupeselecter">
-            <label for="selecoupe"><h3>Sélectionnez un plan</h3></label>
-            <div>
+        <div class="controller" id="controller-plan">
+            <h3>Plan</h3>
+            <div class="control-body">
                 <input type="radio" id="axiale" name="selecoupe" value="axiale" checked>
-                 <label for="axiale">Axial</label>
-                 <input type="radio" id="sagittale" name="selecoupe" value="sagittale">
-                 <label for="sagittale">Sagittal</label>
-                 <input type="radio" id="coronale" name="selecoupe" value="coronale">
-                 <label for="coronale">Coronal</label>
+                <label for="axiale">Axial</label>
+                <input type="radio" id="sagittale" name="selecoupe" value="sagittale">
+                <label for="sagittale">Sagittal</label>
+                <input type="radio" id="coronale" name="selecoupe" value="coronale">
+                <label for="coronale">Coronal</label>
             </div>
         </div>
-        <div class="rangeprogress">
-            <label for="niftislider" id="slider-progress">50%</label>
-            <input id="niftislider" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
+        <div class="controller">
+            <h3>Position</h3>
+            <div class="control-body">
+                <label for="niftislider" class="labelslider" id="slider-progress">50%</label>
+                <input id="niftislider" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
+            </div>
         </div>
-        <div id="legend"></div>
-        <div id="filenames"></div>
+        <div class="controller">
+            <h3>Opacité</h3>
+            <div class="control-body">
+                <label for="opacityslider" class="labelslider" id="opacity-progress">50%</label>
+                <input id="opacityslider" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
+            </div>
+        </div>
     </div>
+    <canvas id="nifticanvas" class="nifticanvas" ></canvas>
+    <div id="legend"></div>
+    <div id="filenames"></div>
 </div>
 
 <script type="text/javascript">
@@ -66,8 +76,16 @@ function displayFileNames(){
             let id = +evt.target.id.replace("file","");
             id_current = id;
             displayCurrentFile();
+            updateIdCurrentFile();
         })
     }
+    updateIdCurrentFile();
+}
+function updateIdCurrentFile(){
+   for(let el of document.getElementsByClassName('filename')){
+    el.setAttribute('class','filename');
+   }
+   document.getElementById('file'+id_current).setAttribute('class','filename current-filename');
 }
 
 document.getElementById('niftislider').addEventListener("input", (event) => {

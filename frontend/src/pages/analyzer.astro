@@ -77,6 +77,7 @@ const title="Analyseur";
     })
     .then(response => response.json())
     .then(data => {
+      // show file name 
       let span = callinginput.querySelector("span");
       if(span!==null)span.remove();
       const shortenString = (s, N1, N2) => s.length > N1 + N2 + 3 ? `${s.slice(0, N1)}...${s.slice(-N2)}` : s;
@@ -85,7 +86,12 @@ const title="Analyseur";
        let label =document.getElementById(callinginput.id+"label")
        label.innerHTML+='<span>'+(shortname)+"</span>";
        label.setAttribute('title',name)
-      filestatesupdate(data.loaded_files);
+       // change state of files (loaded files)
+       filestatesupdate(data.loaded_files);
+       addNewFile(file)
+       console.log(currentfiles)
+       displayCurrentFile();
+       displayFileNames();
     })
     .catch(error => {
       console.error(error)

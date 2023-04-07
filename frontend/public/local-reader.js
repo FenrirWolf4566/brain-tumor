@@ -51,7 +51,7 @@ function getImage(dim, slice, array, header) {
     return image
 }
 
-function readNIFTI(data, canvas, slider, coupe) {
+function readNIFTI(data, canvas, slider, coupe,keeplegend=true) {
     let coupeId = coupe == "axiale" ? 3 : coupe == "sagittale" ? 1 : 2;
     var niftiHeader, niftiImage;
     // parse nifti
@@ -68,7 +68,7 @@ function readNIFTI(data, canvas, slider, coupe) {
     let classesSegmentation = [];
     if(isAsegmentationFile)classesSegmentation = classesDeSegmentation(typedData); // Les différentes classes possibles
     if(isAsegmentationFile) createLegend(classesSegmentation);
-    else removeLegend();
+    else if(!keeplegend) removeLegend();
     let dims = niftiHeader.dims
     //compute voxel intensity range
     let mn = typedData[0];
@@ -213,23 +213,23 @@ function makeSlice(file, start, length) {
     return null;
 }
 
-function readFile(file, canvas, slider, coupe) {
+function readFile(file, canvas, slider, coupe,keeplegend=true) {
     let blob = makeSlice(file, 0, file.size);
     let reader = new FileReader();
 
     reader.onloadend = function (evt) {
         if (evt.target.readyState === FileReader.DONE) {
-            readNIFTI(evt.target.result, canvas, slider, coupe);
+            readNIFTI(evt.target.result, canvas, slider, coupe,keeplegend);
         }
     };
 
     reader.readAsArrayBuffer(blob);
 }
 
-function handleFileSelect(files, idCanvas, idSlider, coupe) {
+function handleFileSelect(files, idCanvas, idSlider, coupe,keeplegend) {
     let canvas = document.getElementById(idCanvas);
     let slider = document.getElementById(idSlider);
-    if (files.length > 0 && slider !== null && canvas !== null) readFile(files[0], canvas, slider, coupe);
+    if (files.length > 0 && slider !== null && canvas !== null) readFile(files[0], canvas, slider, coupe,keeplegend);
 }
 
 function resetCanvas(idCanvas, idSlider) {

@@ -4,7 +4,6 @@ import '../styles/reader.scss';
 <script is:inline src="/ndarray.js"></script>
 <script is:inline src="/nifti-reader.js"></script>
 <script is:inline src="/local-reader.js"> </script>
-
 <div class="niftireader">
     <input type="file" id="file" name="files" />
     <div class="controllers">
@@ -47,52 +46,72 @@ function displayCurrentFile(){
 }
 function displaySpecificFile(id){
     let f = currentfiles[id];
-    handleFileSelect([f],'nifticanvas','niftislider',getCoupe());
+    if(id>=0 && id<currentfiles.length) handleFileSelect([f],'nifticanvas','niftislider',getCoupe(),true);
+    else resetLoadedCanvas();
 }
 
 function addNewFile(f){
-    currentfiles.push(f);
-    id_current = currentfiles.length-1;
+    if(f.name.endsWith(".nii")|| f.name.endsWith('.nii.gz')){
+        currentfiles.push(f);
+        id_current = currentfiles.length-1;
+        return true;
+    }
+    return false;
 }
 document.getElementById('file').addEventListener('change', (evt)=> {
     let f = evt.target.files[0];
-    addNewFile(f)
-    displayCurrentFile();
-    displayFileNames();
-}, false);
+    if(addNewFile(f)){
+        displayCurrentFile();
+        displayFileNames();
+    }
+});
+
+//N1 : nb de char a debut
+//N2 : nb de char à la fin
+const shortenString = (s, N1, N2) => s.length > N1 + N2 + 3 ? `${s.slice(0, N1)}...${s.slice(-N2)}` : s;
 
 function displayFileNames(){
     let filenameControl = "";
     for(let i in currentfiles){
-        let file = currentfiles[i];
-        filenameControl += "<div class=filename id=file"+i+">";
-        filenameControl+=  file.name;
+        let file = currentfiles[i]; 
+        let name = shortenString(file.name,7,12);
+        filenameControl += `<div class=filename id=file${i} title=${file.name}>`;
+        let id='('+i+')'
+        filenameControl+=  `<span>${name}</span>`;
+        filenameControl += `<button onclick=deleteFile${id}>[X]</button>`;
         filenameControl+='<'+'/'+"div>"; 
     }
     let filenamesEl =  document.getElementById('filenames');
     filenamesEl.innerHTML = filenameControl;
     for(let filename of filenamesEl.getElementsByClassName('filename')){
-        filename.addEventListener('click',(evt)=>{
-            let id = +evt.target.id.replace("file","");
+        filename.children[0].addEventListener('click',(evt)=>{
+            let id = +filename.id.replace("file","");
             id_current = id;
             displayCurrentFile();
             updateIdCurrentFile();
         })
-    }
+    }   
     updateIdCurrentFile();
 }
+
+function deleteFile(idFile){
+    currentfiles.splice(idFile, 1);
+    if(id_current>=idFile)id_current--;
+    displayFileNames();
+    displayCurrentFile();
+}
+
+// for graphical purposes, we want to identify which file is the current
 function updateIdCurrentFile(){
    for(let el of document.getElementsByClassName('filename')){
     el.setAttribute('class','filename');
    }
-   document.getElementById('file'+id_current).setAttribute('class','filename current-filename');
+   if(id_current!=-1) document.getElementById('file'+id_current).setAttribute('class','filename current-filename');
 }
 
 document.getElementById('niftislider').addEventListener("input", (event) => {
   document.getElementById('slider-progress').textContent = event.target.value +"%"
 })
-
-updateCurrentCoupe();
 
 function resetLoadedCanvas(){
     resetCanvas('nifticanvas','niftislider');
@@ -112,5 +131,6 @@ function updateCurrentCoupe(){
         })
     }
 }
+updateCurrentCoupe();
 getCoupe();
 </script>

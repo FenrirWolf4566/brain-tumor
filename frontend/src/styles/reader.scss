@@ -95,19 +95,37 @@ input[type='radio'],input[type='range'] {
 }
 #filenames{
     display: flex;
-    justify-content: center;
-    gap: 1em;
+    justify-content:space-evenly;
     flex-wrap: wrap;
     width: 100%;
+    gap: 1rem;
 
     .filename {
         border: 1px solid rgba(var(--accent), 25%);
         border-radius: 0.7rem;
-        cursor: default;
         height: fit-content;
         cursor: pointer;
         padding-left: 0.5rem;
-        padding-right: 0.5rem;
+        overflow: hidden;
+        display: flex;
+        justify-content: space-between;
+        width: 12em;
+
+        button {
+            width: 15px;
+            border: 0px;
+            font-weight: bold;
+            color:white;
+            cursor:pointer;
+            background-color: transparent;
+            padding-right: 2em;
+            padding-left: .5em;
+        }
+        button:hover{
+            background-color: red;
+            border-radius: 0.7rem;
+
+        }
     }
 }
 .controller{
@@ -117,14 +135,17 @@ input[type='radio'],input[type='range'] {
         margin: 0px;
     }
 }
-.current-filename{
+.current-filename, .filename:hover{
     background: linear-gradient(45deg, var(--accent-color),var(--accent-color-light) 60%, white 200%);
     color: white;
     font-weight:700;
-    border: 0px  !important;
+    border-color:transparent;
 }
 #legend{
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+.control-body{
+    display: flex;
 }

@@ -80,7 +80,7 @@ const title="Analyseur";
       // show file name 
       let span = callinginput.querySelector("span");
       if(span!==null)span.remove();
-      const shortenString = (s, N1, N2) => s.length > N1 + N2 + 3 ? `${s.slice(0, N1)}...${s.slice(-N2)}` : s;
+     
        let name = file.name
        let shortname = shortenString(name,3,9);
        let label =document.getElementById(callinginput.id+"label")
@@ -88,10 +88,10 @@ const title="Analyseur";
        label.setAttribute('title',name)
        // change state of files (loaded files)
        filestatesupdate(data.loaded_files);
-       addNewFile(file)
-       console.log(currentfiles)
-       displayCurrentFile();
-       displayFileNames();
+       if(addNewFile(file)){
+         displayCurrentFile();
+         displayFileNames();
+       }
     })
     .catch(error => {
       console.error(error)
@@ -128,10 +128,12 @@ const title="Analyseur";
       }
     })
     .then( (res) => res.blob()).then(blob=>{
-      addNewFile(new File([blob],"response_seq.nii.gz"));
-      loadingEl.hidden = true;
-      displayCurrentFile();
-      setDownloadButton(blob)
+      if(addNewFile(new File([blob],"response_seq.nii.gz"))){
+        displayCurrentFile();
+        displayFileNames();
+        setDownloadButton(blob)
+        loadingEl.hidden = true;
+      }
     }) 
   }
 

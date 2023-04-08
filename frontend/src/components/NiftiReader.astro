@@ -29,7 +29,7 @@ import '../styles/reader.scss';
             <h3>Opacité</h3>
             <div class="control-body">
                 <label for="opacityslider" class="labelslider" id="opacity-progress">100%</label>
-                <input id="opacityslider" class="niftislider" type="range" min="1" max="255" value="255" class="slider">
+                <input id="opacityslider" class="niftislider" type="range" min="1" max="255" value="254" class="slider">
             </div>
         </div>
     </div>
@@ -41,33 +41,52 @@ import '../styles/reader.scss';
 <script type="text/javascript">
 let currentfiles = [];
 let id_current = -1;
-function displayCurrentFile(){
-    displaySpecificFile(id_current);
-}
-function displaySpecificFile(id){
-    let f = currentfiles[id];
-    if(id>=0 && id<currentfiles.length) handleFileSelect([f],'nifticanvas','niftislider',getCoupe(),true,'opacityslider');
-    else resetLoadedCanvas();
+
+function displayFiles(){
+    if(currentfiles.length>0){
+        drawNiftiFiles(document.getElementById('nifticanvas'),currentfiles.map(file => file.niftifile),getCoupe(),document.getElementById('niftislider').value)
+    }
 }
 
-document.getElementById('opacityslider').addEventListener('input',(evt)=>{
-    document.getElementById('opacity-progress').innerText = Math.ceil((+evt.target.value)*100/255) +"%";
+document.getElementById('niftislider').addEventListener('input',(evt)=>{
+    document.getElementById('slider-progress').textContent = event.target.value +"%";
+    displayFiles();
 })
 
-function addNewFile(f){
+document.getElementById('opacityslider').addEventListener('input',(evt)=>{
+    let op = +evt.target.value;
+    document.getElementById('opacity-progress').innerText = Math.ceil((op)*100/255) +"%";
+    if(id_current!=-1) currentfiles[id_current].niftifile.opacity = op;
+    displayFiles();
+})
+
+async function addNewFile(f){
     if(f.name.endsWith(".nii")|| f.name.endsWith('.nii.gz')){
-        currentfiles.push(f);
-        id_current = currentfiles.length-1;
-        return true;
+        return await readNiftiFile(f).then(infofile=>{
+            if(infofile.isSegmentation){
+                createLegend(infofile.classesSegmentation);
+                let colorinputs = document.getElementsByClassName('dot');
+                for (let col of colorinputs) {
+                    col.oninput = displayFiles;
+                }
+            }
+            infofile['opacity']=255;
+            f['niftifile']=infofile;
+            currentfiles.push(f);
+            id_current = currentfiles.length-1;
+            return true;
+        })
     }
     return false;
 }
-document.getElementById('file').addEventListener('change', (evt)=> {
+document.getElementById('file').addEventListener('change', async (evt)=> {
     let f = evt.target.files[0];
-    if(addNewFile(f)){
-        displayCurrentFile();
+    if(f!==undefined && await addNewFile(f)){
+        displayFiles();
         displayFileNames();
     }
+    // possibilité de charger 2 fois d'affilée le même fichier
+    evt.target.onclick = ()=>{ evt.target.value=null;}
 });
 
 //N1 : nb de char a debut
@@ -78,7 +97,7 @@ function displayFileNames(){
     let filenameControl = "";
     for(let i in currentfiles){
         let file = currentfiles[i]; 
-        let name = shortenString(file.name,7,12);
+        let name = shortenString(file.name,7,10);
         filenameControl += `<div class=filename id=file${i} title=${file.name}>`;
         let id='('+i+')'
         filenameControl+=  `<span>${name}</span>`;
@@ -91,7 +110,7 @@ function displayFileNames(){
         filename.children[0].addEventListener('click',(evt)=>{
             let id = +filename.id.replace("file","");
             id_current = id;
-            displayCurrentFile();
+            displayFiles();
             updateIdCurrentFile();
         })
     }   
@@ -101,8 +120,14 @@ function displayFileNames(){
 function deleteFile(idFile){
     currentfiles.splice(idFile, 1);
     if(id_current>=idFile)id_current--;
+    //check if  currentfiles contain a segmentation file
+    const containsSegfile = currentfiles.some(file => file.niftifile.isSegmentation);
+    if(!containsSegfile)removeLegend();
+    if(currentfiles.length==0)resetLoadedCanvas();
+    else {
+        displayFiles();
+    }
     displayFileNames();
-    displayCurrentFile();
 }
 
 // for graphical purposes, we want to identify which file is the current
@@ -113,9 +138,7 @@ function updateIdCurrentFile(){
    if(id_current!=-1) document.getElementById('file'+id_current).setAttribute('class','filename current-filename');
 }
 
-document.getElementById('niftislider').addEventListener("input", (event) => {
-  document.getElementById('slider-progress').textContent = event.target.value +"%"
-})
+
 
 function resetLoadedCanvas(){
     resetCanvas('nifticanvas','niftislider');
@@ -131,7 +154,7 @@ function updateCurrentCoupe(){
     let coupes = document.getElementsByName("selecoupe");
     for(let selecoupe of coupes){
         selecoupe.addEventListener('change',(evt)=> {   
-            displayCurrentFile(id_current);
+            displayFiles();
         })
     }
 }

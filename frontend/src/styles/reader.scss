@@ -124,7 +124,8 @@ input[type='radio'],input[type='range'] {
             padding-left: .5em;
         }
         button:hover{
-            background-color: red;
+            background-image: var(--accent-cancel);
+            background-size: 200%;
             border-radius: 0.7rem;
 
         }
@@ -147,6 +148,7 @@ input[type='radio'],input[type='range'] {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    margin: 1em;
 }
 .control-body{
     display: flex;

@@ -76,7 +76,7 @@ const title="Analyseur";
       body: data,
     })
     .then(response => response.json())
-    .then(data => {
+    .then(async data => {
       // show file name 
       let span = callinginput.querySelector("span");
       if(span!==null)span.remove();
@@ -88,8 +88,9 @@ const title="Analyseur";
        label.setAttribute('title',name)
        // change state of files (loaded files)
        filestatesupdate(data.loaded_files);
-       if(addNewFile(file)){
-         displayCurrentFile();
+       if(await addNewFile(file)){
+        //  displayCurrentFile();
+         displayFiles();
          displayFileNames();
        }
     })
@@ -127,9 +128,10 @@ const title="Analyseur";
       'Authorization': `Bearer ${token}`,
       }
     })
-    .then( (res) => res.blob()).then(blob=>{
-      if(addNewFile(new File([blob],"response_seq.nii.gz"))){
-        displayCurrentFile();
+    .then( (res) => res.blob()).then(async blob=>{
+      if(await addNewFile(new File([blob],"response_seq.nii.gz"))){
+        // displayCurrentFile();
+        displayFiles();
         displayFileNames();
         setDownloadButton(blob)
         loadingEl.hidden = true;

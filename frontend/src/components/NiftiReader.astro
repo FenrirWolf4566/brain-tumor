@@ -22,14 +22,14 @@ import '../styles/reader.scss';
             <h3>Position</h3>
             <div class="control-body">
                 <label for="niftislider" class="labelslider" id="slider-progress">50%</label>
-                <input id="niftislider" class="niftislider" type="range" min="1" max="100" value="50" class="slider" >
+                <input id="niftislider" class="niftislider" type="range" min="0" max="100" value="50" class="slider" >
             </div>
         </div>
         <div class="controller">
             <h3>Opacité</h3>
             <div class="control-body">
                 <label for="opacityslider" class="labelslider" id="opacity-progress">100%</label>
-                <input id="opacityslider" class="niftislider" type="range" min="1" max="255" value="254" class="slider">
+                <input id="opacityslider" class="niftislider" type="range" min="0" max="255" value="254" class="slider">
             </div>
         </div>
     </div>
@@ -135,7 +135,12 @@ function updateIdCurrentFile(){
    for(let el of document.getElementsByClassName('filename')){
     el.setAttribute('class','filename');
    }
-   if(id_current!=-1) document.getElementById('file'+id_current).setAttribute('class','filename current-filename');
+   if(id_current!=-1) {
+    document.getElementById('file'+id_current).setAttribute('class','filename current-filename');
+    let op = currentfiles[id_current].niftifile.opacity;
+    document.getElementById('opacityslider').value = op;
+    document.getElementById('opacity-progress').innerText = Math.ceil((op)*100/255) +"%";
+  }
 }
 
 

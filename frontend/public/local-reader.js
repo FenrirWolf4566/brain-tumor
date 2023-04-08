@@ -99,31 +99,50 @@ function drawNiftiFiles(canvas,niftifiles,nomcoupe,slice){
     canvas.height =rows;
     let ctx = canvas.getContext("2d",{willReadFrequently: true});
     let canvasImageData = ctx.createImageData(canvas.width, canvas.height);
-    let images = niftifiles.map(file=>{ return getImage(coupeId,slice,file.data,file.header);});
+
+
+    const filesSeg = niftifiles.filter(file => file.isSegmentation);
+    const filesAnat = niftifiles.filter(file => !file.isSegmentation);
+
+    const imagesSeg = filesSeg.map(file=>{ return getImage(coupeId,slice,file.data,file.header);});
+    const imagesAnat = filesAnat.map(file=>{ return getImage(coupeId,slice,file.data,file.header);});
     
     for (let row = 0; row < rows; row++) {
         let rowOffset = row * cols;
         for (let col = 0; col < cols; col++) {
-            //TODO: calculer la value en fonction de toutes les images (pas seulement celle de l'id_courant)
-            let image = images[id_current];
-            let file = niftifiles[id_current];
-           if(row==0 && col==0)console.log(niftifiles);
-            let isAsegmentationFile =file.isSegmentation; 
-            let classesSegmentation = file.classesSegmentation;
-            let niftiHeader = file.header; 
-            let opacity = file.opacity;
+            //TODO calculer la value en fonction de toutes les images (pas seulement celle de l'id_courant)
+            // let image = images[id_current];
+            // let file = niftifiles[id_current];
+            // let isAsegmentationFile =file.isSegmentation; 
+            // let classesSegmentation = file.classesSegmentation;
+            // let niftiHeader = file.header; 
+            // let opacity = file.opacity;
 
-            let value = image.get(col, row)
-            if (isAsegmentationFile && value !== 0 && value !== undefined) {
-                rgbValue = selectColor(classesSegmentation.indexOf(value))
-                canvasImageData = setPixelValue(rowOffset + col, canvasImageData, rgbValue.r, rgbValue.g, rgbValue.b, opacity);
-            }
-            else {
-                value = (value - niftiHeader.displayIntercept) * niftiHeader.displaySlope;
-                let op = opacity;
-                if(value===0)op=255;
-                canvasImageData = setPixelValue(rowOffset + col, canvasImageData, value, value, value, op)
-            }
+            // Anatomy Images treatment
+            let values = imagesAnat.map((image,index)=>{
+                let niftiHeader = filesAnat[index].header;
+                let op = filesAnat[index].opacity/255;
+                return  op*(image.get(row,col)-niftiHeader.displayIntercept) * niftiHeader.displaySlope;
+            });
+            let sumvalues = values.reduce((total, num) => total + num, 0);
+            // if(sumvalues>0)console.log(values);
+            let value = Math.max(...values)//  parseFloat(sumvalues)/values.length;// 
+            let opacities = filesAnat.map(file=>{return file.opacity;})
+            let sumOpacities = opacities.reduce((total, num) => total + num, 0);
+            let opacity = Math.max(...opacities);   // parseFloat(sumOpacities)/sumOpacities.length; 
+
+            //if(value>0)console.log(value);
+            // let value = image.get(col, row)
+            // if (isAsegmentationFile && value !== 0 && value !== undefined) {
+            //     rgbValue = selectColor(classesSegmentation.indexOf(value))
+            //     canvasImageData = setPixelValue(rowOffset + col, canvasImageData, rgbValue.r, rgbValue.g, rgbValue.b, opacity);
+            // }
+            // else {
+                // value = (value - niftiHeader.displayIntercept) * niftiHeader.displaySlope;
+                
+                if(value===0)opacity=255;
+                canvasImageData = setPixelValue(rowOffset + col, canvasImageData, value, value, value, opacity)
+            // }
         }
     }
     ctx.putImageData(canvasImageData, 0, 0);

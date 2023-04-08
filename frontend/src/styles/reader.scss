@@ -42,6 +42,7 @@ canvas {
     align-items: center;
     flex-wrap: wrap;
     column-gap: 1.5em;
+    margin: 1em;
 }
 .controller .labelslider{
     display: inline-block;
@@ -99,6 +100,7 @@ input[type='radio'],input[type='range'] {
     flex-wrap: wrap;
     width: 100%;
     gap: 1rem;
+    margin: 1em;
 
     .filename {
         outline: 1px solid rgba(var(--accent), 25%);

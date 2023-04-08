@@ -106,30 +106,46 @@ function drawNiftiFiles(canvas,niftifiles,nomcoupe,slice){
 
     const imagesSeg = filesSeg.map(file=>{ return getImage(coupeId,slice,file.data,file.header);});
     const imagesAnat = filesAnat.map(file=>{ return getImage(coupeId,slice,file.data,file.header);});
+
+    // Sélection de l'image de segmentation 
+    // (on n'en prend qu'une pour une meilleure cohérence)
+    // Celle que l'on choisit est celle avec l'opacité la plus élevée
+    // Si plusieurs ont cette même opacité, on prend la dernière
+    let maxOpSeg =  Math.max(...filesSeg.map(file=>{return file.opacity}));
+    let imgSeg = undefined;
+    let fileSeg = undefined;
+    for(let i=0;i<filesSeg.length;i++){
+        if(filesSeg[i].opacity==maxOpSeg){
+            imgSeg=imagesSeg[i];
+            fileSeg = filesSeg[i];
+        }
+    }
     
     for (let row = 0; row < rows; row++) {
         let rowOffset = row * cols;
         for (let col = 0; col < cols; col++) {
-            //TODO calculer la value en fonction de toutes les images (pas seulement celle de l'id_courant)
-            // let image = images[id_current];
-            // let file = niftifiles[id_current];
-            // let isAsegmentationFile =file.isSegmentation; 
-            // let classesSegmentation = file.classesSegmentation;
-            // let niftiHeader = file.header; 
-            // let opacity = file.opacity;
+            // Traitement de la valeur du pixel selon les Images d'anatomie
+            if(imagesAnat.length>0){
+                let values = imagesAnat.map((image,index)=>{
+                    let niftiHeader = filesAnat[index].header;
+                    let op = filesAnat[index].opacity/255;
+                    return  op*(image.get(col,row)-niftiHeader.displayIntercept) * niftiHeader.displaySlope;
+                });
+                let value = Math.max(...values)
+                let opacities = filesAnat.map(file=>{return file.opacity;})
+                let opacity = Math.max(...opacities); 
+                canvasImageData = setPixelValue(rowOffset + col, canvasImageData, value, value, value, opacity)
+            }
 
-            // Anatomy Images treatment
-            let values = imagesAnat.map((image,index)=>{
-                let niftiHeader = filesAnat[index].header;
-                let op = filesAnat[index].opacity/255;
-                return  op*(image.get(row,col)-niftiHeader.displayIntercept) * niftiHeader.displaySlope;
-            });
-            let sumvalues = values.reduce((total, num) => total + num, 0);
-            // if(sumvalues>0)console.log(values);
-            let value = Math.max(...values)//  parseFloat(sumvalues)/values.length;// 
-            let opacities = filesAnat.map(file=>{return file.opacity;})
-            let sumOpacities = opacities.reduce((total, num) => total + num, 0);
-            let opacity = Math.max(...opacities);   // parseFloat(sumOpacities)/sumOpacities.length; 
+            // Traitement de la valeur du pixel selon les Images de segmentation
+            if(imgSeg!==undefined){
+                let value = imgSeg.get(col,row);
+                if(value!==0 && value!==undefined){
+                    let rgbValue = selectColor(fileSeg.classesSegmentation.indexOf(value))
+                    canvasImageData = setPixelValue(rowOffset + col, canvasImageData, rgbValue.r, rgbValue.g, rgbValue.b, fileSeg.opacity);
+                }
+            }
+            // 
 
             //if(value>0)console.log(value);
             // let value = image.get(col, row)
@@ -140,8 +156,7 @@ function drawNiftiFiles(canvas,niftifiles,nomcoupe,slice){
             // else {
                 // value = (value - niftiHeader.displayIntercept) * niftiHeader.displaySlope;
                 
-                if(value===0)opacity=255;
-                canvasImageData = setPixelValue(rowOffset + col, canvasImageData, value, value, value, opacity)
+                
             // }
         }
     }

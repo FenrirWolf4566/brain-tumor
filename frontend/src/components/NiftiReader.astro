@@ -6,6 +6,7 @@ import '../styles/reader.scss';
 <script is:inline src="/local-reader.js"> </script>
 <div class="niftireader">
     <input type="file" id="file" name="files" />
+    <canvas id="nifticanvas" class="nifticanvas" ></canvas>
     <div class="controllers">
         <div class="controller" id="controller-plan">
             <h3>Plan</h3>
@@ -33,7 +34,7 @@ import '../styles/reader.scss';
             </div>
         </div>
     </div>
-    <canvas id="nifticanvas" class="nifticanvas" ></canvas>
+    
     <div id="legend"></div>
     <div id="filenames"></div>
 </div>

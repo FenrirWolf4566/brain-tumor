@@ -51,7 +51,7 @@ function getImage(dim, slice, array, header) {
     return image
 }
 
-function readNIFTI(data, canvas, slider, coupe,keeplegend=true) {
+function readNIFTI(data, canvas, slider, coupe,keeplegend=true,opacityslider=undefined) {
     let coupeId = coupe == "axiale" ? 3 : coupe == "sagittale" ? 1 : 2;
     var niftiHeader, niftiImage;
     // parse nifti
@@ -90,9 +90,12 @@ function readNIFTI(data, canvas, slider, coupe,keeplegend=true) {
     let array = ndarray(typedData, [dims[1], dims[2], dims[3]], stride).step(1, 1, -1)
 
     
-    let draw = function () { drawIt(canvas, niftiHeader, getImage(coupeId, +slider.value, array, niftiHeader), isAsegmentationFile,classesSegmentation) };
+    let draw = function () { drawIt(canvas, niftiHeader, getImage(coupeId, +slider.value, array, niftiHeader), isAsegmentationFile,classesSegmentation,+opacityslider.value) };
     // L'image sera recalculée à chaque mouvement du slider
     slider.oninput = draw;
+    if(opacityslider!==undefined){
+        opacityslider.oninput = draw;
+    }
     if (isAsegmentationFile) {
         let colorinputs = document.getElementsByClassName('dot');
         for (let col of colorinputs) {
@@ -121,7 +124,7 @@ function updateSliderValue(slider, newvalue) {
 }
 
 
-function drawIt(canvas, niftiHeader, image, isAsegmentationFile,classesSegmentation) {
+function drawIt(canvas, niftiHeader, image, isAsegmentationFile,classesSegmentation,opacity=255) {
     let cols = niftiHeader.dims[1];
     let rows = niftiHeader.dims[2];
     canvas.width = cols;
@@ -134,11 +137,13 @@ function drawIt(canvas, niftiHeader, image, isAsegmentationFile,classesSegmentat
             let value = image.get(col, row)
             if (isAsegmentationFile && value !== 0 && value !== undefined) {
                 rgbValue = selectColor(classesSegmentation.indexOf(value))
-                canvasImageData = setPixelValue(rowOffset + col, canvasImageData, rgbValue.r, rgbValue.g, rgbValue.b, 255);
+                canvasImageData = setPixelValue(rowOffset + col, canvasImageData, rgbValue.r, rgbValue.g, rgbValue.b, opacity);
             }
             else {
                 value = (value - niftiHeader.displayIntercept) * niftiHeader.displaySlope;
-                canvasImageData = setPixelValue(rowOffset + col, canvasImageData, value, value, value, 255)
+                let op = opacity;
+                if(value===0)op=255;
+                canvasImageData = setPixelValue(rowOffset + col, canvasImageData, value, value, value, op)
             }
         }
     }
@@ -213,23 +218,27 @@ function makeSlice(file, start, length) {
     return null;
 }
 
-function readFile(file, canvas, slider, coupe,keeplegend=true) {
+function readFile(file, canvas, slider, coupe,keeplegend=true,opacityslider=undefined) {
     let blob = makeSlice(file, 0, file.size);
     let reader = new FileReader();
 
     reader.onloadend = function (evt) {
         if (evt.target.readyState === FileReader.DONE) {
-            readNIFTI(evt.target.result, canvas, slider, coupe,keeplegend);
+            readNIFTI(evt.target.result, canvas, slider, coupe,keeplegend,opacityslider);
         }
     };
 
     reader.readAsArrayBuffer(blob);
 }
 
-function handleFileSelect(files, idCanvas, idSlider, coupe,keeplegend) {
+function handleFileSelect(files, idCanvas, idSlider, coupe,keeplegend,idOpacitySlider) {
     let canvas = document.getElementById(idCanvas);
     let slider = document.getElementById(idSlider);
-    if (files.length > 0 && slider !== null && canvas !== null) readFile(files[0], canvas, slider, coupe,keeplegend);
+    let opacityslider = document.getElementById(idOpacitySlider);
+    if (files.length > 0 && slider !== null && canvas !== null) {
+        canvas.style.backgroundColor='black';
+        readFile(files[0], canvas, slider, coupe,keeplegend,opacityslider);
+    }
 }
 
 function resetCanvas(idCanvas, idSlider) {
@@ -238,5 +247,6 @@ function resetCanvas(idCanvas, idSlider) {
     slider.oninput = function () { }
     let canvas = document.getElementById(idCanvas)
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    canvas.style.backgroundColor='transparent';
     removeLegend();
 }

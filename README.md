@@ -1,9 +1,10 @@
 # brain-tumor
-brain-tumor est le nom de ce projet notre projet d'ESIR2 SI. Ce dépôt contient notre code source et sa documentation.
+brain-tumor est le nom de ce projet notre projet d'ESIR2 SI. Ce dépôt contient notre code source et sa documentation.<br>
 Nous avons développé une solution intitulée "Visual Gliome" : une application web permettant de prédire les zones cancéreuses d'un cerveau, appelées "gliomes", sur bases d'images d'IRM.
 ## Demo
 ### Visualiseur
-![demovgvisionneur](https://user-images.githubusercontent.com/62034725/229370877-f31c9523-1c7b-40bc-8a7a-78a36803799b.gif)
+
+https://user-images.githubusercontent.com/62034725/230747859-aebeead9-1fa0-4ec5-af31-305cbb68d956.mp4
 
 ## Installation 
 ### Configuration
@@ -24,9 +25,9 @@ cd frontend/
 npm install
 ```
 ### IA
-Le dossier contient les fichiers qui permettent de construire le modèle d'IA.
-La prédiction effective de l'application est gérée dans le backend.
-Il n'est donc pas nécessaire d'installer les dépendances de ce dossier si vous souhaitez seulement exécuter l'application.
+Le dossier contient les fichiers qui permettent de construire le modèle d'IA. <br>
+La prédiction effective de l'application est gérée dans le backend. <br>
+Il n'est donc **pas nécessaire d'installer les dépendances de ce dossier si vous souhaitez seulement exécuter l'application**.<br>
 //TODO (Un environnement Python est en cours de préparation)
 ## Execution (en local)
 ### Backend
@@ -49,7 +50,7 @@ Dataset utilisé
 https://www.kaggle.com/datasets/dschettler8845/brats-2021-task1
 
 ## Auteurs
-FILOCHE Léo
-MORLOT-PINTA Louis
-DE ZORDO Benjamin
-LEGRAND Quentin
+FILOCHE Léo <br>
+MORLOT-PINTA Louis <br>
+DE ZORDO Benjamin <br>
+LEGRAND Quentin <br>

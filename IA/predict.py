@@ -144,6 +144,7 @@ def combine(core, edema, enhancing):
     superposed_classes = np.where(superposed_classes == 2, 4, superposed_classes)
     superposed_classes = np.where(superposed_classes == 1, 2, superposed_classes)
     superposed_classes = np.where(superposed_classes == 3, 1, superposed_classes)
+    superposed_classes = flip(superposed_classes)
     '''image = np.maximum.reduce([core,edema,enhancing])
     image = np.where(image == 2, 4, image)
     image = np.where(image == 1, 2, image)
@@ -170,6 +171,14 @@ def saveNifti(image, case) :
     result = nib.Nifti1Image(image, template_nii.affine, template_nii.header)
     nib.save(result, os.path.join(PREDICTION_PATH,NAME+".nii"))
 
+def flip(superposed_classes):
+    flipped = np.zeros((100,240,240))
+    process = np.zeros_like(superposed_classes)
+    for i in range(superposed_classes.shape[0]):
+        process[i,:,:] = np.rot90(superposed_classes[i,:,:], -1)
+        process[i,:,:] = np.flip(superposed_classes[i,:,:], 0)
+        flipped[i,:,:] = cv2.resize(superposed_classes[i,:,:],(240,240))
+    return flipped
 
 train_ids, val_ids, test_ids = data_loader.load_data()
 

@@ -11,6 +11,7 @@ from keras.optimizers import *
 from variables import *
 from train_model import model
 import data_loader
+from scipy.spatial.transform import Rotation
 
 
 #############################################################################
@@ -72,6 +73,29 @@ def predictByPath(case_path,case):
   #  model.evaluate(x=X,y=y[:,:,:,0], callbacks= callbacks)
     return model.predict(X/np.max(X), verbose=1)
 
+def combine(core, edema, enhancing):
+
+    '''core = thesholding(core, 0.4, 3)
+    enhancing = thesholding(enhancing, 0.45, 2)
+    edema = thesholding(edema, 0.45, 1)'''
+    # Créer un tableau qui contient la classe prédite pour chaque élément 
+    predicted_classes = np.where(core < 0.4, 2, 3) 
+    predicted_classes = np.where((enhancing < 0.4) & (predicted_classes == 2), 1, predicted_classes)
+    predicted_classes = np.where((edema < 0.4) & (predicted_classes == 1), 0, predicted_classes)    
+    #Créer un tableau qui superpose les trois classes 
+    superposed_classes = np.zeros_like(core) 
+    superposed_classes[predicted_classes == 1] = 1 
+    superposed_classes[predicted_classes == 2] = 2 
+    superposed_classes[predicted_classes == 3] = 3
+    superposed_classes = np.where(superposed_classes == 2, 4, superposed_classes)
+    superposed_classes = np.where(superposed_classes == 1, 2, superposed_classes)
+    superposed_classes = np.where(superposed_classes == 3, 1, superposed_classes)
+    '''image = np.maximum.reduce([core,edema,enhancing])
+    image = np.where(image == 2, 4, image)
+    image = np.where(image == 1, 2, image)
+    image = np.where(image == 3, 1, image)
+    return (image)'''
+    return superposed_classes
 
 def showPredictsById(case, start_slice = 60):
     path = f"{TRAIN_DATASET_PATH}\BraTS2021_{case}"
@@ -89,10 +113,13 @@ def showPredictsById(case, start_slice = 60):
     enhancing = p[:,:,:,3]
 
     #plt.figure(figsize=(18, 50))
-    f, axarr = plt.subplots(1,5, figsize = (36, 100)) 
+    f, axarr = plt.subplots(1,7, figsize = (36, 100)) 
 
-    for i in range(5): # for each image, add brain background
+    for i in range(6): # for each image, add brain background
         axarr[i].imshow(cv2.resize(origImage[:,:,start_slice+VOLUME_START_AT], (IMG_SIZE, IMG_SIZE)), cmap="gray", interpolation='none')
+    background = np.rot90(cv2.resize(origImage[:,:,start_slice+VOLUME_START_AT], (240, 240)),-1)
+    background = np.fliplr(background)
+    axarr[6].imshow(background, cmap="gray", interpolation='none')
     
     axarr[0].imshow(cv2.resize(origImage[:,:,start_slice+VOLUME_START_AT], (IMG_SIZE, IMG_SIZE)), cmap="gray")
     axarr[0].title.set_text('Original image flair')
@@ -110,7 +137,17 @@ def showPredictsById(case, start_slice = 60):
     # Whole
     axarr[4].imshow(core[start_slice,:,], cmap="OrRd", interpolation='none', alpha=0.3)
     axarr[4].title.set_text(f'{SEGMENT_CLASSES[2]} predicted')
+    #Asswhole
+    axarr[5].imshow(combine(core, edema, enhancing)[start_slice,:,:], cmap="OrRd", interpolation='none', alpha=0.3)
+    axarr[5].title.set_text(f'prédiction')
 
+    resize = combine(core, edema, enhancing)[start_slice,:,:]
+    resize = np.rot90(resize, -1)
+    resize = np.fliplr(resize)
+    resize = cv2.resize(resize,(240,240))
+    
+    axarr[6].imshow(resize, cmap="OrRd", interpolation='none', alpha=0.3)
+    axarr[6].title.set_text(f'prédiction augmentée')
     plt.show()
 
 train_ids, val_ids, test_ids = data_loader.load_data()
@@ -137,3 +174,6 @@ showPredictsById(case=test_ids[0][-5:])
 # plt.imshow(im, 'gray', interpolation='none')
 # plt.imshow(masked, 'jet', interpolation='none', alpha=0.7)
 # plt.show()
+
+
+

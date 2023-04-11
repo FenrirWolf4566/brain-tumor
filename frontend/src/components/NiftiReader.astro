@@ -5,6 +5,39 @@ import '../styles/reader.scss';
 <script is:inline src="/nifti-reader.js"></script>
 <script is:inline src="/local-reader.js"> </script>
 <div class="niftireader">
+    <!--
+        TODO: continuer le dev du système de drag & drop
+    <div id="dropzone">Drop files here</div>
+     <script>
+      let dropzone = document.getElementById('dropzone');
+
+      // Prevent default drag behaviors
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, preventDefaults, false)
+        document.body.addEventListener(eventName, preventDefaults, false)
+      });
+      // Handle dropped files
+      dropzone.addEventListener('drop', handleDrop, false);
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+
+      function handleDrop(e) {
+        var dt = e.dataTransfer;
+        var files = dt.files;
+
+        handleFiles(files);
+      }
+
+      function handleFiles(files) {
+        // Do something with the files
+        console.log(files);
+      }
+    </script>
+     -->
     <input type="file" id="file" name="files" />
     <canvas id="nifticanvas" class="nifticanvas" ></canvas>
     <div class="controllers">

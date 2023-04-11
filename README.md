@@ -56,8 +56,10 @@ cd backend/
 docker build -t visualgliome_back .
 ```
 #### Execution
-```
-docker run --name vg_back -p 80:80 visualgliome_back
+```bash
+# le --privileged est important car il permet au conteneur d'être synchronisé sur l'horloge de l'hôte
+# (nécessaire pour la génération de tokens )
+docker run --privileged --name vg_back -p 80:80 visualgliome_back
 ```
 
 ### Front End

@@ -51,9 +51,8 @@ function getImage(dim, slice, array, header) {
     return image
 }
 
-function readNIFTI(data, canvas, slider, coupe) {
-    let coupeId = coupe == "axiale" ? 3 : coupe == "sagittale" ? 1 : 2;
-    var niftiHeader, niftiImage;
+function loadNiftiFile(data) {
+    let niftiHeader, niftiImage;
     // parse nifti
     if (nifti.isCompressed(data)) {
         data = nifti.decompress(data);
@@ -67,8 +66,6 @@ function readNIFTI(data, canvas, slider, coupe) {
     let isAsegmentationFile = typed.isAsegmentationFile;
     let classesSegmentation = [];
     if(isAsegmentationFile)classesSegmentation = classesDeSegmentation(typedData); // Les différentes classes possibles
-    if(isAsegmentationFile) createLegend(classesSegmentation);
-    else removeLegend();
     let dims = niftiHeader.dims
     //compute voxel intensity range
     let mn = typedData[0];
@@ -87,63 +84,85 @@ function readNIFTI(data, canvas, slider, coupe) {
     niftiHeader.displaySlope = 255.0 / (mx - mn); //make brightest value 255
     //
     let stride = [1, dims[1], dims[1] * dims[2]]
-    let array = ndarray(typedData, [dims[1], dims[2], dims[3]], stride).step(1, 1, -1)
+    let array = ndarray(typedData, [dims[1], dims[2], dims[3]], stride).step(1, 1, -1);
+    return {"data":array,"header":niftiHeader,"isSegmentation":isAsegmentationFile,"classesSegmentation":classesSegmentation};
+}
 
-    
-    let draw = function () { drawIt(canvas, niftiHeader, getImage(coupeId, +slider.value, array, niftiHeader), isAsegmentationFile,classesSegmentation) };
-    // L'image sera recalculée à chaque mouvement du slider
-    slider.oninput = draw;
-    if (isAsegmentationFile) {
-        let colorinputs = document.getElementsByClassName('dot');
-        for (let col of colorinputs) {
-            col.oninput = draw;
+
+
+function drawNiftiFiles(canvas,niftifiles,nomcoupe,slice){
+    canvas.style.backgroundColor = 'black';
+    let coupeId = nomcoupe == "axiale" ? 3 : nomcoupe == "sagittale" ? 1 : 2;
+    let cols = niftifiles[0].header.dims[1];
+    let rows = niftifiles[0].header.dims[2];
+    canvas.width = cols;
+    canvas.height =rows;
+    let ctx = canvas.getContext("2d",{willReadFrequently: true});
+    let canvasImageData = ctx.createImageData(canvas.width, canvas.height);
+
+
+    const filesSeg = niftifiles.filter(file => file.isSegmentation);
+    const filesAnat = niftifiles.filter(file => !file.isSegmentation);
+
+    const imagesSeg = filesSeg.map(file=>{ return getImage(coupeId,slice,file.data,file.header);});
+    const imagesAnat = filesAnat.map(file=>{ return getImage(coupeId,slice,file.data,file.header);});
+
+    // Sélection de l'image de segmentation 
+    // (on n'en prend qu'une pour une meilleure cohérence)
+    // Celle que l'on choisit est celle avec l'opacité la plus élevée
+    // Si plusieurs ont cette même opacité, on prend la dernière
+    let maxOpSeg =  Math.max(...filesSeg.map(file=>{return file.opacity}));
+    let imgSeg = undefined;
+    let fileSeg = undefined;
+    for(let i=0;i<filesSeg.length;i++){
+        if(filesSeg[i].opacity==maxOpSeg){
+            imgSeg=imagesSeg[i];
+            fileSeg = filesSeg[i];
         }
     }
-    // Affiche image initiale  
-    updateSliderValue(slider, (0.5 * (+slider.max)));
-    draw();
-}
-
-function updateSliderValue(slider, newvalue) {
-    slider.value = newvalue;
-    if (document.createEvent) {
-        let evt = document.createEvent("HTMLEvents");
-        evt.initEvent("input", true, true);
-        evt.eventName = "input";
-        slider.dispatchEvent(evt);
-    }
-    else {
-        let evt = document.createEventObject();
-        evt.eventName = "dataavailable";
-        evt.eventType = "dataavailable";
-        element.fireEvent("on" + evt.eventType, evt);
-    }
-}
-
-
-function drawIt(canvas, niftiHeader, image, isAsegmentationFile,classesSegmentation) {
-    let cols = niftiHeader.dims[1];
-    let rows = niftiHeader.dims[2];
-    canvas.width = cols;
-    canvas.height = rows;
-    var ctx = canvas.getContext("2d");
-    var canvasImageData = ctx.createImageData(canvas.width, canvas.height);
+    
     for (let row = 0; row < rows; row++) {
         let rowOffset = row * cols;
         for (let col = 0; col < cols; col++) {
-            let value = image.get(col, row)
-            if (isAsegmentationFile && value !== 0 && value !== undefined) {
-                rgbValue = selectColor(classesSegmentation.indexOf(value))
-                canvasImageData = setPixelValue(rowOffset + col, canvasImageData, rgbValue.r, rgbValue.g, rgbValue.b, 255);
+            // Traitement de la valeur du pixel selon les Images d'anatomie
+            if(imagesAnat.length>0){
+                let values = imagesAnat.map((image,index)=>{
+                    let niftiHeader = filesAnat[index].header;
+                    let op = filesAnat[index].opacity/255;
+                    return  op*(image.get(col,row)-niftiHeader.displayIntercept) * niftiHeader.displaySlope;
+                });
+                let value = Math.max(...values)
+                let opacities = filesAnat.map(file=>{return file.opacity;})
+                let opacity = Math.max(...opacities); 
+                canvasImageData = setPixelValue(rowOffset + col, canvasImageData, value, value, value, opacity)
             }
-            else {
-                value = (value - niftiHeader.displayIntercept) * niftiHeader.displaySlope;
-                canvasImageData = setPixelValue(rowOffset + col, canvasImageData, value, value, value, 255)
+
+            // Traitement de la valeur du pixel selon les Images de segmentation
+            if(imgSeg!==undefined){
+                let value = imgSeg.get(col,row);
+                if(value!==0 && value!==undefined){
+                    let rgbValue = selectColor(fileSeg.classesSegmentation.indexOf(value))
+                    canvasImageData = setPixelValue(rowOffset + col, canvasImageData, rgbValue.r, rgbValue.g, rgbValue.b, fileSeg.opacity);
+                }
             }
+            // 
+
+            //if(value>0)console.log(value);
+            // let value = image.get(col, row)
+            // if (isAsegmentationFile && value !== 0 && value !== undefined) {
+            //     rgbValue = selectColor(classesSegmentation.indexOf(value))
+            //     canvasImageData = setPixelValue(rowOffset + col, canvasImageData, rgbValue.r, rgbValue.g, rgbValue.b, opacity);
+            // }
+            // else {
+                // value = (value - niftiHeader.displayIntercept) * niftiHeader.displaySlope;
+                
+                
+            // }
         }
     }
     ctx.putImageData(canvasImageData, 0, 0);
 }
+
 
 function removeLegend() {
     let doc = document.getElementById('legend');
@@ -213,28 +232,40 @@ function makeSlice(file, start, length) {
     return null;
 }
 
-function readFile(file, canvas, slider, coupe) {
+function readFile(file, canvas, slider, coupe,keeplegend=true,opacityslider=undefined) {
     let blob = makeSlice(file, 0, file.size);
     let reader = new FileReader();
 
     reader.onloadend = function (evt) {
         if (evt.target.readyState === FileReader.DONE) {
-            readNIFTI(evt.target.result, canvas, slider, coupe);
+            readNIFTI(evt.target.result, canvas, slider, coupe,keeplegend,opacityslider);
         }
     };
 
     reader.readAsArrayBuffer(blob);
 }
+function readNiftiFile(file) {
+    return new Promise((res) => {
+      let blob = makeSlice(file, 0, file.size);
+      let reader = new FileReader();
+      reader.readAsArrayBuffer(blob);
+  
+      reader.onloadend = function (evt) {
+        if (evt.target.readyState === FileReader.DONE) {
+          let nfti = loadNiftiFile(evt.target.result);
+          res(nfti);
+        }
+      };
+    });
+  }
 
-function handleFileSelect(files, idCanvas, idSlider, coupe) {
-    let canvas = document.getElementById(idCanvas);
-    let slider = document.getElementById(idSlider);
-    if (files.length > 0 && slider !== null && canvas !== null) readFile(files[0], canvas, slider, coupe);
-}
 
 function resetCanvas(idCanvas, idSlider) {
     let slider = document.getElementById(idSlider);
-    updateSliderValue(slider, (+slider.max + (+slider.min)) / 2)
-    slider.oninput = function () { }
-    document.getElementById(idCanvas).getContext('2d').reset();
+    slider.value = 50;
+    //slider.oninput = function () { }
+    let canvas = document.getElementById(idCanvas)
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    canvas.style.backgroundColor='transparent';
+    removeLegend();
 }

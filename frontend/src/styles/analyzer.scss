@@ -27,6 +27,10 @@
 .filedropper input{
     display: none;
 }
+.filedropper span{
+    font-weight: lighter;
+    margin-left: 0.5em;
+}
 
 .analyze{
     display: flex;

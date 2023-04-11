@@ -1,13 +1,9 @@
-fastapi
+fastapi[all]
 pydantic
 datetime
 typing
-jose
-passlib
-fastapi.middleware.cors
-pathlib
-base64
-secrets
+python-jose[cryptography]
+passlib[bcrypt]
 opencv-python
 glob2
 numpy

@@ -12,9 +12,18 @@ from fastapi.responses import FileResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
 import os
+
+from variables import TMP_PATIENT_ID
 from constants import TOKEN_URL
 
 import auth
+
+import predict
+
+import os
+import gzip
+import io
+import tempfile
 
 # uvicorn main:app --reload
 
@@ -41,41 +50,79 @@ app.add_middleware(
 )
 
 
-fichiers_locaux = {} #dictionnaire de dictionnaires
+dossiers_patients = {} #dictionnaire contenant les dossiers temporaires de chaque docteur
 
-async def write_file(file: UploadFile = File(...)):
-    file_path = os.path.join(os.getcwd(), file.filename)
+
+def write_file(file_path, file_name,file: UploadFile = File(...)):
+    Path(file_path).mkdir(parents=True, exist_ok=True)
+    file_path = os.path.join(file_path,file_name)
+    print("Upload File saved :"+file_path)
     with open(file_path, "wb") as f:
         f.write(file.file.read())
-        return {"filename": file.filename}
+        return {"filename": file_name}
+    
+
+
+def write_niftii_file(file_path, file_name, file: UploadFile = File(...)):
+    # Check if file is gzipped NIfTI (.nii.gz)
+    filename, file_extension = os.path.splitext(file.filename)
+    if file_extension == '.gz':
+        with gzip.open(file.file, 'rb') as f_in:
+            f_out = io.BytesIO()
+            while True:
+                chunk = f_in.read(4096)
+                if not chunk:
+                    break
+                f_out.write(chunk)
+            f_out.seek(0)
+            file_to_write = UploadFile(filename=filename[:-3], file=f_out)
+    else:
+        file_to_write = file
+
+    # Check if file is NIfTI (.nii) or gzipped NIfTI (.nii.gz)
+    _, ext = os.path.splitext(file_name)
+    if ext not in ['.nii', '.nii.gz']:
+        # If a temporary file was created, close it
+        if file_to_write != file:
+            file_to_write.file.close()
+        return {"res_status":"error", "detail":"File is not a .nii or .nii.gz"}
+
+    # Write file
+    result = write_file(file_path, file_name, file_to_write)
+
+    # If a temporary file was created, close it
+    if file_to_write != file:
+        file_to_write.file.close()
+
+    return result
 
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
-def addFile(file : UploadFile, filetype : str,user:auth.User):
+def addFile(file : UploadFile, filetype : str,user:auth.User,idPatient=TMP_PATIENT_ID):
    if user['res_status']=='success':
-        fichiers_locaux[user['id']][filetype]=file
-        print(fichiers_locaux[user['id']])
+        dossier_patient =dossiers_patients[user['id']][idPatient]
+        res =write_niftii_file(dossier_patient.name,idPatient+f"_{filetype}.nii",file)
+        if("res_status" in res and res['res_status']=='error'):  return res
         return loadedfiles(user)
    return user
 
 @app.get("/files/cancel")
-def cancelfiles(me=Depends(auth.get_current_user)):
+def cancelfiles(me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
     if me['res_status'] == 'success':
-        fichiers_locaux[me['id']].clear()
-        return fichiers_locaux[me['id']]
+        dossier = dossiers_patients[me['id']][idPatient]
+        dossier.cleanup()
+        dossiers_patients[me['id']][idPatient] =tempfile.TemporaryDirectory()
+        return loadedfiles(me,idPatient)
     return me
 
-
 @app.get("/files")
-def loadedfiles(me=Depends(auth.get_current_user)):
+def loadedfiles(me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
     if me['res_status'] == 'success':
-        nomsfichierslocaux = {}
-        for key in fichiers_locaux[me['id']].keys():
-            nomsfichierslocaux[key] = fichiers_locaux[me['id']][key].filename
-        return nomsfichierslocaux
+        dossier =dossiers_patients[me['id']][idPatient]
+        return {'loaded_files' : list(map(lambda x: x.split("_")[1].replace(".nii", ""), os.listdir(dossier.name)))}
     return me
 
 
@@ -86,18 +133,21 @@ async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
     return me
 
 @app.post("/files/t2")
-async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
-    if me['res_status'] == 'success': return addFile(file, "t2",me)
+async def create_file_t2(file: UploadFile, me=Depends(auth.get_current_user)):
+    if me['res_status'] == 'success': 
+        return addFile(file, "t2",me)
     else : return me
 
 @app.post("/files/t1ce")
-async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
-    if me['res_status'] == 'success': return addFile(file, "t1ce",me)
+async def create_file_t1ce(file: UploadFile, me=Depends(auth.get_current_user)):
+    if me['res_status'] == 'success':
+        return addFile(file, "t1ce",me)
     else : return me
 
 @app.post("/files/flair")
-async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
-    if me['res_status'] == 'success': return addFile(file, "flair",me)
+async def create_file_flair(file: UploadFile, me=Depends(auth.get_current_user)):
+    if me['res_status'] == 'success': 
+        return addFile(file, "flair",me)
     else : return me
 
 def fichier_bon(file: UploadFile):
@@ -108,15 +158,13 @@ def filenames(files: List[UploadFile]):
     return {"filenames": [file.filename for file in files]}
 
 
-def sendFilesToCalculatingMachine(files: List[UploadFile], user : auth.User):
-    # TODO
-    return user['fichiers_locaux']['t1']
-
-
 @app.get("/analyse", responses={200: {"content": {"application/gzip"}}})
-async def get_analyse(me=Depends(auth.get_current_user)):
-    return FileResponse("brats_seg.nii.gz", media_type="application/gzip", filename="estimation_seg.nii.gz")
-
+async def get_analyse(me=Depends(auth.get_current_user),patientId=TMP_PATIENT_ID):
+    if me['res_status'] == 'success':
+        patient_folder = dossiers_patients[me['id']][patientId]
+        seg_file_path = await predict.predictsById(patient_folder.name,case=patientId) 
+        return FileResponse(seg_file_path, media_type="application/gzip", filename="estimation_seg.nii")
+    return me
 
 #############################
 #     GESTION DE COMPTE     #
@@ -127,10 +175,24 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     res = await auth.login_for_access_token(form_data)
     if res['res_status']=='success':
         me = await auth.get_current_user(res['access_token'])
-        fichiers_locaux[me['id']]={}
+        #eraseAllDossiersPatientDoctor(me['id'])
+        if not doctorExists(me['id']): dossiers_patients[me['id']] = {TMP_PATIENT_ID : tempfile.TemporaryDirectory()}
     return res
 
+@app.get("/account/disconnect")
+async def  logout(me=Depends(auth.get_current_user)):
+    if me['res_status'] == 'success':
+        eraseAllDossiersPatientDoctor(me['id'])
+    return me
 
 @app.get("/account/me/")
 async def whoami(me=Depends(auth.get_current_user)):
     return me
+
+def doctorExists(id:int):
+    return id in dossiers_patients
+
+def eraseAllDossiersPatientDoctor(iddoctor:int):
+    if iddoctor in dossiers_patients:
+        for iddossier in dossiers_patients[iddoctor]:
+            dossiers_patients[iddoctor][iddossier].cleanup()

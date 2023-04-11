@@ -89,6 +89,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     if user is None:
         return err
     res = user.copy().__dict__
+    del res['hashed_password']
     res['res_status']='success'
     return res
 

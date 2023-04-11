@@ -5,7 +5,7 @@ def loadTables():
     cur = con.cursor()
     res = cur.execute("SELECT * FROM patients")
     patients = res.fetchall()
-    res = cur.execute("SELECT * FROM movies")
+    res = cur.execute("SELECT * FROM comptes")
     comptes = res.fetchall()
     print(patients)
     print(comptes)

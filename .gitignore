@@ -1,4 +1,6 @@
-API/__pycache__/*.pyc
+API/__pycache__
 IA/dataset
 IA/Sample_BRATZ
-.vscode/launch.json
+API/niftis/patients/*
+API/niftis/predictions/*
+IA/__pycache__

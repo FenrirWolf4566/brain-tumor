@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "ChromeLocalhost",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "name": "AstroFrontend",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/frontend",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run","start"] 
+        },
+        {
+            "name": "FastAPIBackend",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/API",
+            "module": "uvicorn",
+            "args": ["main:app","--reload"],
+            "console": "internalConsole"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "All",
+            "configurations": ["FastAPIBackend","AstroFrontend","ChromeLocalhost"]
+        }
+    ]
+}

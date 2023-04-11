@@ -1,7 +1,15 @@
+#### VARIABLES UTILISEES POUR LA PREDICTION
 VOLUME_SLICES = 100 
 VOLUME_START_AT = 22
 IMG_SIZE=128
 
-PATIENT_PATH = "API/niftis/patients"
-PREDICTION_PATH = PATIENT_PATH
-TEMPLATE_PATH = "API/niftis/template_seg.nii"
+import os
+import tempfile
+
+
+TMP_PATIENT_ID = "tmpid"
+PATIENT_PATH =  os.path.join("niftis","patients")
+PREDICTION_PATH = os.path.join("niftis","predictions")
+TEMPLATE_PATH = os.path.join("niftis","template_seg.nii")
+
+MODEL_PATH = "model/"

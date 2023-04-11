@@ -12,5 +12,4 @@ nibabel
 keras
 tensorflow
 pandas
-sklearn
 

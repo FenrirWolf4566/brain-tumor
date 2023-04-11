@@ -10,7 +10,7 @@ https://user-images.githubusercontent.com/62034725/230747859-aebeead9-1fa0-4ec5-
 ### Configuration
 Assurez-vous que  [Python](https://www.python.org/downloads/) est installé sur votre machine, avec une version <3.11. (Pour le développement, nous avons utilisé les versions 3.9 et 3.10).
 ### Clone du projet
-Le projet est assez lourd (par son passif), nous vous conseillons de ne cloner que la dernière version :
+Le projet est assez lourd (par son historique), nous vous conseillons de ne cloner que la dernière version :
 ```bash
 git clone --depth 1 https://github.com/FenrirWolf4566/brain-tumor.git 
 ```
@@ -49,17 +49,38 @@ npm run start
 ## Docker
 Cette app peut tourner sur Docker
 
+### Back End
+#### Création de l'image
+```
+cd backend/
+docker build -t visualgliome_back .
+```
+#### Execution
+```
+docker run --name vg_back -p 80:80 visualgliome_back
+```
+
 ### Front End
-#### Creation de l'image
+#### Création de l'image
+Vous devez indiquer que l'adresse du backend a changé.
+Pour cela, modifier public/consts.js, commenter le premier ROOT_URL (dev mode), et décommenter le second (docker mode), pour indiquer l'adresse et le port du backend
+```javascript
+// In dev mode
+//const ROOT_URL = 'http://127.0.0.1:8000/';
+// In docker mode
+const ROOT_URL = 'http://localhost:80/';
+```
+
 ```
 cd frontend/
 docker build -t visualgliome_front .
 ```
 #### Execution
 ```
-docker run -p 3000:3000 visualgliome_front
+docker run --name vg_front -p 3000:3000 visualgliome_front
 ```
 Consulter ensuite [http://localhost:3000/](http://localhost:3000/)
+
 
 ## A propos
 Dataset utilisé

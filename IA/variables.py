@@ -14,8 +14,8 @@ IMG_SIZE=128
 TRAIN_DATASET_PATH = os.path.join("IA", "dataset","training")
 VALIDATION_DATASET_PATH = os.path.join("IA", "dataset","validation")
 
-PATIENT_PATH = os.path.join("doctor", "patients")
-PREDICTION_PATH = os.path.join("doctor", "prediction")
-DOCTOR_PATH = os.path.join("doctor")
+PATIENT_PATH = os.path.join("IA","doctor", "patients")
+PREDICTION_PATH = os.path.join("IA","doctor", "prediction")
+DOCTOR_PATH = os.path.join("IA","doctor")
 
 

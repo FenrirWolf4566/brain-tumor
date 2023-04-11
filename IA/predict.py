@@ -166,9 +166,9 @@ def thesholding(tab, threshold, contrast):
 
 
 def saveNifti(image, case) :
-    template_nii = nib.load(os.path.join("doctor", "template_seg.nii"))
+    template_nii = nib.load(os.path.join("IA","doctor", "template_seg.nii"))
     result = nib.Nifti1Image(image, template_nii.affine, template_nii.header)
-    nib.save(result, os.path.join("doctor", "prediction",NAME+".nii"))
+    nib.save(result, os.path.join(PREDICTION_PATH,NAME+".nii"))
 
 
 train_ids, val_ids, test_ids = data_loader.load_data()

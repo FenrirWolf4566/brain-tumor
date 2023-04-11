@@ -83,8 +83,9 @@ def showPredictsById(case, start_slice = 60):
     #core = p[:,:,:,1]
     #edema= p[:,:,:,2]
     #enhancing = p[:,:,:,3]
+    #arr_rotated = np.transpose(arr, (1, 0, 2))[:, :, ::-1, :][:, :, ::-1, :]
     core = p[:,:,:,2]
-    edema= p[:,:,:,1]
+    edema = p[:,:,:,1]
     enhancing = p[:,:,:,3]
 
     #plt.figure(figsize=(18, 50))

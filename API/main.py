@@ -13,6 +13,8 @@ import services
 
 # uvicorn main:app --reload
 
+# Ce fichier correspond à la partie controller
+
 app = FastAPI()
 
 ################################
@@ -42,32 +44,46 @@ async def root():
 
 @app.get("/files/cancel")
 def cancelfiles(me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
-    return services.cancelfiles(me,idPatient)
+    if me['res_status'] == 'success':
+        return services.cancelfiles(me,idPatient)
+    return me
 
-@app.get("/files")
+@app.get("/files",description="Get names of the loaded files concerning a patient")
 def loadedfiles(me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
-    return services.loadedfiles(me,idPatient)
+    if me['res_status'] == 'success':
+        return services.loadedfiles(me,idPatient)
+    return me
 
 
 @app.post("/files/t1")
 async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
-    return await services.create_file_t1(file,me)
+    if(me['res_status']=='success'):
+        return await services.create_file_t1(file,me)
+    return me
 
 @app.post("/files/t2")
 async def create_file_t2(file: UploadFile, me=Depends(auth.get_current_user)):
-    return await services.create_file_t2(file,me)
+    if(me['res_status']=='success'):
+        return await services.create_file_t2(file,me)
+    return me
 
 @app.post("/files/t1ce")
 async def create_file_t1ce(file: UploadFile, me=Depends(auth.get_current_user)):
-    return await services.create_file_t1ce(file,me)
+    if(me['res_status']=='success'):
+        return await services.create_file_t1ce(file,me)
+    return me
 
 @app.post("/files/flair")
 async def create_file_flair(file: UploadFile, me=Depends(auth.get_current_user)):
-    return await services.create_file_flair(file,me)
+    if(me['res_status']=='success'):
+        return await services.create_file_flair(file,me)
+    return me
 
 @app.get("/analyse", responses={200: {"content": {"application/gzip"}}})
 async def get_analyse(me=Depends(auth.get_current_user),patientId=TMP_PATIENT_ID):
-    return await services.get_analyse(me,patientId)
+    if me['res_status'] == 'success':
+        return await services.get_analyse(me,patientId)
+    return me
 
 #############################
 #     GESTION DE COMPTE     #
@@ -79,7 +95,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 @app.get("/account/disconnect")
 async def  logout(me=Depends(auth.get_current_user)):
-    return await services.logout(me)
+    if me['res_status'] == 'success':
+        return await services.logout(me)
+    return me
 
 @app.get("/account/me/")
 async def whoami(me=Depends(auth.get_current_user)):

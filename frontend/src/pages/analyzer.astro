@@ -80,7 +80,6 @@ const title="Analyseur";
       // show file name 
       let span = callinginput.querySelector("span");
       if(span!==null)span.remove();
-     
        let name = file.name
        let shortname = shortenString(name,3,9);
        let label =document.getElementById(callinginput.id+"label")
@@ -89,7 +88,6 @@ const title="Analyseur";
        // change state of files (loaded files)
        filestatesupdate(data.loaded_files);
        if(await addNewFile(file)){
-        //  displayCurrentFile();
          displayFiles();
          displayFileNames();
        }

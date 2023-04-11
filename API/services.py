@@ -35,7 +35,7 @@ def write_file(file_path, file_name,file: UploadFile = File(...)):
 
 
 def write_niftii_file(file_path, file_name, file: UploadFile = File(...)):
-    # Check if file is gzipped NIfTI (.nii.gz)
+    # Decompresses file if it is a .gz file
     filename, file_extension = os.path.splitext(file.filename)
     if file_extension == '.gz':
         with gzip.open(file.file, 'rb') as f_in:
@@ -50,7 +50,7 @@ def write_niftii_file(file_path, file_name, file: UploadFile = File(...)):
     else:
         file_to_write = file
 
-    # Check if file is NIfTI (.nii) or gzipped NIfTI (.nii.gz)
+    # Check if file to save is NIfTI (.nii) 
     _, ext = os.path.splitext(file_name)
     if ext not in ['.nii', '.nii.gz']:
         # If a temporary file was created, close it
@@ -77,40 +77,28 @@ def addFile(file : UploadFile, filetype : str,user:auth.User,idPatient=TMP_PATIE
         return loadedfiles(user)
    return user
 
-def cancelfiles(me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
-    if me['res_status'] == 'success':
-        dossier = dossiers_patients[me['id']][idPatient]
-        dossier.cleanup()
-        dossiers_patients[me['id']][idPatient] =tempfile.TemporaryDirectory()
-        return loadedfiles(me,idPatient)
-    return me
+def cancelfiles(me:auth.User,idPatient=TMP_PATIENT_ID):
+    dossier = dossiers_patients[me['id']][idPatient]
+    dossier.cleanup()
+    dossiers_patients[me['id']][idPatient] =tempfile.TemporaryDirectory()
+    return loadedfiles(me,idPatient)
 
-def loadedfiles(me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
-    if me['res_status'] == 'success':
-        dossier =dossiers_patients[me['id']][idPatient]
-        return {'loaded_files' : list(map(lambda x: x.split("_")[1].replace(".nii", ""), os.listdir(dossier.name)))}
-    return me
+def loadedfiles(me=auth.User,idPatient=TMP_PATIENT_ID):
+    dossier =dossiers_patients[me['id']][idPatient]
+    return {'loaded_files' : list(map(lambda x: x.split("_")[1].replace(".nii", ""), os.listdir(dossier.name)))}
+    
 
+async def create_file_t1(file: UploadFile, me=auth.User):
+    return addFile(file,"t1",me)
 
-async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user)):
-    if(me['res_status']=='success'):
-        return addFile(file,"t1",me)
-    return me
+async def create_file_t2(file: UploadFile, me=auth.User):
+    return addFile(file,"t2",me)
 
-async def create_file_t2(file: UploadFile, me=Depends(auth.get_current_user)):
-    if me['res_status'] == 'success': 
-        return addFile(file, "t2",me)
-    else : return me
+async def create_file_t1ce(file: UploadFile, me=auth.User):
+    return addFile(file,"t1ce",me)
 
-async def create_file_t1ce(file: UploadFile, me=Depends(auth.get_current_user)):
-    if me['res_status'] == 'success':
-        return addFile(file, "t1ce",me)
-    else : return me
-
-async def create_file_flair(file: UploadFile, me=Depends(auth.get_current_user)):
-    if me['res_status'] == 'success': 
-        return addFile(file, "flair",me)
-    else : return me
+async def create_file_flair(file: UploadFile, me=auth.User):
+    return addFile(file,"flair",me)
 
 def fichier_bon(file: UploadFile):
     return Path(file).suffix == 't1.nii.gz' or os.path.splitext(file)[1] == 't2.nii.gz' or os.path.splitext(file)[1] == 't1ce.nii.gz' or os.path.splitext(file)[1] == 'flair.nii.gz'
@@ -120,12 +108,10 @@ def filenames(files: List[UploadFile]):
     return {"filenames": [file.filename for file in files]}
 
 
-async def get_analyse(me=Depends(auth.get_current_user),patientId=TMP_PATIENT_ID):
-    if me['res_status'] == 'success':
-        patient_folder = dossiers_patients[me['id']][patientId]
-        seg_file_path = await predict.predictsById(patient_folder.name,case=patientId) 
-        return FileResponse(seg_file_path, media_type="application/gzip", filename="estimation_seg.nii")
-    return me
+async def get_analyse(me=auth.User,patientId=TMP_PATIENT_ID):
+    patient_folder = dossiers_patients[me['id']][patientId]
+    seg_file_path = await predict.predictsById(patient_folder.name,case=patientId) 
+    return FileResponse(seg_file_path, media_type="application/gzip", filename="estimation_seg.nii")
 
 #############################
 #     GESTION DE COMPTE     #
@@ -140,9 +126,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return res
 
 async def logout(me=Depends(auth.get_current_user)):
-    if me['res_status'] == 'success':
-        eraseAllDossiersPatientDoctor(me['id'])
-    return me
+    eraseAllDossiersPatientDoctor(me['id'])
+    
 
 async def whoami(me=Depends(auth.get_current_user)):
     return me

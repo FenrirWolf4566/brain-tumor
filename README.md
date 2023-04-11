@@ -45,9 +45,26 @@ npm run start
 
 ### IA
 //TODO
+
+## Docker
+Cette app peut tourner sur Docker
+
+### Front End
+#### Creation de l'image
+```
+cd frontend/
+docker build -t visualgliome_front .
+```
+#### Execution
+```
+docker run -p 3000:3000 visualgliome_front
+```
+Consulter ensuite [http://localhost:3000/](http://localhost:3000/)
+
 ## A propos
 Dataset utilisé
 https://www.kaggle.com/datasets/dschettler8845/brats-2021-task1
+
 
 ## Auteurs
 FILOCHE Léo <br>

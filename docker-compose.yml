@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  backend:
+    image: lfiloche/vg_back
+    ports:
+      - "80:80"
+
+  frontend:
+    image: lfiloche/vg_front
+    ports:
+      - "3000:3000"

@@ -50,6 +50,12 @@ npm run start
 Cette app peut tourner sur Docker
 
 ### Back End
+#### Récupération de l'image
+Nous avons déposé l'image du backend et du frontend sur DockerHub.
+Vous pouvez récupérer celle du backend avec la commande suivante.
+```bash
+docker pull lfiloche/vg_back
+```
 #### Création de l'image
 ```bash
 cd API/
@@ -61,6 +67,10 @@ docker run --name vg_back -p 80:80 visualgliome_back
 ```
 
 ### Front End
+#### Récupération de l'image
+```bash
+docker pull lfiloche/vg_front
+```
 #### Création de l'image
 Vous devez indiquer que l'adresse du backend a changé.
 Pour cela, modifier public/consts.js, commenter le premier ROOT_URL (dev mode), et décommenter le second (docker mode), pour indiquer l'adresse et le port du backend

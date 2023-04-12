@@ -145,19 +145,6 @@ function drawNiftiFiles(canvas,niftifiles,nomcoupe,slice){
                     canvasImageData = setPixelValue(rowOffset + col, canvasImageData, rgbValue.r, rgbValue.g, rgbValue.b, fileSeg.opacity);
                 }
             }
-            // 
-
-            //if(value>0)console.log(value);
-            // let value = image.get(col, row)
-            // if (isAsegmentationFile && value !== 0 && value !== undefined) {
-            //     rgbValue = selectColor(classesSegmentation.indexOf(value))
-            //     canvasImageData = setPixelValue(rowOffset + col, canvasImageData, rgbValue.r, rgbValue.g, rgbValue.b, opacity);
-            // }
-            // else {
-                // value = (value - niftiHeader.displayIntercept) * niftiHeader.displaySlope;
-                
-                
-            // }
         }
     }
     ctx.putImageData(canvasImageData, 0, 0);

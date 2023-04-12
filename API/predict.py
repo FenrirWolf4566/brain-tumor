@@ -57,30 +57,52 @@ async def predictsById(patient_folder,case):
 
     
 
-def combine(core, edema, enhancing):
-    predicted_classes = np.where(core < 0.4, 2, 3) 
-    predicted_classes = np.where((enhancing < 0.4) & (predicted_classes == 2), 1, predicted_classes)
-    predicted_classes = np.where((edema < 0.4) & (predicted_classes == 1), 0, predicted_classes)    
-    #Créer un tableau qui superpose les trois classes 
-    superposed_classes = np.zeros_like(core) 
-    superposed_classes[predicted_classes == 1] = 1 
-    superposed_classes[predicted_classes == 2] = 2 
-    superposed_classes[predicted_classes == 3] = 3
-    superposed_classes = np.where(superposed_classes == 2, 4, superposed_classes)
-    superposed_classes = np.where(superposed_classes == 1, 2, superposed_classes)
-    superposed_classes = np.where(superposed_classes == 3, 1, superposed_classes)
-    superposed_classes = flip(superposed_classes)
-    return superposed_classes
+def combine(core, edema, enhancing, threshold = 0.5):
+    core = thesholding(core, threshold, 3) 
+    edema = thesholding(edema, threshold, 1)
+    enhancing = thesholding(enhancing, threshold, 2)
+    image = np.maximum.reduce([core,edema,enhancing])
+    image = np.where(image == 2, 4, image)
+    image = np.where(image == 1, 2, image)
+    image = np.where(image == 3, 1, image)
+    return (image)
 
 
-def flip(superposed_classes):
-    flipped = np.zeros((100,240,240))
-    process = np.zeros_like(superposed_classes)
-    for i in range(superposed_classes.shape[0]):
-        process[i,:,:] = np.rot90(superposed_classes[i,:,:], -1)
-        process[i,:,:] = np.flip(superposed_classes[i,:,:], 0)
-        flipped[i,:,:] = cv2.resize(superposed_classes[i,:,:],(240,240))
-    return flipped
+def thesholding(tab, threshold, contrast):
+    """
+    Fonction qui applique un seuil à un tableau numpy et renvoie un nouveau tableau
+    avec des 0 pour les valeurs inférieures au seuil et des 1 pour les valeurs supérieures ou égales au seuil.
+    """
+    resultat = np.copy(tab)
+    resultat[resultat < threshold] = 0
+    resultat[resultat >= threshold] = contrast
+    return resultat
+
+# # Nouvelle écriture (ne fonctionne pas tout à fait)
+# def combine(core, edema, enhancing):
+#     predicted_classes = np.where(core < 0.4, 2, 3) 
+#     predicted_classes = np.where((enhancing < 0.4) & (predicted_classes == 2), 1, predicted_classes)
+#     predicted_classes = np.where((edema < 0.4) & (predicted_classes == 1), 0, predicted_classes)    
+#     #Créer un tableau qui superpose les trois classes 
+#     superposed_classes = np.zeros_like(core) 
+#     superposed_classes[predicted_classes == 1] = 1 
+#     superposed_classes[predicted_classes == 2] = 2 
+#     superposed_classes[predicted_classes == 3] = 3
+#     superposed_classes = np.where(superposed_classes == 2, 4, superposed_classes)
+#     superposed_classes = np.where(superposed_classes == 1, 2, superposed_classes)
+#     superposed_classes = np.where(superposed_classes == 3, 1, superposed_classes)
+#     superposed_classes = flip(superposed_classes)
+#     return superposed_classes
+
+
+# def flip(superposed_classes):
+#     flipped = np.zeros((100,240,240))
+#     process = np.zeros_like(superposed_classes)
+#     for i in range(superposed_classes.shape[0]):
+#         process[i,:,:] = np.rot90(superposed_classes[i,:,:], -1)
+#         process[i,:,:] = np.flip(superposed_classes[i,:,:], 0)
+#         flipped[i,:,:] = cv2.resize(superposed_classes[i,:,:],(240,240))
+#     return flipped
 
 
 def saveNifti(image, case,path) :

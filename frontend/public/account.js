@@ -3,8 +3,9 @@ function estConnecte(){
     let item_end = localStorage.getItem(SESSION_END);
     if(token==null || item_end==null)return false;
     let end_session = +item_end;
-    let remainingtime = end_session - Date.now();
-    //console.log("Temps restant avant fin de session :"+(new Date(remainingtime).toUTCString()))
+    const localDate = new Date(Date.now());
+    let utc_now = new Date(localDate.getTime() + (localDate.getTimezoneOffset() * 60 * 1000))
+    let remainingtime = end_session - utc_now.getTime();
     return token.length > 0 && remainingtime>0;
 }
 async function whoami(){

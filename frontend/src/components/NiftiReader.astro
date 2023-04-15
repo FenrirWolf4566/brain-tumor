@@ -4,41 +4,9 @@ import '../styles/reader.scss';
 <script is:inline src="/ndarray.js"></script>
 <script is:inline src="/nifti-reader.js"></script>
 <script is:inline src="/local-reader.js"> </script>
-<div class="niftireader">
-    <!--
-        TODO: continuer le dev du système de drag & drop
-    <div id="dropzone">Drop files here</div>
-     <script>
-      let dropzone = document.getElementById('dropzone');
-
-      // Prevent default drag behaviors
-      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropzone.addEventListener(eventName, preventDefaults, false)
-        document.body.addEventListener(eventName, preventDefaults, false)
-      });
-      // Handle dropped files
-      dropzone.addEventListener('drop', handleDrop, false);
-
-      function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-
-
-      function handleDrop(e) {
-        var dt = e.dataTransfer;
-        var files = dt.files;
-
-        handleFiles(files);
-      }
-
-      function handleFiles(files) {
-        // Do something with the files
-        console.log(files);
-      }
-    </script>
-     -->
+<div  id="readerzone" class="niftireader">
     <input type="file" id="file" name="files" />
+    <div id="addingfile" class="hide"><h3>Ajout d'un fichier au visionneur...</h3></div>
     <canvas id="nifticanvas" class="nifticanvas" ></canvas>
     <div class="controllers">
         <div class="controller" id="controller-plan">
@@ -70,6 +38,7 @@ import '../styles/reader.scss';
     
     <div id="legend"></div>
     <div id="filenames"></div>
+    
 </div>
 
 <script type="text/javascript">
@@ -113,15 +82,53 @@ async function addNewFile(f){
     }
     return false;
 }
-document.getElementById('file').addEventListener('change', async (evt)=> {
-    let f = evt.target.files[0];
+async function dropNewFile(f){
     if(f!==undefined && await addNewFile(f)){
         displayFiles();
         displayFileNames();
     }
+}
+
+document.getElementById('file').addEventListener('change', async (evt)=> {
+    let f = evt.target.files[0];
+    await dropNewFile(f);
     // possibilité de charger 2 fois d'affilée le même fichier
     evt.target.onclick = ()=>{ evt.target.value=null;}
 });
+
+
+let dropzone = document.getElementById('readerzone');
+      // Prevent default drag behaviors
+      ['dragenter', 'dragover','drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, preventDefaults, false)
+        document.body.addEventListener(eventName, preventDefaults, false)
+      });
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      dropzone.addEventListener('dragenter',(e)=>{
+        if(document.getElementById('nifticanvas').hidden==false){
+            document.getElementById('addingfile').setAttribute('class','show')
+            document.getElementById('nifticanvas').hidden=true;
+        }
+      });
+      dropzone.addEventListener('dragleave',(e)=>{
+        if(e.target==dropzone){
+            document.getElementById('addingfile').setAttribute('class','hide')
+            document.getElementById('nifticanvas').hidden=false;
+        }
+      })
+      
+      // Handle dropped files
+      dropzone.addEventListener('drop', (e)=>{
+        let dt = e.dataTransfer;
+        let files = dt.files;
+        dropNewFile(files[0])
+        document.getElementById('addingfile').setAttribute('class','hide')
+        document.getElementById('nifticanvas').hidden=false;
+      }, false);
 
 //N1 : nb de char a debut
 //N2 : nb de char à la fin

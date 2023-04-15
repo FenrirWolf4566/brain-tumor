@@ -1,0 +1,46 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navigation from "../components/Navigation.astro";
+
+const title="Error 404"
+---
+<!DOCTYPE html>
+<html lang="fr" style="height:100%;margin:0;">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page 404</title>
+</head>
+<body style="
+position: fixed;
+top: 0;
+left: 0;
+bottom: 0;
+right: 0;
+overflow: auto;
+display:flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+row-gap: 5%;
+white-space:pre;
+    ">
+        <img src="favicon.svg" height="150px" >
+        <h1 style="font-size: 5em; font-family: system-ui, sans-serif;margin:0px;">Perdu(e) ?</h1>
+        <a style="
+        border: 0px;
+        background:#da62c4;
+        font-family: system-ui, sans-serif;
+        font-weight: bold; 
+        height:fit-content;
+        padding:.5em;
+        font-size: 2em;
+        border-radius: 50px;
+        cursor:pointer;
+        text-decoration: none;
+        color:white;
+        "
+        href="/" >Menu</a>
+</body>
+</html>

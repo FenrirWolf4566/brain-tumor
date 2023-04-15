@@ -17,7 +17,7 @@
     cursor: pointer;
 }
 
-canvas {
+canvas,#addingfile {
     margin: 1em;
     border: 1px solid rgba(var(--accent), 25%);
     border-radius: 5px;
@@ -154,4 +154,15 @@ input[type='radio'],input[type='range'] {
 }
 .control-body{
     display: flex;
+}
+#addingfile[class='show']{
+    background: linear-gradient(45deg, var(--accent-color), var(--accent-color-light) 60%, white 200%);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#addingfile[class="hide"]{
+    display: none;
 }

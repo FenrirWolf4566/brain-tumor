@@ -3,10 +3,12 @@ version: "3.9"
 services:
   backend:
     image: lfiloche/vg_back
+    build: ./API
     ports:
-      - "80:80"
+      - "8000:8000"
 
   frontend:
     image: lfiloche/vg_front
+    build: ./frontend
     ports:
-      - "3000:3000"
+      - "80:80"

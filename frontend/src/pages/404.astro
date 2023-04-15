@@ -5,42 +5,57 @@ import Navigation from "../components/Navigation.astro";
 const title="Error 404"
 ---
 <!DOCTYPE html>
-<html lang="fr" style="height:100%;margin:0;">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Page 404</title>
+    <style>
+        html{
+            height:100%;
+            margin:0;
+        }
+        body{
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            overflow: auto;
+            display:flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            row-gap: 5%;
+            white-space:pre;
+        }
+        a{
+            border: 0px;
+            background:#da62c4;
+            font-family: system-ui, sans-serif;
+            font-weight: bold; 
+            height:fit-content;
+            padding:.5em;
+            font-size: 2em;
+            border-radius: 50px;
+            cursor:pointer;
+            text-decoration: none;
+            color:white;
+        }
+        a:hover{
+            transform: scale(1.2);
+        }
+        h1{
+            font-size: 5em; 
+            font-family: system-ui, sans-serif;margin:0px;
+        }
+    </style>
 </head>
-<body style="
-position: fixed;
-top: 0;
-left: 0;
-bottom: 0;
-right: 0;
-overflow: auto;
-display:flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-row-gap: 5%;
-white-space:pre;
-    ">
+<body>
         <img src="favicon.svg" height="150px" >
-        <h1 style="font-size: 5em; font-family: system-ui, sans-serif;margin:0px;">Perdu(e) ?</h1>
-        <a style="
-        border: 0px;
-        background:#da62c4;
-        font-family: system-ui, sans-serif;
-        font-weight: bold; 
-        height:fit-content;
-        padding:.5em;
-        font-size: 2em;
-        border-radius: 50px;
-        cursor:pointer;
-        text-decoration: none;
-        color:white;
-        "
-        href="/" >Menu</a>
+        <h1>Perdu(e) ?</h1>
+        <a href="/" >Retour au menu</a>
 </body>
 </html>

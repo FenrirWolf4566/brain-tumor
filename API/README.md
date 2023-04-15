@@ -20,3 +20,6 @@ Elle permet l'interaction entre le frontend et le modèle de prédiction.
 ├── bdd.py : Contient des fonctions d'interaction avec une BDD <br>
 ├── clients.py : Contient des fonctions d'accès au contenu d'une BDD.<br>
 └── mydatabase.py : Contient des fonctions de chargement d'une BDD
+## Docker
+Vous pouvez construire l'image du backend avec l'image suivante.
+```docker build -t visualgliome_back .```

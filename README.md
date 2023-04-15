@@ -1,6 +1,6 @@
 # brain-tumor
 brain-tumor est le nom de ce projet notre projet d'ESIR2 SI. Ce dépôt contient notre code source et sa documentation.<br>
-Nous avons développé une solution intitulée "Visual Gliome" : une application web permettant de prédire les zones cancéreuses d'un cerveau, appelées "gliomes", sur bases d'images d'IRM.
+Nous avons développé une solution intitulée "Visual Gliome" : une application web permettant de prédire les zones cancéreuses d'un cerveau, appelées "gliomes", sur base d'images d'IRM.
 ## Demo
 ### Visualiseur
 
@@ -14,22 +14,23 @@ Le projet est assez lourd (par son historique), nous vous conseillons de ne clon
 ```bash
 git clone --depth 1 https://github.com/FenrirWolf4566/brain-tumor.git 
 ```
-### Backend
+### Installation des dépendances (local)
+#### Backend
 ```bash
 cd API/
 pip install -r requirements.txt 
 ```
-### Frontend
+#### Frontend
 ```bash
 cd frontend/
 npm install
 ```
-### IA
-Le dossier contient les fichiers qui permettent de construire le modèle d'IA. <br>
+#### IA
+Le dossier contient les fichiers qui permettent de construire le modèle d'IA (entraînement). <br>
 La prédiction effective de l'application est gérée dans le backend. <br>
 Il n'est donc **pas nécessaire d'installer les dépendances de ce dossier si vous souhaitez seulement exécuter l'application**.<br>
-//TODO (Un environnement Python est en cours de préparation)
-## Execution (en local)
+## Exécution (local)
+Ouvrez votre navigateur sur [```localhost/```](http://localhost/) pour accéder au frontend. Le backend est disponible sur [```localhost:8000/```](http://localhost:8000). La documentation Swagger autogénérée est disponible à [```/docs```](http://localhost:8000/docs).
 ### Backend
 ```bash
 cd API/
@@ -41,56 +42,15 @@ cd frontend/
 npm run start
 ```
 
-*Note : si vous utilisez Visual Studio Code, vous pouvez lancer le backend, le frontend et Chrome en 1 seule action (Sélectionner le profil 'All' dans 'Exécuter et Débuguer', puis appuyez sur F5).*
-
 ### IA
-//TODO
+
+### VSCode
+Si vous utilisez Visual Studio Code, vous pouvez lancer le backend, le frontend et Chrome en 1 seule action (Sélectionner le profil 'All' dans 'Exécuter et Débuguer', puis appuyez sur F5).
 
 ## Docker
-Cette app peut tourner sur Docker
-
-### Back End
-#### Récupération de l'image
-Nous avons déposé l'image du backend et du frontend sur DockerHub.
-Vous pouvez récupérer celle du backend avec la commande suivante.
-```bash
-docker pull lfiloche/vg_back
-```
-#### Création de l'image
-```bash
-cd API/
-docker build -t visualgliome_back .
-```
-#### Execution
-```bash
-docker run --name vg_back -p 80:80 visualgliome_back
-```
-
-### Front End
-#### Récupération de l'image
-```bash
-docker pull lfiloche/vg_front
-```
-#### Création de l'image
-Vous devez indiquer que l'adresse du backend a changé.
-Pour cela, modifier public/consts.js, commenter le premier ROOT_URL (dev mode), et décommenter le second (docker mode), pour indiquer l'adresse et le port du backend
-```javascript
-// In dev mode
-//const ROOT_URL = 'http://127.0.0.1:8000/';
-// In docker mode
-const ROOT_URL = 'http://localhost:80/';
-```
-
-```bash
-cd frontend/
-docker build -t visualgliome_front .
-```
-#### Execution
-```bash
-docker run -d --name vg_front -p 3000:3000 visualgliome_front
-```
-Consulter ensuite [http://localhost:3000/](http://localhost:3000/)
-
+Cette app peut aussi tourner sur Docker. 
+Il suffit d'exécuter ```docker-compose up```. 
+Par défaut, cela va chercher l'image du [frontend](https://hub.docker.com/repository/docker/lfiloche/vg_front) et du [backend](https://hub.docker.com/repository/docker/lfiloche/vg_back) stockés sur DockerHub. Il est aussi possible de créer vous même vos images, avec ```docker-compose build```.
 
 ## A propos
 Dataset utilisé

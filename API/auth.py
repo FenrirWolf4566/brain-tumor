@@ -8,29 +8,15 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from constants import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY,TOKEN_URL
+import bdd
 
 
 ## Détails pour la création du token
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=TOKEN_URL)
+users_dict = bdd.initiateBasicDb(pwd_context)
 
-fake_users_db = {
-    "johndoe": {
-        "id":"1",
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": pwd_context.hash("bonjour"),
-    },
-    "alicefontaine": {
-        "id":"2",
-        "username": "alicefontaine",
-        "full_name": "Alice Fontaine",
-        "email": "alicefontaine@example.com",
-        "hashed_password": pwd_context.hash("salut"),
-    }
-}
 
 class Token(BaseModel):
     access_token: str
@@ -61,8 +47,8 @@ def get_user(db, username: str):
         return UserInDB(**user_dict)
     else: return False
 
-def authenticate_user(fake_db, username: str, password: str):
-    user = get_user(fake_db, username)
+def authenticate_user(db, username: str, password: str):
+    user = get_user(db, username)
     if not user or not verify_password(password, user.hashed_password): return False
     return user
 
@@ -85,7 +71,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(username=username)
     except JWTError:
         return err
-    user = get_user(fake_users_db, username=token_data.username)
+    user = get_user(users_dict, username=token_data.username)
     if user is None:
         return err
     res = user.copy().__dict__
@@ -94,7 +80,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     return res
 
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+    user = authenticate_user(users_dict, form_data.username, form_data.password)
     if user==False: 
         return {"res_status":"error","detail":"user_password-not-found"}
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

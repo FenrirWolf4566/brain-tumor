@@ -2,6 +2,8 @@
 brain-tumor est le nom de ce projet notre projet d'ESIR2 SI. Ce dépôt contient notre code source et sa documentation.<br>
 Nous avons développé une solution intitulée "Visual Gliome" : une application web permettant de prédire les zones cancéreuses d'un cerveau, appelées "gliomes", sur base d'images d'IRM.
 ## Demo
+### En ligne
+Testez le par vous même, sur [visualgliome.bdezordo.com](https://visualgliome.bdezordo.com/).
 ### Visualiseur
 
 https://user-images.githubusercontent.com/62034725/230747859-aebeead9-1fa0-4ec5-af31-305cbb68d956.mp4

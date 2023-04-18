@@ -23,3 +23,6 @@ Elle permet l'interaction entre le frontend et le modèle de prédiction.
 ## Docker
 Vous pouvez construire l'image du backend avec l'image suivante.
 ```docker build -t visualgliome_back .```
+
+## Users
+Chaque product owner dispose d'un id, nom, mail, mot de passe et peut se connecter

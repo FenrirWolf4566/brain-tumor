@@ -70,7 +70,7 @@ def initiateBasicDb(pwd_context):
         "email": "francescagalassi@example.com",
         "hashed_password": pwd_context.hash("galassi"),
     },
-    "helenefeuillatre": {
+    "helene": {
         "id":"5",
         "username": "helene",
         "full_name": "Helene Feuillatre",

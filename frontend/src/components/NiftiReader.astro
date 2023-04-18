@@ -125,7 +125,9 @@ let dropzone = document.getElementById('readerzone');
       dropzone.addEventListener('drop', (e)=>{
         let dt = e.dataTransfer;
         let files = dt.files;
-        dropNewFile(files[0])
+        for(let file of files){
+            dropNewFile(file)
+        }
         document.getElementById('addingfile').setAttribute('class','hide')
         document.getElementById('nifticanvas').hidden=false;
       }, false);

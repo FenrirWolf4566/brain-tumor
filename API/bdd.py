@@ -56,21 +56,21 @@ def initiateBasicDb(pwd_context):
         "email": "alicefontaine@example.com",
         "hashed_password": pwd_context.hash("salut"),
     },
-    "johannbourcier": {
+    "johann": {
         "id":"3",
         "username": "johann",
         "full_name": "Johann Bourcier",
         "email": "johannbourcier@example.com",
         "hashed_password": pwd_context.hash("bourcier"),
     },
-    "francescagalassi": {
+    "francesca": {
         "id":"4",
         "username": "francesca",
         "full_name": "Francesca Galassi",
         "email": "francescagalassi@example.com",
         "hashed_password": pwd_context.hash("galassi"),
     },
-    "hélènefeuillatre": {
+    "helenefeuillatre": {
         "id":"5",
         "username": "helene",
         "full_name": "Helene Feuillatre",
@@ -82,9 +82,13 @@ def initiateBasicDb(pwd_context):
     create_comptes_table(con)
     john = fake_users_db["johndoe"]
     alice= fake_users_db["alicefontaine"]
-    johann= fake_users_db["johannbourcier"]
+    johann= fake_users_db["johann"]
+    fransesca= fake_users_db["fransesca"]
+    helene= fake_users_db["helene"]
     create_user(con,john['id'],john['username'],john['full_name'],john['email'],john['hashed_password'])
     create_user(con,alice['id'],alice['username'],alice['full_name'],alice['email'],alice['hashed_password'])
     create_user(con,johann['id'],johann['username'],johann['full_name'],johann['email'],johann['hashed_password'])
+    create_user(con,fransesca['id'],fransesca['username'],fransesca['full_name'],fransesca['email'],fransesca['hashed_password'])
+    create_user(con,helene['id'],helene['username'],helene['full_name'],helene['email'],helene['hashed_password'])
     return get_users(con)
 

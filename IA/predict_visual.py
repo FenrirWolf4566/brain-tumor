@@ -11,6 +11,7 @@ from keras.optimizers import *
 from variables import *
 from train_model import model
 import data_loader
+from scipy import ndimage
 from scipy.spatial.transform import Rotation
 
 
@@ -97,6 +98,14 @@ def combine(core, edema, enhancing):
     return (image)'''
     return superposed_classes
 
+def flip(superposed_classes):
+    print("first",np.shape(superposed_classes))
+    resized = ndimage.zoom(superposed_classes, (1,240/128,240/128))
+    print("after resize ",np.shape(superposed_classes))
+    flipped = np.transpose(resized, (2,1,0))
+    print("after transpose ",np.shape(flipped))
+    return flipped
+
 def showPredictsById(case, start_slice = 60):
     path = f"{TRAIN_DATASET_PATH}\BraTS2021_{case}"
     gt = nib.load(os.path.join(path, f'BraTS2021_{case}_seg.nii')).get_fdata()
@@ -113,41 +122,44 @@ def showPredictsById(case, start_slice = 60):
     enhancing = p[:,:,:,3]
 
     #plt.figure(figsize=(18, 50))
-    f, axarr = plt.subplots(1,7, figsize = (36, 100)) 
+    f, axarr = plt.subplots(1,3, figsize = (36, 100)) 
 
-    for i in range(6): # for each image, add brain background
+    for i in range(2): # for each image, add brain background
         axarr[i].imshow(cv2.resize(origImage[:,:,start_slice+VOLUME_START_AT], (IMG_SIZE, IMG_SIZE)), cmap="gray", interpolation='none')
+
     background = np.rot90(cv2.resize(origImage[:,:,start_slice+VOLUME_START_AT], (240, 240)),-1)
     background = np.fliplr(background)
-    axarr[6].imshow(background, cmap="gray", interpolation='none')
+    axarr[2].imshow(background, cmap="gray", interpolation='none')
     
     axarr[0].imshow(cv2.resize(origImage[:,:,start_slice+VOLUME_START_AT], (IMG_SIZE, IMG_SIZE)), cmap="gray")
     axarr[0].title.set_text('Original image flair')
-    curr_gt=cv2.resize(gt[:,:,start_slice+VOLUME_START_AT], (IMG_SIZE, IMG_SIZE), interpolation = cv2.INTER_NEAREST)
-    axarr[1].imshow(curr_gt, cmap="Reds", interpolation='none', alpha=0.3) # ,alpha=0.3,cmap='Reds'
-    axarr[1].title.set_text('Ground truth')
-    #axarr[2].imshow(p[start_slice,:,:,1:4], cmap="Reds", interpolation='none', alpha=0.3)
-    #axarr[2].title.set_text('all classes')
-    # Core
-    axarr[2].imshow(edema[start_slice,:,:], cmap="OrRd", interpolation='none', alpha=0.3)
-    axarr[2].title.set_text(f'{SEGMENT_CLASSES[1]} predicted')
-    # Enhancing
-    axarr[3].imshow(enhancing[start_slice,:,], cmap="OrRd", interpolation='none', alpha=0.3)
-    axarr[3].title.set_text(f'{SEGMENT_CLASSES[3]} predicted')
-    # Whole
-    axarr[4].imshow(core[start_slice,:,], cmap="OrRd", interpolation='none', alpha=0.3)
-    axarr[4].title.set_text(f'{SEGMENT_CLASSES[2]} predicted')
-    #Asswhole
-    axarr[5].imshow(combine(core, edema, enhancing)[start_slice,:,:], cmap="OrRd", interpolation='none', alpha=0.3)
-    axarr[5].title.set_text(f'prédiction')
 
-    resize = combine(core, edema, enhancing)[start_slice,:,:]
-    resize = np.rot90(resize, -1)
-    resize = np.fliplr(resize)
-    resize = cv2.resize(resize,(240,240))
+    #axarr[1].imshow(curr_gt, cmap="Reds", interpolation='none', alpha=0.3) # ,alpha=0.3,cmap='Reds'
+    #axarr[1].title.set_text('Ground truth')
     
-    axarr[6].imshow(resize, cmap="OrRd", interpolation='none', alpha=0.3)
-    axarr[6].title.set_text(f'prédiction augmentée')
+
+    # Core
+    #axarr[2].imshow(edema[start_slice,:,:], cmap="OrRd", interpolation='none', alpha=0.3)
+    #axarr[2].title.set_text(f'{SEGMENT_CLASSES[1]} predicted')
+
+    # Enhancing
+    #axarr[3].imshow(enhancing[start_slice,:,], cmap="OrRd", interpolation='none', alpha=0.3)
+    #axarr[3].title.set_text(f'{SEGMENT_CLASSES[3]} predicted')
+
+    # Whole
+    #axarr[4].imshow(core[start_slice,:,], cmap="OrRd", interpolation='none', alpha=0.3)
+    #axarr[4].title.set_text(f'{SEGMENT_CLASSES[2]} predicted')
+
+    #Asswhole
+    axarr[1].imshow(combine(core, edema, enhancing)[start_slice,:,:], cmap="OrRd", interpolation='none', alpha=0.3)
+    axarr[1].title.set_text(f'prédiction')
+
+
+    img = combine(core, edema, enhancing)
+    resize = flip(img)[:,:,start_slice]
+
+    axarr[2].imshow(resize, cmap="OrRd", interpolation='none', alpha=0.3)
+    axarr[2].title.set_text(f'prédiction augmentée')
     plt.show()
 
 train_ids, val_ids, test_ids = data_loader.load_data()

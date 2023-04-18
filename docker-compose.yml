@@ -11,4 +11,4 @@ services:
     image: lfiloche/vg_front
     build: ./frontend
     ports:
-      - "80:80"
+      - "82:80"

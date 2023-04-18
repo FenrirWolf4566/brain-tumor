@@ -8,9 +8,10 @@ SEGMENT_CLASSES = {
     3 : 'ENHANCING'      # Propogation (original 4 -> converted into 3 later)
 }
 
-VOLUME_SLICES = 100 
-VOLUME_START_AT = 22
+VOLUME_SLICES = 155 
+VOLUME_START_AT = 0
 IMG_SIZE=128
+IMG_RESIZE=240
 TRAIN_DATASET_PATH = os.path.join("IA", "dataset","training")
 VALIDATION_DATASET_PATH = os.path.join("IA", "dataset","validation")
 

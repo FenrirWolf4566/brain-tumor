@@ -10,6 +10,7 @@ from keras.layers import *
 from keras.optimizers import *
 from variables import *
 from train_model import model
+from scipy import ndimage
 import data_loader
 
 
@@ -128,7 +129,6 @@ def predictsById(case, start_slice = 60):
     
 
 def combine(core, edema, enhancing):
-
     '''core = thesholding(core, 0.4, 3)
     enhancing = thesholding(enhancing, 0.45, 2)
     edema = thesholding(edema, 0.45, 1)'''
@@ -136,15 +136,17 @@ def combine(core, edema, enhancing):
     predicted_classes = np.where(core < 0.4, 2, 3) 
     predicted_classes = np.where((enhancing < 0.4) & (predicted_classes == 2), 1, predicted_classes)
     predicted_classes = np.where((edema < 0.4) & (predicted_classes == 1), 0, predicted_classes)    
-    #Créer un tableau qui superpose les trois classes 
+    #Créer un tableau copie qui superpose les trois classes 
     superposed_classes = np.zeros_like(core) 
     superposed_classes[predicted_classes == 1] = 1 
     superposed_classes[predicted_classes == 2] = 2 
     superposed_classes[predicted_classes == 3] = 3
+    #Attribution des bonnes valeures de classes
     superposed_classes = np.where(superposed_classes == 2, 4, superposed_classes)
     superposed_classes = np.where(superposed_classes == 1, 2, superposed_classes)
     superposed_classes = np.where(superposed_classes == 3, 1, superposed_classes)
     superposed_classes = flip(superposed_classes)
+    superposed_classes = superposed_classes.astype(int)
     '''image = np.maximum.reduce([core,edema,enhancing])
     image = np.where(image == 2, 4, image)
     image = np.where(image == 1, 2, image)
@@ -154,30 +156,19 @@ def combine(core, edema, enhancing):
 
 NAME = "pred"
 
-def thesholding(tab, threshold, contrast):
-    """
-    Fonction qui applique un seuil à un tableau numpy et renvoie un nouveau tableau
-    avec des 0 pour les valeurs inférieures au seuil et des 1 pour les valeurs supérieures ou égales au seuil.
-    """
-    resultat = np.copy(tab)
-    resultat[resultat < threshold] = contrast-1
-    resultat[resultat >= threshold] = contrast
-    resultat[resultat < 0.1] = 0
-    return resultat
-
-
 def saveNifti(image, case) :
     template_nii = nib.load(os.path.join("IA","doctor", "template_seg.nii"))
     result = nib.Nifti1Image(image, template_nii.affine, template_nii.header)
     nib.save(result, os.path.join(PREDICTION_PATH,NAME+".nii"))
 
 def flip(superposed_classes):
-    flipped = np.zeros((100,240,240))
-    process = np.zeros_like(superposed_classes)
-    for i in range(superposed_classes.shape[0]):
-        process[i,:,:] = np.rot90(superposed_classes[i,:,:], -1)
-        process[i,:,:] = np.flip(superposed_classes[i,:,:], 0)
-        flipped[i,:,:] = cv2.resize(superposed_classes[i,:,:],(240,240))
+    print("first",np.shape(superposed_classes))
+    superposed_classes = superposed_classes[:,::-1,:]
+    resized = ndimage.zoom(superposed_classes, (1,240/128,240/128))
+    print("after resize ",np.shape(superposed_classes))
+    flipped = np.transpose(resized, (2,1,0))
+    #flipped = flipped[:,::-1,:]
+    print("after transpose ",np.shape(flipped))
     return flipped
 
 train_ids, val_ids, test_ids = data_loader.load_data()

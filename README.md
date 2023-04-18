@@ -58,6 +58,8 @@ Par défaut, cela va chercher l'image du [frontend](https://hub.docker.com/repos
 Dataset utilisé
 https://www.kaggle.com/datasets/dschettler8845/brats-2021-task1
 
+## Documentation
+Le répertoire éponyme contient les rapports de management, d'architecture et de management également disponibles dans notre drive Google.
 
 ## Auteurs
 FILOCHE Léo <br>

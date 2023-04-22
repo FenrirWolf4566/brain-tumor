@@ -124,6 +124,9 @@ function drawNiftiFiles(canvas,niftifiles,nomcoupe,slice){
     for (let row = 0; row < rows; row++) {
         let rowOffset = row * cols;
         for (let col = 0; col < cols; col++) {
+            // Calque pixel par pixel selon la nature des images
+            let anatValue = undefined;
+            let anatOpac = undefined;
             // Traitement de la valeur du pixel selon les Images d'anatomie
             if(imagesAnat.length>0){
                 let values = imagesAnat.map((image,index)=>{
@@ -134,17 +137,29 @@ function drawNiftiFiles(canvas,niftifiles,nomcoupe,slice){
                 let value = Math.max(...values)
                 let opacities = filesAnat.map(file=>{return file.opacity;})
                 let opacity = Math.max(...opacities); 
-                canvasImageData = setPixelValue(rowOffset + col, canvasImageData, value, value, value, opacity)
+                canvasImageData = setPixelValue(rowOffset + col, canvasImageData, value, value, value, opacity);
+                anatValue = value;
+                anatOpac = opacity;
             }
 
             // Traitement de la valeur du pixel selon les Images de segmentation
             if(imgSeg!==undefined){
                 let value = imgSeg.get(col,row);
+                let opacity = fileSeg.opacity;
                 if(value!==0 && value!==undefined){
-                    let rgbValue = selectColor(fileSeg.classesSegmentation.indexOf(value))
-                    canvasImageData = setPixelValue(rowOffset + col, canvasImageData, rgbValue.r, rgbValue.g, rgbValue.b, fileSeg.opacity);
+                    let rgbValue = selectColor(fileSeg.classesSegmentation.indexOf(value));
+                    if(anatOpac!==undefined && anatValue!==undefined){
+                        // Gestion de l'opacité de l'image de segmentation
+                        let alpha = opacity /255;
+                        let r = (1 - alpha)*anatValue + alpha*rgbValue.r;
+                        let g = (1 - alpha)*anatValue + alpha*rgbValue.g;
+                        let b = (1 - alpha)*anatValue + alpha*rgbValue.b;
+                       rgbValue = {r,g,b};
+                    }
+                    canvasImageData = setPixelValue(rowOffset + col, canvasImageData, rgbValue.r, rgbValue.g, rgbValue.b, 255);
                 }
             }
+    
         }
     }
     ctx.putImageData(canvasImageData, 0, 0);
@@ -250,7 +265,6 @@ function readNiftiFile(file) {
 function resetCanvas(idCanvas, idSlider) {
     let slider = document.getElementById(idSlider);
     slider.value = 50;
-    //slider.oninput = function () { }
     let canvas = document.getElementById(idCanvas)
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
     canvas.style.backgroundColor='transparent';

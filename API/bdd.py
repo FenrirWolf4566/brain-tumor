@@ -83,7 +83,7 @@ def initiateBasicDb(pwd_context):
     john = fake_users_db["johndoe"]
     alice= fake_users_db["alicefontaine"]
     johann= fake_users_db["johann"]
-    fransesca= fake_users_db["fransesca"]
+    fransesca= fake_users_db["francesca"]
     helene= fake_users_db["helene"]
     create_user(con,john['id'],john['username'],john['full_name'],john['email'],john['hashed_password'])
     create_user(con,alice['id'],alice['username'],alice['full_name'],alice['email'],alice['hashed_password'])

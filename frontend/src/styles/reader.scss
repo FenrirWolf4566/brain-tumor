@@ -1,168 +1,20 @@
-.reader{
+#introbloc{
     display: flex;
-    flex-direction: column;
-}
+    justify-content: space-between;
 
-.filelabel {
-    text-align: center;
-    border: 1px solid rgba(var(--accent), 25%);
-    border-radius: 5px;
-    padding: 2px;
-    font-weight:bold;
-}
-
-.filelabel:hover {
-    background: linear-gradient(45deg, var(--accent-color), var(--accent-color-light) 60%, white 200%);
-    color: white;
-    cursor: pointer;
-}
-
-canvas,#addingfile {
-    margin: 1em;
-    border: 1px solid rgba(var(--accent), 25%);
-    border-radius: 5px;
-    width: 500px;
-    height: 500px;
-    
-    @media screen and (max-width: 652px){
-        width: 100%;
-        height: 100%;
+    button {
+        color: black;
+        padding: 5px;
+        background-color: transparent;
+        border: 1px solid rgba(var(--accent), 25%);
+        text-decoration: none;
+        font-size: medium;
+        font-weight: bold;
+        border-radius: 5px;
+        cursor: pointer;   
     }
-}
-.niftireader {
-    margin: 1em;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-.controllers{
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    column-gap: 1.5em;
-    margin: 1em;
-}
-.controller .labelslider{
-    display: inline-block;
-    width: 2.5em;
-}
-.niftireader input[type="file"]{
-    display: none;
-}
-
-.dot {
-    height: 1.5em;
-    width: 1.5em;
-    overflow: hidden;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    position: relative;
-}
-.dot  input[type=color] {
-    position: absolute;
-    height: 4em;
-    width: 4em;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    overflow: hidden;
-    border: none;
-    margin: 0;
-    padding: 0;
-}
-
-#bodylegend {
-    display: flex;
-    gap: 10px;
-    flex-direction: column;
-}
-
-.duocolor{
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-#legend {
-    h3{
-        margin: 0px;
+    button:hover{
+        color: white;
+        background-image: var(--accent-validate);
     }
-}
-
-input[type='radio'],input[type='range'] {
-    accent-color: var(--accent-color);
-}
-#filenames{
-    display: flex;
-    justify-content:space-evenly;
-    flex-wrap: wrap;
-    width: 100%;
-    gap: 1rem;
-    margin: 1em;
-
-    .filename {
-        outline: 1px solid rgba(var(--accent), 25%);
-        border-radius: 0.7rem;
-        height: fit-content;
-        cursor: pointer;
-        padding-left: 0.5rem;
-        overflow: hidden;
-        display: flex;
-        justify-content: space-between;
-        width: 12em;
-        border:0px !important;
-
-
-        button {
-            width: 15px;
-            border: 0px;
-            font-weight: bold;
-            color:white;
-            cursor:pointer;
-            background-color: transparent;
-            padding-right: 2em;
-            padding-left: .5em;
-        }
-        button:hover{
-            background-image: var(--accent-cancel);
-            background-size: 200%;
-            border-radius: 0.7rem;
-
-        }
-    }
-}
-.controller{
-    display: flex;
-    flex-direction: column; 
-    h3{
-        margin: 0px;
-    }
-}
-.current-filename, .filename:hover{
-    background: linear-gradient(45deg, var(--accent-color),var(--accent-color-light) 60%, white 200%);
-    color: white;
-    font-weight:700;
-    
-}
-#legend{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin: 1em;
-}
-.control-body{
-    display: flex;
-}
-#addingfile[class='show']{
-    background: linear-gradient(45deg, var(--accent-color), var(--accent-color-light) 60%, white 200%);
-    color: white;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-#addingfile[class="hide"]{
-    display: none;
 }

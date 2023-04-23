@@ -30,7 +30,9 @@ origins = [
     "http://127.0.0.1:3000",
     "http://127.0.0.1:80",
     "http://0.0.0.0:80",
-    "http://0.0.0.0:3000"
+    "http://0.0.0.0:3000",
+    "https://visualgliome.bdezordo.com/",
+    "https://api.bdezordo.com/"
 ]
 
 app.add_middleware(
@@ -88,6 +90,7 @@ async def get_analyse(me=Depends(auth.get_current_user),patientId=TMP_PATIENT_ID
     if me['res_status'] == 'success':
         return await services.get_analyse(me,patientId)
     return me
+
 
 #############################
 #     GESTION DE COMPTE     #

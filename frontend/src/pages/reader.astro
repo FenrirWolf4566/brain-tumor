@@ -3,18 +3,41 @@ import Layout from "../layouts/Layout.astro";
 import Navigation from "../components/Navigation.astro";
 import NiftiReader from "../components/NiftiReader.astro";
 
+import '../styles/reader.scss';
+
 const title="Visionneur";
 ---
 <Layout title={title}>
     <Navigation title={title}></Navigation>
     <div class="instructions" id="introbloc">
         <div id="basic-instruction">
-          C'est ici que se passe l'analyse.
+          Déposez des fichiers .nii et .nii.gz pour les visualiser.
         </div>
+        <button onclick="loadexample()">Charger exemple</button>
         </div>
-
     <div class="instructions reader">
         <label class="filelabel" for="file" >Sélectionnez un fichier</label>
         <NiftiReader></NiftiReader>
     </div>
 </Layout>
+
+<script is:inline>
+
+async function loadLocalFile(name){
+    await fetch(name)
+    .then( (res) => res.blob())
+    .then(async blob=>{
+      if(await addNewFile(new File([blob],name))){
+        displayFiles();
+        displayFileNames();
+      }
+    }) 
+}
+
+async function loadexample(){
+   await loadLocalFile('example/BraTS2021_01572_t1.nii.gz');
+   await loadLocalFile('example/BraTS2021_01572_t1ce.nii.gz');
+   await loadLocalFile('example/BraTS2021_01572_t2.nii.gz');
+   await loadLocalFile('example/BraTS2021_01572_seg.nii.gz');
+}
+</script>

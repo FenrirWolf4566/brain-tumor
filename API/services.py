@@ -24,6 +24,11 @@ import tempfile
 dossiers_patients = {} #dictionnaire contenant les dossiers temporaires de chaque docteur
 
 
+#############################
+#     ECRITURE ET ENVOI     #
+#        DE FICHIERS        # 
+#############################
+
 def write_file(file_path, file_name,file: UploadFile = File(...)):
     Path(file_path).mkdir(parents=True, exist_ok=True)
     file_path = os.path.join(file_path,file_name)
@@ -112,6 +117,15 @@ async def get_analyse(me=auth.User,patientId=TMP_PATIENT_ID):
     patient_folder = dossiers_patients[me['id']][patientId]
     seg_file_path = await predict.predictsById(patient_folder.name,case=patientId) 
     return FileResponse(seg_file_path, media_type="application/gzip", filename="estimation_seg.nii")
+
+# finalement non utilisé :
+# fonction pour charger des exemples depuis le backend 
+# def get_example_file(filetype : str):
+#     if filetype=='flair' or filetype=='seg' or filetype=='t1' or filetype=='t2' or filetype=='t1ce':
+#         file_path = 'niftis/example/BraTS2021_01622_'+filetype+'.nii.gz'
+#         return FileResponse(file_path, media_type="application/gzip", filename="example_"+filetype+".nii.gz")
+#     return None
+
 
 #############################
 #     GESTION DE COMPTE     #

@@ -59,10 +59,7 @@ Dataset utilisé
 https://www.kaggle.com/datasets/dschettler8845/brats-2021-task1
 
 ## Documentation
-Le répertoire éponyme contient les rapports de management, d'architecture et de management également disponibles dans notre drive Google.
-
-## Doctor_account
-Cette BDD contient les comptes des docteurs.
+Le répertoire éponyme contient les rapports de management, d'architecture et de management.
 
 ## Auteurs
 FILOCHE Léo <br>

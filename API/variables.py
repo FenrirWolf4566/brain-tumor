@@ -4,7 +4,6 @@ VOLUME_START_AT = 22
 IMG_SIZE=128
 
 import os
-import tempfile
 
 
 TMP_PATIENT_ID = "tmpid"

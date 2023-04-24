@@ -17,9 +17,9 @@ def create_comptes_table(conn):
 def close_connection(conn):
     conn.close()
 
-def create_user(conn : sqlite3.Connection, id, username, full_name, email, hashed_password):
-    conn.execute(f'''INSERT INTO comptes (id, username, full_name, email, hashed_password)
-                     VALUES ('{id}', '{username}', '{full_name}', '{email}', '{hashed_password}')''')
+def create_user(conn : sqlite3.Connection, username, full_name, email, hashed_password):
+    conn.execute(f'''INSERT INTO comptes (username, full_name, email, hashed_password)
+                     VALUES ('{username}', '{full_name}', '{email}', '{hashed_password}')''')
     conn.commit()
 
 def get_users(conn : sqlite3.Connection):
@@ -41,54 +41,11 @@ def get_users(conn : sqlite3.Connection):
 
 
 def initiateBasicDb(pwd_context):
-    fake_users_db = {
-    "johndoe": {
-        "id":"1",
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": pwd_context.hash("bonjour"),
-    },
-    "alicefontaine": {
-        "id":"2",
-        "username": "alicefontaine",
-        "full_name": "Alice Fontaine",
-        "email": "alicefontaine@example.com",
-        "hashed_password": pwd_context.hash("salut"),
-    },
-    "johann": {
-        "id":"3",
-        "username": "johann",
-        "full_name": "Johann Bourcier",
-        "email": "johannbourcier@example.com",
-        "hashed_password": pwd_context.hash("bourcier"),
-    },
-    "francesca": {
-        "id":"4",
-        "username": "francesca",
-        "full_name": "Francesca Galassi",
-        "email": "francescagalassi@example.com",
-        "hashed_password": pwd_context.hash("galassi"),
-    },
-    "helene": {
-        "id":"5",
-        "username": "helene",
-        "full_name": "Helene Feuillatre",
-        "email": "helenefeuillatre@example.com",
-        "hashed_password": pwd_context.hash("feuillatre"),
-    }
-    }
     con = get_conn("doctors.db")
     create_comptes_table(con)
-    john = fake_users_db["johndoe"]
-    alice= fake_users_db["alicefontaine"]
-    johann= fake_users_db["johann"]
-    fransesca= fake_users_db["francesca"]
-    helene= fake_users_db["helene"]
-    create_user(con,john['id'],john['username'],john['full_name'],john['email'],john['hashed_password'])
-    create_user(con,alice['id'],alice['username'],alice['full_name'],alice['email'],alice['hashed_password'])
-    create_user(con,johann['id'],johann['username'],johann['full_name'],johann['email'],johann['hashed_password'])
-    create_user(con,fransesca['id'],fransesca['username'],fransesca['full_name'],fransesca['email'],fransesca['hashed_password'])
-    create_user(con,helene['id'],helene['username'],helene['full_name'],helene['email'],helene['hashed_password'])
+    create_user(con,"johndoe","John Doe","johndoe@example.com", pwd_context.hash("bonjour"))
+    create_user(con,"alicefontaine","Alice Fontaine","alicefontaine@example.com",pwd_context.hash("salut"))
+    create_user(con,"johann","Johann Bourcier","johannbourcier@irisa.fr",pwd_context.hash("bourcier"))
+    create_user(con,"francesca","Francesca Galassi","francescagalassi@irisa.fr",pwd_context.hash("galassi"))
+    create_user(con,"helene","Helene Feuillatre","helenefeuillatre@irisa.fr",pwd_context.hash("feuillatre"))
     return get_users(con)
-

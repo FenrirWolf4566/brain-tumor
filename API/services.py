@@ -118,13 +118,6 @@ async def get_analyse(me=auth.User,patientId=TMP_PATIENT_ID):
     seg_file_path = await predict.predictsById(patient_folder.name,case=patientId) 
     return FileResponse(seg_file_path, media_type="application/gzip", filename="estimation_seg.nii")
 
-# finalement non utilisé :
-# fonction pour charger des exemples depuis le backend 
-# def get_example_file(filetype : str):
-#     if filetype=='flair' or filetype=='seg' or filetype=='t1' or filetype=='t2' or filetype=='t1ce':
-#         file_path = 'niftis/example/BraTS2021_01622_'+filetype+'.nii.gz'
-#         return FileResponse(file_path, media_type="application/gzip", filename="example_"+filetype+".nii.gz")
-#     return None
 
 
 #############################
@@ -137,10 +130,13 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         me = await auth.get_current_user(res['access_token'])
         #eraseAllDossiersPatientDoctor(me['id'])
         if not doctorExists(me['id']): dossiers_patients[me['id']] = {TMP_PATIENT_ID : tempfile.TemporaryDirectory()}
+        print(dossiers_patients)
     return res
 
 async def logout(me=Depends(auth.get_current_user)):
     eraseAllDossiersPatientDoctor(me['id'])
+    if me['id'] not in dossiers_patients: return {'res_status':'success'}
+    else : return {'res_status':'error'}
     
 
 async def whoami(me=Depends(auth.get_current_user)):
@@ -152,4 +148,7 @@ def doctorExists(id:int):
 def eraseAllDossiersPatientDoctor(iddoctor:int):
     if iddoctor in dossiers_patients:
         for iddossier in dossiers_patients[iddoctor]:
+            # erasing folder and its contents
             dossiers_patients[iddoctor][iddossier].cleanup()
+        # removing doctor's id from the dossiers_patients dictionary
+        del dossiers_patients[iddoctor]

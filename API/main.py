@@ -100,7 +100,7 @@ async def get_analyse(me=Depends(auth.get_current_user),patientId=TMP_PATIENT_ID
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return await services.login(form_data)
 
-@app.get("/account/disconnect")
+@app.get("/account/disconnect",description="A success means that all the data about the user is deleted")
 async def  logout(me=Depends(auth.get_current_user)):
     if me['res_status'] == 'success':
         return await services.logout(me)

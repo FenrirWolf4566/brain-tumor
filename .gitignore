@@ -4,3 +4,4 @@ IA/Sample_BRATZ
 API/niftis/patients/*
 API/niftis/predictions/*
 IA/__pycache__
+API/test/__pycache__

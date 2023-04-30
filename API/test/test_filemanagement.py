@@ -26,8 +26,8 @@ def test_empty_file_list_at_start():
         disconnect(token)
 
 
-def drop_file(filetype,token):
-    file_path = f'./API/test/examples/example_1/example_1_{filetype}.nii.gz'
+def drop_file(filetype,token,exampleid=1):
+    file_path = f'./API/test/examples/example_{exampleid}/example_{exampleid}_{filetype}.nii.gz'
     headers = {
         "accept": "application/json",
         "Authorization": f"Bearer {token}",
@@ -61,9 +61,9 @@ def test_drop_same_file_twice():
     for data_auth in login_password_existing_users:
             token =get_token(data_auth)
             for filetype in filetypes:
-                drop_1 = drop_file(filetype,token)
+                drop_1 = drop_file(filetype,token,exampleid=1)
                 assert_drop_file(filetype,drop_1)
-                drop_2 = drop_file(filetype,token)
+                drop_2 = drop_file(filetype,token,exampleid=2)
                 assert_drop_file(filetype,drop_2)
                 file_list_1=drop_1['loaded_files']
                 file_list_2=drop_2['loaded_files']
@@ -72,6 +72,37 @@ def test_drop_same_file_twice():
                 assert(file_list_1==file_list_2)
             disconnect(token)
 
-#TODO: tests cancel_files and analyse
+# after canceling the files, none of them should be loaded 
+def test_cancel_files():
+    for data_auth in login_password_existing_users:
+        token =get_token(data_auth)
+        for filetype in filetypes:
+            drop_file(filetype,token)
+        loaded_files = requests.get(url+'files/cancel', headers={'accept': 'application/json', 'Authorization': f'Bearer {token}'}).json()['loaded_files']
+        assert(loaded_files==[])
+        disconnect(token)
 
+# Usual case : the 4 files are dropped, we receive a segmentation file in return 
+def test_analyse_usual_case():
+    for data_auth in login_password_existing_users:
+        token = get_token(data_auth)
+        for filetype in filetypes:
+            drop_file(filetype,token)
+        response = requests.get(url+'analyse', headers={'accept': 'application/json', 'Authorization': f'Bearer {token}'})
+        # the expected response is a file, we check it by parsing its metadata
+        print(response.headers)
+        content_disposition = response.headers.get('content-disposition')
+        assert(all(metadata in content_disposition for metadata in ['attachment','filename']))
+        assert('estimation_seg.nii' in content_disposition)  
+        disconnect(token)  
 
+# If the 4 files are not dropped, we must receive an error message
+def test_analyse_not_enough_filesdropped():
+    for data_auth in login_password_existing_users:
+        token = get_token(data_auth)
+        #only 2 (instead of four) files are dropped
+        for filetype in filetypes[:2]: 
+            drop_file(filetype,token)
+        response = requests.get(url+'analyse', headers={'accept': 'application/json', 'Authorization': f'Bearer {token}'}).json()
+        assert(response['res_status']=='error')
+        disconnect(token)  

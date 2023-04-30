@@ -10,9 +10,9 @@ const title="Analyseur";
 
 <Layout title={title} account>
   <script is:inline type="module">
-   // guard();
+   guard();
     await updateConnectedState()
-   // guard()
+   guard()
   </script>
     <Navigation title={title}></Navigation>
     <div class="instructions" id="introbloc">
@@ -59,8 +59,11 @@ const title="Analyseur";
 <script is:inline>
   const token = localStorage.getItem(SESSION_TOKEN);
 
-  fetch(ROOT_URL+'files/',{method:'GET',headers:{'Authorization': `Bearer ${token}`}}).then(response=>response.json()).then((states)=>{
-    filestatesupdate(states.loaded_files)
+  fetch(ROOT_URL+'files/',{method:'GET',headers:{'Authorization': `Bearer ${token}`}}).then(response=>response.json()).then((res)=>{
+    if(res['res_status']=='success'){
+      filestatesupdate(res.loaded_files)
+    }
+    else guard();
   })
 
 

@@ -79,7 +79,7 @@ def addFile(file : UploadFile, filetype : str,user:auth.User,idPatient=TMP_PATIE
         dossier_patient =dossiers_patients[user['id']][idPatient]
         res =write_niftii_file(dossier_patient.name,idPatient+f"_{filetype}.nii",file)
         if("res_status" in res and res['res_status']=='error'):  return res
-        return loadedfiles(user)
+        return  loadedfiles(user)
    return user
 
 def cancelfiles(me:auth.User,idPatient=TMP_PATIENT_ID):
@@ -90,7 +90,7 @@ def cancelfiles(me:auth.User,idPatient=TMP_PATIENT_ID):
 
 def loadedfiles(me=auth.User,idPatient=TMP_PATIENT_ID):
     dossier =dossiers_patients[me['id']][idPatient]
-    return {'loaded_files' : list(map(lambda x: x.split("_")[1].replace(".nii", ""), os.listdir(dossier.name)))}
+    return {'loaded_files' : list(map(lambda x: x.split("_")[1].replace(".nii", ""), os.listdir(dossier.name))),'res_status':'success'}
     
 
 async def create_file_t1(file: UploadFile, me=auth.User,idPatient=TMP_PATIENT_ID):
@@ -113,7 +113,8 @@ def filenames(files: List[UploadFile]):
 async def get_analyse(me=auth.User,patientId=TMP_PATIENT_ID):
     # l'analyse a seulement lieu si tous les fichiers sont chargés
     patient_folder = dossiers_patients[me['id']][patientId]
-    if len(loadedfiles(me,patientId))==4:
+    current_load = loadedfiles(me,patientId)['loaded_files']
+    if all(filetype in current_load for filetype in ['t1','t1ce','t2','flair']):
         seg_file_path = await predict.predictsById(patient_folder.name,case=patientId) 
         return FileResponse(seg_file_path, media_type="application/gzip", filename="estimation_seg.nii")
     return {'res_status':'error','detail':'You need to upload the 4 files in order to process the segmentation.'}

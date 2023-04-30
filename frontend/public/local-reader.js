@@ -175,7 +175,7 @@ function removeLegend() {
 
 function createLegend(classesSegmentation) {
     classesSegmentation = classesSegmentation.sort()
-    palette = ["#F87060", "#8AE9C1", "#801a86", "#e2adf2"]
+    palette = ["#ffbd99", "#ff0000", "#ffff00", "#e2adf2"]
     let doc = document.getElementById('legend');
     if (doc.childElementCount == 0) { //éviter les duplicats lors du changement de couleur
         let content = "<h3>Légende</h3> <div id='bodylegend'>";

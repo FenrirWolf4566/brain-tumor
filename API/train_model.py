@@ -4,14 +4,15 @@ import keras.backend as K
 import tensorflow as tf
 from tensorflow import keras
 import pandas as pd
-from variables import *
+
+from variables import MODEL_PATH
 
 
 #############################################################################
-# Train model
+# Training du model
 #############################################################################
 
-# dice loss as defined above for 4 classes
+# dice loss 
 def dice_coef(y_true, y_pred, smooth=1.0):
     class_num = 4
     for i in range(class_num):
@@ -47,13 +48,13 @@ def precision(y_true, y_pred):
         precision = true_positives / (predicted_positives + K.epsilon())
         return precision
 
-# Computing Sensitivity      
+# Sensitivity      
 def sensitivity(y_true, y_pred):
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
     possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
     return true_positives / (possible_positives + K.epsilon())
 
-# Computing Specificity
+# Specificity
 def specificity(y_true, y_pred):
     true_negatives = K.sum(K.round(K.clip((1-y_true) * (1-y_pred), 0, 1)))
     possible_negatives = K.sum(K.round(K.clip(1-y_true, 0, 1)))
@@ -78,8 +79,6 @@ model = keras.models.load_model(MODEL_PATH +'model_per_class.h5',
 history = pd.read_csv(MODEL_PATH+'training_per_class.log', sep=',', engine='python')
 
 hist=history
-
-# hist=history.history
 
 acc=hist['accuracy']
 val_acc=hist['val_accuracy']

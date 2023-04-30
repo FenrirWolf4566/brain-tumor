@@ -11,6 +11,7 @@ from keras.optimizers import *
 from scipy import ndimage
 from variables import *
 from train_model import model
+from scipy.ndimage import label, generate_binary_structure
 
 
 def loadNiftiFile(file_path):
@@ -73,34 +74,39 @@ def combine(core, edema, enhancing):
     # Mise en forme du tableau
     superposed_classes = superposed_classes.astype(int)
     superposed_classes = flip(predicted_classes)
-    print(count_connected_voxels(superposed_classes))
-    # superposed_classes = filter(superposed_classes,count_connected_voxels(superposed_classes)-2)   pour l'instant ne fonctionne pas
+    superposed_classes = filter(superposed_classes,count_connected_voxels(superposed_classes)-2)
     print("Values : ", np.unique(superposed_classes))
     return superposed_classes
 
 
 def flip(superposed_classes):
-    # Resizing the image to conform the visualizer
+    # Resize de l'image pour le visualiseur
     resized = ndimage.zoom(superposed_classes, (1,240/128,240/128))
     # Fixing the pixels value caused by resizing
-     
     resized = np.where(resized == 3, 2, resized)
     resized = np.where(resized == 5, 4, resized)
     resized = np.where(resized == 6, 4, resized)
     resized = np.where(resized == 7, 1, resized)
     resized = np.where(resized == -1, 0, resized)
-
-    # Reorganizing the image shape to(155,240,240)
+    # Réorganisation des colonnes pour être comforme au visualiseur
     flipped = np.transpose(resized, (1,2,0))
     return flipped
 
+def filter(arr, num_pixels):
+    # Choix de la calsse à étudier
+    region_mask = arr == 1
+    # Calcul du nombre de voxels connectés 
+    num_connected = np.sum(label(region_mask, generate_binary_structure(3, 2))[0] > 1)
+    if num_connected < num_pixels:
+        arr[region_mask] = 0
+    return arr
+
+
 def count_connected_voxels(arr):
-    # create a binary mask of voxels with value 1
+    # Choix de la calsse à étudier
     mask = arr == 1
-    # create a structuring element for 6-connectivity
     struct = np.ones((3, 3, 3), dtype=bool)
     struct[1, 1, 1] = False
-    # use binary erosion to count connected components
     eroded = np.zeros_like(mask)
     count = 0
     while np.any(mask):

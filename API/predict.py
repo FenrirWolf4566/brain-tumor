@@ -8,15 +8,9 @@ import nibabel as nib
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
+from scipy import ndimage
 from variables import *
 from train_model import model
-
-
-#############################################################################
-# Prediction examples - Mock
-#############################################################################
-
-
 
 
 def loadNiftiFile(file_path):
@@ -55,18 +49,6 @@ async def predictsById(patient_folder,case):
     predictionNii =  combine(core, edema, enhancing)
     return saveNifti(predictionNii, os.path.join(patient_folder,case),case)
 
-    
-
-def combine(core, edema, enhancing, threshold = 0.5):
-    core = thesholding(core, threshold, 3) 
-    edema = thesholding(edema, threshold, 1)
-    enhancing = thesholding(enhancing, threshold, 2)
-    image = np.maximum.reduce([core,edema,enhancing])
-    image = np.where(image == 2, 4, image)
-    image = np.where(image == 1, 2, image)
-    image = np.where(image == 3, 1, image)
-    return (image)
-
 
 def thesholding(tab, threshold, contrast):
     """
@@ -78,37 +60,58 @@ def thesholding(tab, threshold, contrast):
     resultat[resultat >= threshold] = contrast
     return resultat
 
-# # Nouvelle écriture (ne fonctionne pas tout à fait)
-# def combine(core, edema, enhancing):
-#     predicted_classes = np.where(core < 0.4, 2, 3) 
-#     predicted_classes = np.where((enhancing < 0.4) & (predicted_classes == 2), 1, predicted_classes)
-#     predicted_classes = np.where((edema < 0.4) & (predicted_classes == 1), 0, predicted_classes)    
-#     #Créer un tableau qui superpose les trois classes 
-#     superposed_classes = np.zeros_like(core) 
-#     superposed_classes[predicted_classes == 1] = 1 
-#     superposed_classes[predicted_classes == 2] = 2 
-#     superposed_classes[predicted_classes == 3] = 3
-#     superposed_classes = np.where(superposed_classes == 2, 4, superposed_classes)
-#     superposed_classes = np.where(superposed_classes == 1, 2, superposed_classes)
-#     superposed_classes = np.where(superposed_classes == 3, 1, superposed_classes)
-#     superposed_classes = flip(superposed_classes)
-#     return superposed_classes
+def combine(core, edema, enhancing):
+    # Créer un tableau qui contient la classe prédite pour chaque élément 
+    predicted_classes = np.where(core < 0.4, 2, 4) 
+    predicted_classes = np.where((enhancing < 0.4) & (predicted_classes == 2), 1, predicted_classes)
+    predicted_classes = np.where((edema < 0.4) & (predicted_classes == 1), 0, predicted_classes)    
+    # Créer un tableau copie qui superpose les trois classes 
+    superposed_classes = np.zeros_like(core) 
+    superposed_classes[predicted_classes == 1] = 1 
+    superposed_classes[predicted_classes == 2] = 2 
+    superposed_classes[predicted_classes == 4] = 4
+    # Mise en forme du tableau
+    superposed_classes = superposed_classes.astype(int)
+    superposed_classes = flip(predicted_classes)
+    print(count_connected_voxels(superposed_classes))
+    # superposed_classes = filter(superposed_classes,count_connected_voxels(superposed_classes)-2)   pour l'instant ne fonctionne pas
+    print("Values : ", np.unique(superposed_classes))
+    return superposed_classes
 
 
-# def flip(superposed_classes):
-#     flipped = np.zeros((100,240,240))
-#     process = np.zeros_like(superposed_classes)
-#     for i in range(superposed_classes.shape[0]):
-#         process[i,:,:] = np.rot90(superposed_classes[i,:,:], -1)
-#         process[i,:,:] = np.flip(superposed_classes[i,:,:], 0)
-#         flipped[i,:,:] = cv2.resize(superposed_classes[i,:,:],(240,240))
-#     return flipped
+def flip(superposed_classes):
+    # Resizing the image to conform the visualizer
+    resized = ndimage.zoom(superposed_classes, (1,240/128,240/128))
+    # Fixing the pixels value caused by resizing
+     
+    resized = np.where(resized == 3, 2, resized)
+    resized = np.where(resized == 5, 4, resized)
+    resized = np.where(resized == 6, 4, resized)
+    resized = np.where(resized == 7, 1, resized)
+    resized = np.where(resized == -1, 0, resized)
+
+    # Reorganizing the image shape to(155,240,240)
+    flipped = np.transpose(resized, (1,2,0))
+    return flipped
+
+def count_connected_voxels(arr):
+    # create a binary mask of voxels with value 1
+    mask = arr == 1
+    # create a structuring element for 6-connectivity
+    struct = np.ones((3, 3, 3), dtype=bool)
+    struct[1, 1, 1] = False
+    # use binary erosion to count connected components
+    eroded = np.zeros_like(mask)
+    count = 0
+    while np.any(mask):
+        eroded[:] = np.logical_and(mask, np.logical_not(eroded))
+        if np.sum(eroded) > 0:
+            count += 1
+        mask[:] = np.logical_and(mask, np.logical_not(eroded))
+    return count
 
 
 def saveNifti(image, case,path) :
     template_nii = nib.load(TEMPLATE_PATH)
     result = nib.Nifti1Image(image, template_nii.affine, template_nii.header)
     return saveNiftiFile(result,path,case+"_seg.nii")
-
-
-# predictsById(case="01572")

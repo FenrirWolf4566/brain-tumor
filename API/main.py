@@ -62,25 +62,25 @@ def loadedfiles(me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
 
 
 @app.post("/files/t1")
-async def create_file_t1(file: UploadFile, me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
+async def upload_file_t1(file: UploadFile, me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
     if(me['res_status']=='success'):
         return await services.create_file_t1(file,me,idPatient)
     return me
 
 @app.post("/files/t2")
-async def create_file_t2(file: UploadFile, me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
+async def upload_file_t2(file: UploadFile, me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
     if(me['res_status']=='success'):
         return await services.create_file_t2(file,me,idPatient)
     return me
 
 @app.post("/files/t1ce")
-async def create_file_t1ce(file: UploadFile, me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
+async def upload_file_t1ce(file: UploadFile, me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
     if(me['res_status']=='success'):
         return await services.create_file_t1ce(file,me,idPatient)
     return me
 
 @app.post("/files/flair")
-async def create_file_flair(file: UploadFile, me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
+async def upload_file_flair(file: UploadFile, me=Depends(auth.get_current_user),idPatient=TMP_PATIENT_ID):
     if(me['res_status']=='success'):
         return await services.create_file_flair(file,me,idPatient)
     return me

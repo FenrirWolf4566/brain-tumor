@@ -24,12 +24,24 @@
             "module": "uvicorn",
             "args": ["main:app","--reload"],
             "console": "internalConsole"
+        },
+        {
+            "name": "pytest",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": ["--show-progress","-v"],
+            "cwd": "${workspaceFolder}"
         }
     ],
     "compounds": [
         {
-            "name": "All",
+            "name": "DEV",
             "configurations": ["FastAPIBackend","AstroFrontend","ChromeLocalhost"]
+        },
+        {
+            "name": "TEST",
+            "configurations": ["FastAPIBackend","pytest"]
         }
     ]
 }

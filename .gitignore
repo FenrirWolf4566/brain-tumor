@@ -5,3 +5,4 @@ API/niftis/patients/*
 API/niftis/predictions/*
 IA/__pycache__
 API/test/__pycache__
+.pytest_cache

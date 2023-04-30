@@ -3,9 +3,11 @@ import requests
 from testing_constants import *
 
 # To run these tests, make sure to have pytest installed
+# pip install pytest
 # then run in command line  pytest -s 
 # add -v API/test/test_auth if you want to specify this testsheet in particular
 # and ::test_name if you want to run one test in particular
+# if you want to see the progress, pip install pytest-progress, and then pytest --show-progress 
 
 
 

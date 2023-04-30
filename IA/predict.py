@@ -11,7 +11,6 @@ from keras.optimizers import *
 from variables import *
 from train_model import model
 from scipy import ndimage
-import data_loader
 
 
 #############################################################################
@@ -32,7 +31,7 @@ def imageLoader(path):
 # load nifti file at `path`
 # and load each slice with mask from volume
 # choose the mri type & resize to `IMG_SIZE`
-def loadDataFromDir(path, list_of_files, mriType, n_images):
+def loadDataFromDir(list_of_files, mriType, n_images):
     scans = []
     masks = []
     for i in list_of_files[:n_images]:
@@ -115,7 +114,7 @@ def predictByPath(case_path,case):
     return model.predict(X/np.max(X), verbose=1)
 
 
-def predictsById(case, start_slice = 60):
+def predictsById(case):
     """
     Combine and save the .nii of prediction
     """
@@ -125,7 +124,7 @@ def predictsById(case, start_slice = 60):
     edema= p[:,:,:,1]
     enhancing = p[:,:,:,3]
     predictionNii = combine(core, edema, enhancing)
-    saveNifti(predictionNii, case)
+    saveNifti(predictionNii)
     
 
 def combine(core, edema, enhancing):
@@ -133,45 +132,45 @@ def combine(core, edema, enhancing):
     enhancing = thesholding(enhancing, 0.45, 2)
     edema = thesholding(edema, 0.45, 1)'''
     # Créer un tableau qui contient la classe prédite pour chaque élément 
-    predicted_classes = np.where(core < 0.4, 2, 3) 
+    predicted_classes = np.where(core < 0.4, 2, 4) 
     predicted_classes = np.where((enhancing < 0.4) & (predicted_classes == 2), 1, predicted_classes)
     predicted_classes = np.where((edema < 0.4) & (predicted_classes == 1), 0, predicted_classes)    
-    #Créer un tableau copie qui superpose les trois classes 
+    # Créer un tableau copie qui superpose les trois classes 
     superposed_classes = np.zeros_like(core) 
     superposed_classes[predicted_classes == 1] = 1 
     superposed_classes[predicted_classes == 2] = 2 
-    superposed_classes[predicted_classes == 3] = 3
-    #Attribution des bonnes valeures de classes
-    superposed_classes = np.where(superposed_classes == 2, 4, superposed_classes)
-    superposed_classes = np.where(superposed_classes == 1, 2, superposed_classes)
-    superposed_classes = np.where(superposed_classes == 3, 1, superposed_classes)
-    superposed_classes = flip(superposed_classes)
+    superposed_classes[predicted_classes == 4] = 4
+    
+    #superposed_classes = np.where(superposed_classes == 2, 4, superposed_classes)
+    #superposed_classes = np.where(superposed_classes == 1, 2, superposed_classes)
+    #superposed_classes = np.where(superposed_classes == 3, 1, superposed_classes)
+
+    # Mise en forme du tableau
     superposed_classes = superposed_classes.astype(int)
-    '''image = np.maximum.reduce([core,edema,enhancing])
-    image = np.where(image == 2, 4, image)
-    image = np.where(image == 1, 2, image)
-    image = np.where(image == 3, 1, image)
-    return (image)'''
+    superposed_classes = flip(predicted_classes)
+    print("Values : ", np.unique(superposed_classes))
     return superposed_classes
 
 NAME = "pred"
 
-def saveNifti(image, case) :
+def saveNifti(image) :
     template_nii = nib.load(os.path.join("IA","doctor", "template_seg.nii"))
     result = nib.Nifti1Image(image, template_nii.affine, template_nii.header)
     nib.save(result, os.path.join(PREDICTION_PATH,NAME+".nii"))
 
 def flip(superposed_classes):
-    print("first",np.shape(superposed_classes))
-    superposed_classes = superposed_classes[:,::-1,:]
+    # Resizing the image to conform the visualizer
     resized = ndimage.zoom(superposed_classes, (1,240/128,240/128))
-    print("after resize ",np.shape(superposed_classes))
-    flipped = np.transpose(resized, (2,1,0))
-    #flipped = flipped[:,::-1,:]
-    print("after transpose ",np.shape(flipped))
+    # Fixing the pixels value caused by resizing
+     
+    resized = np.where(resized == 3, 2, resized)
+    resized = np.where(resized == 5, 4, resized)
+    resized = np.where(resized == 6, 4, resized)
+    resized = np.where(resized == 7, 1, resized)
+    resized = np.where(resized == -1, 0, resized)
+
+    # Reorganizing the image shape to(155,240,240)
+    flipped = np.transpose(resized, (1,2,0))
     return flipped
 
-train_ids, val_ids, test_ids = data_loader.load_data()
-
-#predictsById(case="01572")
 predictsById(case="01622")

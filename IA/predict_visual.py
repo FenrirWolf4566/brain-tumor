@@ -76,9 +76,6 @@ def predictByPath(case_path,case):
 
 def combine(core, edema, enhancing):
 
-    '''core = thesholding(core, 0.4, 3)
-    enhancing = thesholding(enhancing, 0.45, 2)
-    edema = thesholding(edema, 0.45, 1)'''
     # Créer un tableau qui contient la classe prédite pour chaque élément 
     predicted_classes = np.where(core < 0.4, 2, 3) 
     predicted_classes = np.where((enhancing < 0.4) & (predicted_classes == 2), 1, predicted_classes)
@@ -91,19 +88,14 @@ def combine(core, edema, enhancing):
     superposed_classes = np.where(superposed_classes == 2, 4, superposed_classes)
     superposed_classes = np.where(superposed_classes == 1, 2, superposed_classes)
     superposed_classes = np.where(superposed_classes == 3, 1, superposed_classes)
-    '''image = np.maximum.reduce([core,edema,enhancing])
-    image = np.where(image == 2, 4, image)
-    image = np.where(image == 1, 2, image)
-    image = np.where(image == 3, 1, image)
-    return (image)'''
+
     return superposed_classes
 
 def flip(superposed_classes):
-    print("first",np.shape(superposed_classes))
+    # Resizing the image to conform the visualizer
     resized = ndimage.zoom(superposed_classes, (1,240/128,240/128))
-    print("after resize ",np.shape(superposed_classes))
-    flipped = np.transpose(resized, (2,1,0))
-    print("after transpose ",np.shape(flipped))
+    # Reorganizing the image shape to(155,240,240)
+    flipped = np.transpose(resized, (1,2,0))
     return flipped
 
 def showPredictsById(case, start_slice = 60):

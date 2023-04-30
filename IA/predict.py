@@ -11,6 +11,7 @@ from keras.optimizers import *
 from variables import *
 from train_model import model
 from scipy import ndimage
+from scipy.ndimage import label, generate_binary_structure
 
 
 #############################################################################
@@ -148,6 +149,7 @@ def combine(core, edema, enhancing):
     # Mise en forme du tableau
     superposed_classes = superposed_classes.astype(int)
     superposed_classes = flip(predicted_classes)
+    superposed_classes = filter(superposed_classes,count_connected_voxels(superposed_classes)-2)
     print("Values : ", np.unique(superposed_classes))
     return superposed_classes
 
@@ -172,5 +174,34 @@ def flip(superposed_classes):
     # Reorganizing the image shape to(155,240,240)
     flipped = np.transpose(resized, (1,2,0))
     return flipped
+
+def filter(arr, num_pixels):
+    
+    print(np.count_nonzero(arr == 1))
+    print(count_connected_voxels(arr))
+    region_mask = arr == 1
+    num_connected = np.sum(label(region_mask, generate_binary_structure(3, 2))[0] > 1)
+    if num_connected < num_pixels:
+        arr[region_mask] = 0
+    return arr
+
+import numpy as np
+
+def count_connected_voxels(arr):
+    # create a binary mask of voxels with value 1
+    mask = arr == 1
+    # create a structuring element for 6-connectivity
+    struct = np.ones((3, 3, 3), dtype=bool)
+    struct[1, 1, 1] = False
+    # use binary erosion to count connected components
+    eroded = np.zeros_like(mask)
+    count = 0
+    while np.any(mask):
+        eroded[:] = np.logical_and(mask, np.logical_not(eroded))
+        if np.sum(eroded) > 0:
+            count += 1
+        mask[:] = np.logical_and(mask, np.logical_not(eroded))
+    return count
+
 
 predictsById(case="01622")

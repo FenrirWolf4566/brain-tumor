@@ -1,44 +1,12 @@
 from datetime import datetime
 import requests
+from testing_constants import *
 
 # To run these tests, make sure to have pytest installed
-# then run in command line  pytest -s
+# then run in command line  pytest -s 
+# add -v API/test/test_auth if you want to specify this testsheet in particular
+# and ::test_name if you want to run one test in particular
 
-# API endpoint URL
-url = "http://localhost:8000/"
-
-basic_headers = {
-    'accept': 'application/json',
-    'Content-Type': 'application/x-www-form-urlencoded'
-}
-
-login_password_existing_users = [
-    {
-        'username': 'johndoe',
-        'password': 'bonjour',
-    },
-    {
-        'username': 'alicefontaine',
-        'password': 'salut'
-    }
-]
-
-info_existing_users = [
-    {
-        "id": 1,
-        "username": "johndoe",
-        "email": "johndoe@example.com",
-        "full_name": "John Doe",
-        "res_status": "success"
-    },
-    {
-        "id": 2,
-        "username": "alicefontaine",
-        "email": "alicefontaine@example.com",
-        "full_name": "Alice Fontaine",
-        "res_status": "success"
-    }
-]
 
 
 # Init test in order to check if the api is reachable
@@ -93,8 +61,8 @@ def test_wrong_username_wrong_password():
     }
     asserts_auth_failure(data)
 
+# calls an endpoint as a connected user
 def authenticated_endpoint_response(endpoint,data_auth):
-    # authenticate and obtain access token
     response = requests.post(url+'account/auth', headers=basic_headers, data=data_auth )
     return requests.get(url+endpoint, headers={'accept': 'application/json','Authorization': f'Bearer {response.json()["access_token"]}'})
     

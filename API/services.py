@@ -93,20 +93,17 @@ def loadedfiles(me=auth.User,idPatient=TMP_PATIENT_ID):
     return {'loaded_files' : list(map(lambda x: x.split("_")[1].replace(".nii", ""), os.listdir(dossier.name)))}
     
 
-async def create_file_t1(file: UploadFile, me=auth.User):
-    return addFile(file,"t1",me)
+async def create_file_t1(file: UploadFile, me=auth.User,idPatient=TMP_PATIENT_ID):
+    return addFile(file,"t1",me,idPatient)
 
-async def create_file_t2(file: UploadFile, me=auth.User):
-    return addFile(file,"t2",me)
+async def create_file_t2(file: UploadFile, me=auth.User,idPatient=TMP_PATIENT_ID):
+    return addFile(file,"t2",me,idPatient)
 
-async def create_file_t1ce(file: UploadFile, me=auth.User):
-    return addFile(file,"t1ce",me)
+async def create_file_t1ce(file: UploadFile, me=auth.User,idPatient=TMP_PATIENT_ID):
+    return addFile(file,"t1ce",me,idPatient)
 
-async def create_file_flair(file: UploadFile, me=auth.User):
-    return addFile(file,"flair",me)
-
-def fichier_bon(file: UploadFile):
-    return Path(file).suffix == 't1.nii.gz' or os.path.splitext(file)[1] == 't2.nii.gz' or os.path.splitext(file)[1] == 't1ce.nii.gz' or os.path.splitext(file)[1] == 'flair.nii.gz'
+async def create_file_flair(file: UploadFile, me=auth.User,idPatient=TMP_PATIENT_ID):
+    return addFile(file,"flair",me,idPatient)
 
 
 def filenames(files: List[UploadFile]):
@@ -114,9 +111,12 @@ def filenames(files: List[UploadFile]):
 
 
 async def get_analyse(me=auth.User,patientId=TMP_PATIENT_ID):
+    # l'analyse a seulement lieu si tous les fichiers sont chargés
     patient_folder = dossiers_patients[me['id']][patientId]
-    seg_file_path = await predict.predictsById(patient_folder.name,case=patientId) 
-    return FileResponse(seg_file_path, media_type="application/gzip", filename="estimation_seg.nii")
+    if len(loadedfiles(me,patientId))==4:
+        seg_file_path = await predict.predictsById(patient_folder.name,case=patientId) 
+        return FileResponse(seg_file_path, media_type="application/gzip", filename="estimation_seg.nii")
+    return {'res_status':'error','detail':'You need to upload the 4 files in order to process the segmentation.'}
 
 
 
@@ -130,7 +130,6 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         me = await auth.get_current_user(res['access_token'])
         #eraseAllDossiersPatientDoctor(me['id'])
         if not doctorExists(me['id']): dossiers_patients[me['id']] = {TMP_PATIENT_ID : tempfile.TemporaryDirectory()}
-        print(dossiers_patients)
     return res
 
 async def logout(me=Depends(auth.get_current_user)):

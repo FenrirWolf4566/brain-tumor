@@ -5,7 +5,6 @@ import '../styles/nifti-reader.scss';
 <script is:inline src="/nifti-reader.js"></script>
 <script is:inline src="/local-reader.js"> </script>
 <div  id="readerzone" class="niftireader">
-    <input type="file" id="file" name="files" />
     <div id="addingfile" class="hide"><h3>Ajout d'un fichier au visionneur...</h3></div>
     <canvas id="nifticanvas" class="nifticanvas" ></canvas>
     <div class="controllers">
@@ -88,13 +87,6 @@ async function dropNewFile(f){
         displayFileNames();
     }
 }
-
-document.getElementById('file').addEventListener('change', async (evt)=> {
-    let f = evt.target.files[0];
-    await dropNewFile(f);
-    // possibilité de charger 2 fois d'affilée le même fichier
-    evt.target.onclick = ()=>{ evt.target.value=null;}
-});
 
 
 let dropzone = document.getElementById('readerzone');

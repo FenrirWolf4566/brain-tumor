@@ -10,18 +10,29 @@ const title="Visionneur";
 <Layout title={title}>
     <Navigation title={title}></Navigation>
     <div class="instructions" id="introbloc">
-        <div id="basic-instruction">
-          Déposez des fichiers .nii et .nii.gz pour les visualiser.
-        </div>
-        <button onclick="loadexample()">Charger exemple</button>
-        </div>
+      <div id="basic-instruction">
+        Déposez des fichiers .nii et .nii.gz pour les visualiser.
+      </div>
+      <button onclick="loadexample()">Charger exemple</button>
+    </div>
     <div class="instructions reader">
-        <label class="filelabel" for="file" >Sélectionnez un fichier</label>
+      <label class="filelabel" for="file" >Sélectionnez un fichier</label>
+      <input type="file" id="file" name="files" multiple="multiple" hidden/>
         <NiftiReader></NiftiReader>
     </div>
 </Layout>
 
 <script is:inline>
+
+document.getElementById('file').addEventListener('change', async (evt)=> {
+    let files = evt.target.files;
+    for(let file of files){
+        await dropNewFile(file);
+    }
+    // possibilité de charger 2 fois d'affilée le même fichier
+    evt.target.onclick = ()=>{ evt.target.value=null;}
+});
+  
 
 async function loadLocalFile(name){
     await fetch(name)

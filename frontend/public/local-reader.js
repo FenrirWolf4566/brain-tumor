@@ -1,4 +1,5 @@
 const classNames = { "4": "Tumeur GD rehaussée", "2": "œdème péritumoral", "1": "cœur de tumeur nécrosé non rehaussé" };
+const classColors = {"4":"#ff9470","2":"#ff0000","1":"#ffff00"}
 /**
  * 
  * @param typedData les données d'une image de segmentation
@@ -175,13 +176,12 @@ function removeLegend() {
 
 function createLegend(classesSegmentation) {
     classesSegmentation = classesSegmentation.sort()
-    palette = ["#ffbd99", "#ff0000", "#ffff00", "#e2adf2"]
     let doc = document.getElementById('legend');
     if (doc.childElementCount == 0) { //éviter les duplicats lors du changement de couleur
         let content = "<h3>Légende</h3> <div id='bodylegend'>";
         for (let classe of classesSegmentation) {
             if (+classe !== 0) { // On ne gère pas la couleur du fond
-                let color = palette[(+classe) % palette.length];
+                let color = classColors[classe]
                 nom = 'Classe ' + classe;
                 if (classNames[classe] !== undefined) nom = classNames[classe];
                 content += "<div class='duocolor'>";

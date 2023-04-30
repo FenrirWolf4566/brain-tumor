@@ -2,7 +2,6 @@
 import data_loader
 import os
 import cv2
-import numpy as np
 import matplotlib.pyplot as plt
 import nibabel as nib
 import keras
@@ -24,10 +23,10 @@ Ensemble des métriques qui permettent d'évaluer le modèle
 
 
 #############################################################################
-# DICE LOSS FUNCTION 
+# DICE LOSS 
 #############################################################################
 
-# dice loss as defined above for 4 classes
+# dice loss
 def dice_coef(y_true, y_pred, smooth=1.0):
     class_num = 4
     for i in range(class_num):
@@ -63,44 +62,40 @@ def precision(y_true, y_pred):
         precision = true_positives / (predicted_positives + K.epsilon())
         return precision
 
-# Computing Sensitivity      
+# Sensitivity      
 def sensitivity(y_true, y_pred):
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
     possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
     return true_positives / (possible_positives + K.epsilon())
 
-# Computing Specificity
+#  Specificity
 def specificity(y_true, y_pred):
     true_negatives = K.sum(K.round(K.clip((1-y_true) * (1-y_pred), 0, 1)))
     possible_negatives = K.sum(K.round(K.clip(1-y_true, 0, 1)))
     return true_negatives / (possible_negatives + K.epsilon())
 
 #############################################################################
-# Model evaluation 
+# Evaluation du modele
 #############################################################################
-print("deja appel de méthode de predict by id")
+
 train_ids, val_ids, test_ids = data_loader.load_data()
 
 case = test_ids[0][-5:]
 print("Patient : ",test_ids[0][-5:])
 path = f"{TRAIN_DATASET_PATH}\BraTS2021_{case}"
-gt = nib.load(os.path.join(path, f'BraTS2021_{case}_seg.nii')).get_fdata()
+print("Path ", path)
+gt = nib.load(os.path.join(path, f'{case}_seg.nii')).get_fdata()
 print(" /////\\\\\\\ Test")
 p = predictByPath(path,case)
 
-# Prob les class ne correspondent pas
-#core = p[:,:,:,1]
-#edema= p[:,:,:,2]
-#enhancing = p[:,:,:,3]
 core = p[:,:,:,2]
 edema= p[:,:,:,1]
 enhancing = p[:,:,:,3]
 
-i=40 # slice at
+i=40 # slice de déaprt
 eval_class = 1 #     0 : 'NOT tumor',  1 : 'ENHANCING',    2 : 'CORE',    3 : 'WHOLE'
 
-gt[gt != eval_class] = 1 # use only one class for per class evaluation 
-
+gt[gt != eval_class] = 1
 resized_gt = cv2.resize(gt[:,:,i+VOLUME_START_AT], (IMG_SIZE, IMG_SIZE))
 
 #plt.figure()
@@ -112,7 +107,6 @@ resized_gt = cv2.resize(gt[:,:,i+VOLUME_START_AT], (IMG_SIZE, IMG_SIZE))
 #plt.show()
 
 model.compile(loss="categorical_crossentropy", optimizer=keras.optimizers.Adam(learning_rate=0.001), metrics = ['accuracy',tf.keras.metrics.MeanIoU(num_classes=4), dice_coef, precision, sensitivity, specificity, dice_coef_necrotic, dice_coef_edema, dice_coef_enhancing] )
-# Evaluate the model on the test data using `evaluate`
 print("Evaluate on test data")
 results = model.evaluate(test_generator, batch_size=100, callbacks = callbacks)
 print("test loss, test acc:", results)

@@ -27,17 +27,17 @@ class DataGenerator(keras.utils.Sequence):
         self.on_epoch_end()
 
     def __len__(self):
-        # Number of sets per training
+        # Nombre de set par training
         'Denotes the number of batches per epoch'
         return int(np.floor(len(self.list_IDs) / self.batch_size))
 
     def __getitem__(self, index):
         'Generate one batch of data'
-        # Generate indexes of the batch
+        # Génère les indexs du batch
         indexes = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
-        # Find list of IDs
+        # Liste des IDs
         Batch_ids = [self.list_IDs[k] for k in indexes]
-        # Generate data
+        # Generation des données
         X, y = self.__data_generation(Batch_ids)
         return X, y
 
@@ -49,25 +49,25 @@ class DataGenerator(keras.utils.Sequence):
 
     def __data_generation(self, Batch_ids):
         'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
-        # Initialization
+        # Initialisation
         X = np.zeros((self.batch_size*VOLUME_SLICES, *self.dim, self.n_channels))
         y = np.zeros((self.batch_size*VOLUME_SLICES, 240, 240))
         Y = np.zeros((self.batch_size*VOLUME_SLICES, *self.dim, 4))
 
-        # Generate data
+        # Generation des données
         for c, i in enumerate(Batch_ids):
             print("Batch ID : ", i)
             case_path = i
             file_case= i[-15:]
             #os.path.join(TRAIN_DATASET_PATH, i)
 
-            # il en manque 2
+            # Le modèle travaille avec deux contrastes et non les 4 d'un coup
+            
+            #data_path = os.path.join(case_path, f'{file_case}_t1.nii');
+            #t1 = nib.load(data_path).get_fdata()    
 
-            data_path = os.path.join(case_path, f'{file_case}_t1.nii');
-            t1 = nib.load(data_path).get_fdata()    
-
-            data_path = os.path.join(case_path, f'{file_case}_t2.nii');
-            t2 = nib.load(data_path).get_fdata()
+            #data_path = os.path.join(case_path, f'{file_case}_t2.nii');
+            #t2 = nib.load(data_path).get_fdata()
 
             data_path = os.path.join(case_path, f'{file_case}_flair.nii');
             flair = nib.load(data_path).get_fdata()    
@@ -88,7 +88,7 @@ class DataGenerator(keras.utils.Sequence):
                  #X[j +VOLUME_SLICES*c,:,:,3] = cv2.resize(t2[:,:,j+VOLUME_START_AT], (IMG_SIZE, IMG_SIZE));
                  y[j +VOLUME_SLICES*c] = seg[:,:,j+VOLUME_START_AT];
                     
-        # Generate masks
+        # Generation des masques
         y[y==4] = 3;
         mask = tf.one_hot(y, 4);
         Y = tf.image.resize(mask, (IMG_SIZE, IMG_SIZE));
@@ -102,7 +102,7 @@ valid_generator = DataGenerator(val_ids)
 test_generator = DataGenerator(test_ids)
 
 
-# Show number of data for each dir 
+# Description des ensembles de test et training
 def showDataLayout():
     plt.bar(["Train","Valid","Test"],
     [len(train_ids), len(val_ids), len(test_ids)], align='center',color=[ 'green','red', 'blue'])

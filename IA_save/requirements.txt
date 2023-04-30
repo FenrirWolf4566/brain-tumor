@@ -1,9 +1,0 @@
-opencv-python
-glob2
-numpy
-matplotlib
-nibabel
-keras
-tensorflow
-pandas
-sklearn

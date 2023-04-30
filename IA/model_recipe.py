@@ -8,7 +8,7 @@ from keras.optimizers import *
 from variables import *
 
 ########################################################################################################
-# Model Recipe
+# Structure du modele
 ########################################################################################################
 
 def build_unet(inputs, ker_init, dropout):

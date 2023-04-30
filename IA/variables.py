@@ -1,6 +1,6 @@
 import os
 
-# DEFINE seg-areas  
+# class de segmentation
 SEGMENT_CLASSES = {
     0 : 'NOT tumor',
     1 : 'NECROTIC/CORE', # tumor CORE

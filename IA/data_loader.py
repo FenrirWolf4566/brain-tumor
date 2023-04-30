@@ -7,7 +7,7 @@ from variables import *
 # Load data
 #############################################################################
 
-# lists of directories with studies
+# Liste des dossiers patients de training
 train_directories = [f.path for f in os.scandir(TRAIN_DATASET_PATH) if f.is_dir()]
 
 def pathListIntoIds(dirList):

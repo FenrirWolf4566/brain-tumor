@@ -13,95 +13,9 @@ from train_model import model
 from scipy import ndimage
 from scipy.ndimage import label, generate_binary_structure
 
-
-#############################################################################
-# Prediction examples - Mock
-#############################################################################
-
-# mri type must one of 1) flair 2) t1 3) t1ce 4) t2 ------- or even 5) seg
-# returns volume of specified study at `path`
-def imageLoader(path):
-    image = nib.load(path).get_fdata()
-    X = np.zeros((self.batch_size*VOLUME_SLICES, *self.dim, self.n_channels))
-    for j in range(VOLUME_SLICES):
-        X[j +VOLUME_SLICES*c,:,:,0] = cv2.resize(image[:,:,j+VOLUME_START_AT], (IMG_SIZE, IMG_SIZE));
-        X[j +VOLUME_SLICES*c,:,:,1] = cv2.resize(ce[:,:,j+VOLUME_START_AT], (IMG_SIZE, IMG_SIZE));
-    return np.array(image)
-
-
-# load nifti file at `path`
-# and load each slice with mask from volume
-# choose the mri type & resize to `IMG_SIZE`
-def loadDataFromDir(list_of_files, mriType, n_images):
-    scans = []
-    masks = []
-    for i in list_of_files[:n_images]:
-        fullPath = glob.glob( i + '/*'+ mriType +'*')[0]
-        currentScanVolume = imageLoader(fullPath)
-        currentMaskVolume = imageLoader( glob.glob( i + '/*seg*')[0] ) 
-        # for each slice in 3D volume, find also it's mask
-        for j in range(0, currentScanVolume.shape[2]):
-            scan_img = cv2.resize(currentScanVolume[:,:,j], dsize=(IMG_SIZE,IMG_SIZE), interpolation=cv2.INTER_AREA).astype('uint8')
-            mask_img = cv2.resize(currentMaskVolume[:,:,j], dsize=(IMG_SIZE,IMG_SIZE), interpolation=cv2.INTER_AREA).astype('uint8')
-            scans.append(scan_img[..., np.newaxis])
-            masks.append(mask_img[..., np.newaxis])
-    return np.array(scans, dtype='float32'), np.array(masks, dtype='float32')
-        
-
-"""
 def predictByPath(case_path,case):
-    files = next(os.walk(case_path))[2]
-    X = np.empty((VOLUME_SLICES, IMG_SIZE, IMG_SIZE, 2))
-    y = np.empty((VOLUME_SLICES, IMG_SIZE, IMG_SIZE))
-    
-    vol_path = os.path.join(case_path, f'BraTS2021_{case}_flair.nii');
-    flair=nib.load(vol_path).get_fdata()
-    
-    vol_path = os.path.join(case_path, f'BraTS2021_{case}_t1ce.nii');
-    ce=nib.load(vol_path).get_fdata() 
-    
- #   vol_path = os.path.join(case_path, f'BraTS20_Training_{case}_seg.nii');
- #   seg=nib.load(vol_path).get_fdata()  
 
-    
-    for j in range(VOLUME_SLICES):
-        X[j,:,:,0] = cv2.resize(flair[:,:,j+VOLUME_START_AT], (IMG_SIZE,IMG_SIZE))
-        X[j,:,:,1] = cv2.resize(ce[:,:,j+VOLUME_START_AT], (IMG_SIZE,IMG_SIZE))
-        #y[j,:,:] = cv2.resize(seg[:,:,j+VOLUME_START_AT], (IMG_SIZE,IMG_SIZE))
-        
-  #  model.evaluate(x=X,y=y[:,:,:,0], callbacks= callbacks)
-    return model.predict(X/np.max(X), verbose=1)
-"""
-
-"""
-def predictsById(case, start_slice = 60):
-    # Combine and save the .nii of prediction
-    path = f"{TRAIN_DATASET_PATH}\BraTS2021_{case}"
-    gt = nib.load(os.path.join(path, f'BraTS2021_{case}_seg.nii')).get_fdata()
-    origImage = nib.load(os.path.join(path, f'BraTS2021_{case}_flair.nii')).get_fdata()
-    p = predictByPath(path,case)
-
-    # Prob les class ne correspondet pas 
-    core = p[:,:,:,1]
-    edema= p[:,:,:,2]
-    enhancing = p[:,:,:,3]
-
-    #core = p[:,:,:,2]
-    #edema= p[:,:,:,1]
-    #enhancing = p[:,:,:,3]
-
-    # Combine
-    predictionNii = combine(core, edema, enhancing)
-    # Save
-    saveNifti(predictionNii, case)
-"""
-
-
-def predictByPath(case_path,case):
-    files = next(os.walk(case_path))[2]
-    X = np.empty((VOLUME_SLICES, IMG_SIZE, IMG_SIZE, 2))
-    y = np.empty((VOLUME_SLICES, IMG_SIZE, IMG_SIZE))
-    
+    X = np.empty((VOLUME_SLICES, IMG_SIZE, IMG_SIZE, 2))  
     vol_path = os.path.join(case_path, f'{case}_flair.nii');
     flair=nib.load(vol_path).get_fdata()
     
@@ -129,9 +43,6 @@ def predictsById(case):
     
 
 def combine(core, edema, enhancing):
-    '''core = thesholding(core, 0.4, 3)
-    enhancing = thesholding(enhancing, 0.45, 2)
-    edema = thesholding(edema, 0.45, 1)'''
     # Créer un tableau qui contient la classe prédite pour chaque élément 
     predicted_classes = np.where(core < 0.4, 2, 4) 
     predicted_classes = np.where((enhancing < 0.4) & (predicted_classes == 2), 1, predicted_classes)
@@ -141,11 +52,6 @@ def combine(core, edema, enhancing):
     superposed_classes[predicted_classes == 1] = 1 
     superposed_classes[predicted_classes == 2] = 2 
     superposed_classes[predicted_classes == 4] = 4
-    
-    #superposed_classes = np.where(superposed_classes == 2, 4, superposed_classes)
-    #superposed_classes = np.where(superposed_classes == 1, 2, superposed_classes)
-    #superposed_classes = np.where(superposed_classes == 3, 1, superposed_classes)
-
     # Mise en forme du tableau
     superposed_classes = superposed_classes.astype(int)
     superposed_classes = flip(predicted_classes)
@@ -161,39 +67,33 @@ def saveNifti(image) :
     nib.save(result, os.path.join(PREDICTION_PATH,NAME+".nii"))
 
 def flip(superposed_classes):
-    # Resizing the image to conform the visualizer
+    # Resize de l'image pour le visualiseur
     resized = ndimage.zoom(superposed_classes, (1,240/128,240/128))
     # Fixing the pixels value caused by resizing
-     
     resized = np.where(resized == 3, 2, resized)
     resized = np.where(resized == 5, 4, resized)
     resized = np.where(resized == 6, 4, resized)
     resized = np.where(resized == 7, 1, resized)
     resized = np.where(resized == -1, 0, resized)
-
-    # Reorganizing the image shape to(155,240,240)
+    # Réorganisation des colonnes pour être comforme au visualiseur
     flipped = np.transpose(resized, (1,2,0))
     return flipped
 
 def filter(arr, num_pixels):
-    
-    print(np.count_nonzero(arr == 1))
-    print(count_connected_voxels(arr))
+    # Choix de la calsse à étudier
     region_mask = arr == 1
+    # Calcul du nombre de voxels connectés 
     num_connected = np.sum(label(region_mask, generate_binary_structure(3, 2))[0] > 1)
     if num_connected < num_pixels:
         arr[region_mask] = 0
     return arr
 
-import numpy as np
 
 def count_connected_voxels(arr):
-    # create a binary mask of voxels with value 1
+    # Choix de la calsse à étudier
     mask = arr == 1
-    # create a structuring element for 6-connectivity
     struct = np.ones((3, 3, 3), dtype=bool)
     struct[1, 1, 1] = False
-    # use binary erosion to count connected components
     eroded = np.zeros_like(mask)
     count = 0
     while np.any(mask):
@@ -202,6 +102,3 @@ def count_connected_voxels(arr):
             count += 1
         mask[:] = np.logical_and(mask, np.logical_not(eroded))
     return count
-
-
-predictsById(case="01622")

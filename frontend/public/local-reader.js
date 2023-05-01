@@ -10,6 +10,12 @@ function classesDeSegmentation(typedData) {
     return unique;
 }
 
+/**
+ * Transforme les données de l'image au format nifti adéquat et détecte si l'image est un fichier de segmentation
+ * @param niftiHeader 
+ * @param  niftiImage 
+ * @returns un dictionnaire {typedData,isAsegmentationFile}
+ */
 function getTypedData(niftiHeader, niftiImage) {
     let isAsegmentationFile = false;
     let typedData;
@@ -36,6 +42,14 @@ function getTypedData(niftiHeader, niftiImage) {
     return { typedData, isAsegmentationFile };
 }
 
+/**
+ *  
+ * @param dim a dimension index (1,2 or 3)
+ * @param slice a value indicating the progression in the image
+ * @param array containing the data from the 3D image
+ * @param header containing the value of the dimensions of the 3D image
+ * @returns the 2d image associated 
+ */
 function getImage(dim, slice, array, header) {
     slice /= 100;
     let image
@@ -52,6 +66,11 @@ function getImage(dim, slice, array, header) {
     return image
 }
 
+/**
+ * Converts raw data of a nifti file to a set of readable data in order to display it in a canvas.
+ * @param data raw data from a file  
+ * @returns a dictionnary {data,header,isSegmentation,classesSegmentation}
+ */
 function loadNiftiFile(data) {
     let niftiHeader, niftiImage;
     // parse nifti
@@ -90,7 +109,13 @@ function loadNiftiFile(data) {
 }
 
 
-
+/**
+ * 
+ * @param canvas an html element <canvas> 
+ * @param niftifiles a list of nifti files
+ * @param nomcoupe the slice name (sagittale, axiale, coronale)
+ * @param slice the slice value (between 0 and 100) 
+ */
 function drawNiftiFiles(canvas,niftifiles,nomcoupe,slice){
     canvas.style.backgroundColor = 'black';
     let coupeId = nomcoupe == "axiale" ? 3 : nomcoupe == "sagittale" ? 1 : 2;
@@ -166,7 +191,9 @@ function drawNiftiFiles(canvas,niftifiles,nomcoupe,slice){
     ctx.putImageData(canvasImageData, 0, 0);
 }
 
-
+/**
+ * removes the legend created by createLegend()
+ */
 function removeLegend() {
     let doc = document.getElementById('legend');
     if (doc != undefined) {
@@ -174,6 +201,10 @@ function removeLegend() {
     }
 }
 
+/**
+ *  Creates a colored legend for the given segmentation classes
+ * @param classesSegmentation 
+ */
 function createLegend(classesSegmentation) {
     classesSegmentation = classesSegmentation.sort()
     let doc = document.getElementById('legend');
@@ -194,6 +225,7 @@ function createLegend(classesSegmentation) {
     }
 }
 
+//  converts an hexadecimal string to a rgb dictionnary {r,g,b}
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
@@ -202,12 +234,14 @@ function hexToRgb(hex) {
         b: parseInt(result[3], 16)
     } : null;
 }
+
+// Parses the created legend in order to fetch the associated color to the given class 
 function selectColor(idclasse) {
     value = document.getElementById('dot-class' + idclasse).value
     return hexToRgb(value);
 }
 
-
+// sets a pixel value in the given canva.
 function setPixelValue(index, canvasImageData, red, green, blue, opacity) {
     canvasImageData.data[index * 4] = red & 0xFF;
     canvasImageData.data[index * 4 + 1] = green & 0xFF;
@@ -216,8 +250,15 @@ function setPixelValue(index, canvasImageData, red, green, blue, opacity) {
     return canvasImageData;
 }
 
+/**
+ * Slices the file to a blob (see file.slice documentation for more info)
+ * @param  file 
+ * @param start 
+ * @param  length 
+ * @returns  a blob
+ */
 function makeSlice(file, start, length) {
-    var fileType = (typeof File);
+    let fileType = (typeof File);
 
     if (fileType === 'undefined') {
         return function () { };
@@ -234,18 +275,14 @@ function makeSlice(file, start, length) {
     return null;
 }
 
-function readFile(file, canvas, slider, coupe,keeplegend=true,opacityslider=undefined) {
-    let blob = makeSlice(file, 0, file.size);
-    let reader = new FileReader();
 
-    reader.onloadend = function (evt) {
-        if (evt.target.readyState === FileReader.DONE) {
-            readNIFTI(evt.target.result, canvas, slider, coupe,keeplegend,opacityslider);
-        }
-    };
 
-    reader.readAsArrayBuffer(blob);
-}
+
+/**
+ * Parses a nifti file in order to load its data.
+ * @param file a nifti file
+ * @returns a promise that ends when file is loaded containing all the necessary data to display it
+ */
 function readNiftiFile(file) {
     return new Promise((res) => {
       let blob = makeSlice(file, 0, file.size);
@@ -261,7 +298,12 @@ function readNiftiFile(file) {
     });
   }
 
-
+/**
+   * Removes all the images loaded in the canvas, and resets the slider to 50.
+   * @param idCanvas the id of the html element of the canvas
+   * @param idSlider the id of the html element of the slider
+   * 
+   */
 function resetCanvas(idCanvas, idSlider) {
     let slider = document.getElementById(idSlider);
     slider.value = 50;

@@ -4,9 +4,17 @@ Nous avons développé une solution intitulée "Visual Gliome" : une application
 ## Demo
 ### En ligne
 Testez le par vous même, sur [visualgliome.bdezordo.com](https://visualgliome.bdezordo.com/).
+### Wiki & documentation
+De nombreuses vidéos sont disponibles sur le [wiki](https://github.com/FenrirWolf4566/brain-tumor/wiki) de ce projet. Elles détaillent l'ensemble des fonctionnalités de l'application.
+Vous pouvez aussi lire les fichiers présents dans le dossier documentation du projet. Ils détaillent le déroulement du projet. 
 ### Visualiseur
 
-https://user-images.githubusercontent.com/62034725/230747859-aebeead9-1fa0-4ec5-af31-305cbb68d956.mp4
+https://user-images.githubusercontent.com/62034725/235468097-ab5b96d0-575a-4919-a4a3-90ca13e077f3.mp4
+
+### Analyseur
+
+https://user-images.githubusercontent.com/62034725/235467236-7c909dfa-b444-4e06-be60-580fc94e93eb.mp4
+
 
 ## Installation 
 ### Configuration
@@ -44,8 +52,6 @@ cd frontend/
 npm run start
 ```
 
-### IA
-
 ### VSCode
 Si vous utilisez Visual Studio Code, vous pouvez lancer le backend, le frontend et Chrome en 1 seule action (Sélectionner le profil 'All' dans 'Exécuter et Débuguer', puis appuyez sur F5).
 
@@ -57,9 +63,6 @@ Par défaut, cela va chercher l'image du [frontend](https://hub.docker.com/repos
 ## A propos
 Dataset utilisé
 https://www.kaggle.com/datasets/dschettler8845/brats-2021-task1
-
-## Documentation
-Le répertoire éponyme contient les rapports de management, d'architecture et de management.
 
 ## Auteurs
 FILOCHE Léo <br>

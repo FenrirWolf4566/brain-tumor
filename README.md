@@ -3,7 +3,7 @@ brain-tumor est le nom de ce projet notre projet d'ESIR2 SI. Ce dépôt contient
 Nous avons développé une solution intitulée "Visual Gliome" : une application web permettant de prédire les zones cancéreuses d'un cerveau, appelées "gliomes", sur base d'images d'IRM.
 ## Demo
 ### En ligne
-Testez le par vous même, sur [visualgliome.bdezordo.com](https://visualgliome.bdezordo.com/).
+Testez le par vous même, sur [http://visualgliome.bdezordo.com/](http://visualgliome.bdezordo.com/).
 ### Wiki & documentation
 De nombreuses vidéos sont disponibles sur le [wiki](https://github.com/FenrirWolf4566/brain-tumor/wiki) de ce projet. Elles détaillent l'ensemble des fonctionnalités de l'application.
 Vous pouvez aussi lire les fichiers présents dans le dossier documentation du projet. Ils détaillent le déroulement du projet. 
@@ -53,7 +53,7 @@ npm run start
 ```
 
 ### VSCode
-Si vous utilisez Visual Studio Code, vous pouvez lancer le backend, le frontend et Chrome en 1 seule action (Sélectionner le profil 'All' dans 'Exécuter et Débuguer', puis appuyez sur F5).
+Si vous utilisez Visual Studio Code, vous pouvez lancer le backend, le frontend et Chrome en 1 seule action (Sélectionner le profil 'DEV' dans 'Exécuter et Débuguer', puis appuyez sur F5).
 
 ## Docker
 Cette app peut aussi tourner sur Docker. 

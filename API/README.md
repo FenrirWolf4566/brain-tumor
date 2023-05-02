@@ -29,3 +29,11 @@ Vous pouvez construire l'image du backend avec l'image suivante.
 
 ## Users
 Chaque product owner dispose d'un id, nom, mail, mot de passe et peut se connecter
+
+## Tests
+Vous pouvez exécuter les différents tests écrits dans le dossier test/ en vous plaçant à la **racine** du projet.
+```bash
+# Une fois à la racine du projet
+pytest --show-progress
+``` 
+Attention, les tests prennent du temps à être exécutés (environ 4 minutes).

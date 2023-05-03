@@ -1,6 +1,6 @@
 # brain-tumor
-brain-tumor est le nom de ce projet notre projet d'ESIR2 SI. Ce dépôt contient notre code source et sa documentation.<br>
-Nous avons développé une solution intitulée "Visual Gliome" : une application web permettant de prédire les zones cancéreuses d'un cerveau, appelées "gliomes", sur base d'images d'IRM.
+brain-tumor est le nom de notre projet d'ESIR2 SI. Ce dépôt contient notre code source et sa documentation.<br>
+Nous avons développé une solution intitulée "Visual Gliome" : une application web permettant de prédire grâce à l'IA les zones cancéreuses d'un cerveau, appelées "gliomes", sur base d'images d'IRM.
 ## Demo
 ### En ligne
 Testez le par vous même, sur [http://visualgliome.bdezordo.com/](http://visualgliome.bdezordo.com/).
@@ -61,8 +61,8 @@ Il suffit d'exécuter ```docker-compose up```.
 Par défaut, cela va chercher l'image du [frontend](https://hub.docker.com/repository/docker/lfiloche/vg_front) et du [backend](https://hub.docker.com/repository/docker/lfiloche/vg_back) stockés sur DockerHub. Il est aussi possible de créer vous même vos images, avec ```docker-compose build```.
 
 ## A propos
-Dataset utilisé
-https://www.kaggle.com/datasets/dschettler8845/brats-2021-task1
+Les fichiers .nii présents dans ce projet proviennent du dataset suivant. [https://www.kaggle.com/datasets/dschettler8845/brats-2021-task1](https://www.kaggle.com/datasets/dschettler8845/brats-2021-task1) <br>
+Le modèle qui a été utilisé pour la prédiction est issu de [https://www.kaggle.com/code/rastislav/3d-mri-brain-tumor-segmentation-u-net](https://www.kaggle.com/code/rastislav/3d-mri-brain-tumor-segmentation-u-net)
 
 ## Auteurs
 FILOCHE Léo <br>
